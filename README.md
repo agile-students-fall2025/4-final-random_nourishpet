@@ -1,19 +1,46 @@
-# Project Repository
+# NourishPet
 
-This repository will be used for team projects.
+## Project Description
 
-Several sets of instructions are included in this repository. They should each be treated as separate assignments with their own due dates and sets of requirements.
+**NourishPet** is a web application that transforms nutrition tracking into an engaging, game-like experience.  
+Users “raise” a virtual pet that thrives when they make healthy food choices — turning meal logging and wellness tracking into a source of motivation and fun.
 
-1. See the [App Map & Wireframes](instructions-0a-app-map-wireframes.md) and [Prototyping](./instructions-0b-prototyping.md) instructions for the requirements of the initial user experience design of the app.
+---
 
-1. Delete the contents of this file and replace with the contents of a proper README.md, as described in the [project setup instructions](./instructions-0c-project-setup.md)
 
-1. See the [Sprint Planning instructions](instructions-0d-sprint-planning.md) for the requirements of Sprint Planning for each Sprint.
+## Vision Statement/Minimum Viable Product
 
-1. See the [Front-End Development instructions](./instructions-1-front-end.md) for the requirements of the initial Front-End Development.
+**NourishPet** will include (at least) the following essential features:
 
-1. See the [Back-End Development instructions](./instructions-2-back-end.md) for the requirements of the initial Back-End Development.
+- **Pet Growth Mechanic:** A virtual pet that grows, levels up, or changes mood based on the user’s nutritional choices.  
+- **Meal Logging:** Users can log meals manually or by scanning barcodes.  
+- **Nutrition Analysis:** Users can review their calories, macronutrients, and key vitamins/minerals.  
+- **Daily Goal Tracking:** Visual indicators for meeting calorie and nutrient goals.  
+- **Gamified Feedback:** Positive reinforcement through streaks, achievements, and animations.
 
-1. See the [Database Integration instructions](./instructions-3-database.md) for the requirements of integrating a database into the back-end.
+---
 
-1. See the [Deployment instructions](./instructions-4-deployment.md) for the requirements of deploying an app.
+## Team Members
+
+- **Naseem Uddin** — [@Naseem-Uddin](https://github.com/Naseem-Uddin)  
+- **Ethan Arnold** — [@ethanarnold](https://github.com/ethanarnold)  
+- **Amal Faisal** — [@amal-faisal](https://github.com/amal-faisal)  
+- **Becky** —
+
+---
+
+## Team History
+
+We are a team of students collaborating on a class project for Agile Software development.  
+During ideation, we chose to create **NourishPet** because we wanted to bring our creativity and lightheartedness to the difficult realm of nutrition. We hope to integrate technology, design, and behavioral psychology to promote healthier habits.  
+We're hoping to practitce the Scrum framework, with sprint-based milestones, spikes, and task boards managed via GitHub Projects.
+
+For contribution details, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## Build & Test Instructions
+
+_This section will be updated as development progresses._
+
+
