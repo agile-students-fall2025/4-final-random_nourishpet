@@ -25,7 +25,7 @@ Users “raise” a virtual pet that thrives when they make healthy food choices
 - **Naseem Uddin** — [@Naseem-Uddin](https://github.com/Naseem-Uddin)  
 - **Ethan Arnold** — [@ethanarnold](https://github.com/ethanarnold)  
 - **Amal Faisal** — [@amal-faisal](https://github.com/amal-faisal)  
-- **Becky** —
+- **Becky Tan** — [@beckytan](https://github.com/beckytan)
 
 ---
 
