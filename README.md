@@ -26,6 +26,7 @@ Users “raise” a virtual pet that thrives when they make healthy food choices
 - **Ethan Arnold** — [@ethanarnold](https://github.com/ethanarnold)  
 - **Amal Faisal** — [@amal-faisal](https://github.com/amal-faisal)  
 - **Becky Tan** — [@beckytan](https://github.com/beckytan)
+- **Avi Herman** — [@avih7531](https://github.com/avih7531)
 
 ---
 
