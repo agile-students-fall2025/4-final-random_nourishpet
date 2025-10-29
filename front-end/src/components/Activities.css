@@ -1,0 +1,227 @@
+.activities-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+}
+
+.activities-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #764ba2;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.back-button:hover {
+  color: #667eea;
+}
+
+.page-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  color: #764ba2;
+  margin: 0;
+  font-weight: bold;
+}
+
+.menu-container {
+  position: relative;
+}
+
+.hamburger-menu {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #764ba2;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.hamburger-menu:hover {
+  color: #667eea;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  margin-top: 0.5rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-menu button {
+  padding: 0.75rem 1rem;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: #333;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-menu button:hover {
+  background-color: #f5f5f5;
+}
+
+.dropdown-menu button:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.dropdown-menu button:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+.activities-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.image-upload-section {
+  display: flex;
+  justify-content: center;
+}
+
+.image-upload-box {
+  width: 200px;
+  height: 200px;
+  border: 2px dashed #e0e0e0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.image-upload-box:hover {
+  border-color: #764ba2;
+  background-color: #f9f9f9;
+}
+
+.upload-icon {
+  color: #666;
+  font-size: 1rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.dropdown-select {
+  padding: 0.875rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background-color: white;
+}
+
+.dropdown-select:focus {
+  outline: none;
+  border-color: #764ba2;
+  box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+}
+
+.post-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 1.25rem;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+}
+
+.post-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+}
+
+.post-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.post-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .activities-card {
+    padding: 1.5rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .image-upload-box {
+    width: 150px;
+    height: 150px;
+  }
+}
+
