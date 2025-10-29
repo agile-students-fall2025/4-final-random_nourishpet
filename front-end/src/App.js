@@ -39,7 +39,7 @@ function App() {
         <Route path="/profile" element={<ProfileScreen />} />
         <Route path="/update-username" element={<UpdateUsername />} />
         <Route path="/update-password" element={<UpdatePassword />} />
-        <Route path="/generatemealplan" element={<Meal />} />
+        <Route path="/generate-meal-plan" element={<Meal />} />
       </Routes>
     </Router>
   );

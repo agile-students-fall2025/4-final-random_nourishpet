@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Meal.css';
 
 function Meal() {
@@ -8,17 +9,38 @@ function Meal() {
   const [allergies, setAllergies] = useState('');
   const [budget, setBudget] = useState('');
   const [description, setDescription] = useState('');
+  const navigate = useNavigate();
+  const [showMenu, setShowMenu] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
   };
 
+//   const handlePost = () => {
+//     console.log('Posting activity:', { activityType, timeSpent, selectedImage });
+//     navigate('/connect-socials'); //take them to add socials page
+//   };
+
 return (
     <div className="generateplan-container">
         <div className="generateplan-card">
-            <div className="generateplan-header">
-                <h1 className="app-logo">NourishPet</h1>
-                <h2 className="meal-subheader">Generate Meal Plan</h2>
+            <div className="top-bar">
+                <button className="back-button" onClick={() => navigate(-1)}>
+                    ← Back
+                </button>
+                <h1 className="page-title">Generate Plan</h1>
+                <div className="menu-container">
+                    <button className="hamburger-menu" onClick={() => setShowMenu(!showMenu)}>
+                    ☰
+                    </button>
+                    {showMenu && (
+                    <div className="dropdown-menu">
+                        <button onClick={() => navigate('/biometrics')}>Biometric Data</button>
+                        <button onClick={() => navigate('/activities')}>Activities</button>
+                        <button onClick={() => navigate('/signin')}>Sign Out</button>
+                    </div>
+                    )}
+                </div>
             </div>
 
             <form className="generateplan-form" onSubmit={handleSubmit}>
