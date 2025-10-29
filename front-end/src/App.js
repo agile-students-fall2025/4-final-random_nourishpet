@@ -11,6 +11,7 @@ import MainScreen from './components/MainScreen';
 import ProfileScreen from './components/ProfileScreen';
 import UpdateUsername from './components/UpdateUsername';
 import UpdatePassword from './components/UpdatePassword';
+import Meal from './components/Meal';
 import LogCalories from './components/LogCalories';
 
 
@@ -40,6 +41,7 @@ function App() {
         <Route path="/profile" element={<ProfileScreen />} />
         <Route path="/update-username" element={<UpdateUsername />} />
         <Route path="/update-password" element={<UpdatePassword />} />
+        <Route path="/generate-meal-plan" element={<Meal />} />
         <Route path="/log-calories" element={<LogCalories />} />
       </Routes>
     </Router>
