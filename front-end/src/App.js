@@ -7,6 +7,10 @@ import Activities from './components/Activities';
 import ConnectSocials from './components/ConnectSocials';
 import Biometrics from './components/Biometrics';
 import UpdateBiometrics from './components/UpdateBiometrics';
+import MainScreen from './components/MainScreen';
+import ProfileScreen from './components/ProfileScreen';
+import UpdateUsername from './components/UpdateUsername';
+import UpdatePassword from './components/UpdatePassword';
 
 function Home() {
   return (
@@ -30,6 +34,10 @@ function App() {
         <Route path="/connect-socials" element={<ConnectSocials />} />
         <Route path="/biometrics" element={<Biometrics />} />
         <Route path="/update-biometrics" element={<UpdateBiometrics />} />
+        <Route path="/main" element={<MainScreen />} />
+        <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/update-username" element={<UpdateUsername />} />
+        <Route path="/update-password" element={<UpdatePassword />} />
       </Routes>
     </Router>
   );
