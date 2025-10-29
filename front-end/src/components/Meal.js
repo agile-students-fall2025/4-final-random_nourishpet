@@ -35,11 +35,12 @@ return (
                         onChange={(e) => setGoal(e.target.value)}
                     >
                         <option value="" disabled>Select Goal</option>
-                        <option value="goal 1">Goal 1</option>
-                        <option value="goal 2">Goal 2</option>
-                        <option value="goal 3">Goal 3</option>
+                        <option value="goal 1">Weight Loss</option>
+                        <option value="goal 2">Muscle Gain</option>
+                        <option value="goal 3">Balanced Diet</option>
+                        <option value="goal 4">Mindful Eating</option>
                     </select>
-                    <label htmlFor="goal">Choose what you'd like to focus on: weight loss, muscle gain, or balance</label>
+                    <label htmlFor="goal">Choose your focus: weight loss, muscle gain, balance, or mindful eating</label>
                 </div>
 
                 <div className="form-group">
@@ -49,56 +50,58 @@ return (
                         onChange={(e) => setDuration(e.target.value)}
                     >
                         <option value="" disabled>Choose Duration</option>
-                        <option value="duration 1">Duration 1</option>
-                        <option value="duration 2">Duration 2</option>
-                        <option value="duration 3">Duration 3</option>
+                        <option value="duration 1">3-Day Plan</option>
+                        <option value="duration 2">7-Day Plan</option>
+                        <option value="duration 3">14-Day Plan</option>
+                        <option value="duration 4">30-Day Plan</option>
                     </select>
-                    <label htmlFor="duration">Select how long you want your plan to last</label>
+                    <label htmlFor="duration">Select the duration of your meal plan</label>
                 </div>
 
                 <div className="form-group">
                     <input
-                        type="restrictions"
+                        type="text"
                         id="restrictions"
                         name="restrictions"
                         value={restrictions}
                         onChange={(e) => setRestrictions(e.target.value)}
-                        placeholder="Dietary Restrictions (if any)"
+                        placeholder="Enter dietary restrictions (if any)"
                         required
                     />
                 </div>
 
                 <div className="form-group">
                     <input
-                        type="allergies"
+                        type="text"
                         id="allergies"
                         name="allergies"
                         value={allergies}
                         onChange={(e) => setAllergies(e.target.value)}
-                        placeholder="Allergies (if any)"
+                        placeholder="Enter allergies (if any)"
                         required
                     />
                 </div>
 
                 <div className="form-group">
                     <input
-                        type="budget"
+                        type="text"
                         id="budget"
                         name="budget"
                         value={budget}
                         onChange={(e) => setBudget(e.target.value)}
-                        placeholder="Ideal Budget (in USD)"
+                        placeholder="Enter your ideal budget (in USD)"
                         required
                     />
                 </div>
+
                 <div className="form-group">
-                    <input
-                        type="description"
-                        id="description"
-                        name="description"
+                    <textarea
+                        id="description-input"
+                        name="description-input"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Please describe your ideal meal plan in up to 400 characters..."
+                        placeholder="Describe your ideal meal plan (in up to 400 characters)"
+                        maxLength="400"
                         required
                     />
                 </div>
