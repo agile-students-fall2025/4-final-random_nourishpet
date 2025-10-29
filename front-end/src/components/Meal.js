@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './Meal.css';
 
 function Meal() {
@@ -9,14 +8,9 @@ function Meal() {
   const [allergies, setAllergies] = useState('');
   const [budget, setBudget] = useState('');
   const [description, setDescription] = useState('');
-  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Frontend only - just log the values
-    // console.log('Sign in attempted with:', { email, password });
-    // In a real app, you would navigate to dashboard here
-    // navigate('/dashboard');
   };
 
 return (
