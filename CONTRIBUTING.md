@@ -53,6 +53,44 @@ This is our shared Git workflow for all sprints. Every branch, commit, and pull 
 5. **Open a Pull Request (PR)**  
 6. **Review & Merge**  
 
-## Build and Test Instructions
+---
 
-_To be updated_
+## Build & Test Instructions
+
+### Front-End Development
+
+The front-end is built with React.js. To get started:
+
+1. Fork the [repository](https://github.com/agile-students-fall2025/4-final-random_nutripal) on GitHub.
+
+2. Clone the repository onto your machine:
+    ```bash
+    git clone https://github.com/agile-students-fall2025/4-final-random_nutripal
+    ```
+
+3. Navigate to the front-end directory:
+   ```bash
+   cd front-end
+   ```
+
+4. Install dependencies (first time only):
+   ```bash
+   npm install
+   ```
+
+5. Start the development server:
+   ```bash
+   npm start
+   ```
+
+6. The app will open at [http://localhost:3000](http://localhost:3000).
+
+### Back-End Development
+
+_This section will be updated as development progresses._
+
+### Database Setup
+
+_This section will be updated as development progresses._
+
+
