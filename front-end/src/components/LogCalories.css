@@ -183,16 +183,6 @@
   transition: transform 0.2s ease, color 0.3s ease;
 }
 
-.edit-btn:hover {
-  transform: scale(1.2);
-  color: #667eea;
-}
-
-.delete-btn:hover {
-  transform: scale(1.2);
-  color: crimson;
-}
-
 /* Empty Table State */
 .empty-message {
   text-align: center;
@@ -213,4 +203,54 @@
   .logcal-title {
     font-size: 1.25rem;
   }
+}
+
+/* Dropdown + Hamburger Menu */
+.menu-container {
+  position: relative;
+}
+
+.hamburger-menu {
+  background: none;
+  border: none;
+  color: #764ba2 !important;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.hamburger-menu:hover,
+.hamburger-menu:focus,
+.hamburger-menu:active {
+  color: #764ba2 !important;
+  transform: scale(1.05);
+  outline: none;
+}
+
+/* Dropdown menu styling (i copied from Activities for consistency) */
+.dropdown-menu {
+  position: absolute;
+  top: 2.5rem;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.dropdown-menu button {
+  background: none;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #333;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-menu button:hover {
+  background: rgba(118, 75, 162, 0.1);
+  color: #764ba2;
 }
