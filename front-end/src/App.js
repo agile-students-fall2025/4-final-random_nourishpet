@@ -13,6 +13,7 @@ import UpdateUsername from './components/UpdateUsername';
 import UpdatePassword from './components/UpdatePassword';
 import Meal from './components/Meal';
 import LogCalories from './components/LogCalories';
+import FocusMode from './components/FocusMode';
 
 
 function Home() {
@@ -43,6 +44,7 @@ function App() {
         <Route path="/update-password" element={<UpdatePassword />} />
         <Route path="/generate-meal-plan" element={<Meal />} />
         <Route path="/log-calories" element={<LogCalories />} />
+        <Route path="/focus-mode" element={<FocusMode />} />
       </Routes>
     </Router>
   );
