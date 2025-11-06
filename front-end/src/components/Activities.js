@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaBars, FaArrowLeft } from 'react-icons/fa';
 import './Activities.css';
 
 function Activities() {
@@ -24,7 +25,7 @@ function Activities() {
 
   const handlePost = () => {
     console.log('Posting activity:', { activityType, timeSpent, selectedImage });
-    navigate('/connect-socials'); //take them to add socials page
+    navigate('/connect-socials');
   };
 
   return (
@@ -32,18 +33,25 @@ function Activities() {
       <div className="activities-card">
         <div className="top-bar">
           <button className="back-button" onClick={() => navigate(-1)}>
-            ← Back
+            <FaArrowLeft size={18} style={{ marginRight: '6px' }} />
           </button>
           <h1 className="page-title">Activity</h1>
           <div className="menu-container">
             <button className="hamburger-menu" onClick={() => setShowMenu(!showMenu)}>
-              ☰
+              <FaBars size={22} />
             </button>
             {showMenu && (
               <div className="dropdown-menu">
+                <button onClick={() => navigate('/log-calories')}>Log Calories</button>
+                <button onClick={() => navigate('/my-meal-plan')}>My Meal Plan</button>
+                <button onClick={() => navigate('/generate-meal-plan')}>Generate Meal Plan</button>
+                <button onClick={() => navigate('/manage-plan')}>Manage Plan</button>
+                <button onClick={() => navigate('/activities')}>Log Activity</button>
+                <button onClick={() => navigate('/focus-mode')}>Focus Mode</button>
                 <button onClick={() => navigate('/biometrics')}>Biometric Data</button>
-                <button onClick={() => navigate('/activities')}>Activities</button>
-                <button onClick={() => navigate('/signin')}>Sign Out</button>
+                <button onClick={() => navigate('/connect-socials')}>Connect Socials</button>
+                <button onClick={() => navigate('/profile')}>Profile</button>
+                <button onClick={() => navigate('/signin')}>Logout</button>
               </div>
             )}
           </div>
@@ -76,7 +84,6 @@ function Activities() {
                 onChange={(e) => setActivityType(e.target.value)}
                 className="dropdown-select"
               >
-                {/* default list of activity types will be updated in the future */}
                 <option value="">Select activity type</option>
                 <option value="cardio">Cardio</option>
                 <option value="strength">Strength Training</option>
@@ -95,7 +102,6 @@ function Activities() {
                 onChange={(e) => setTimeSpent(e.target.value)}
                 className="dropdown-select"
               >
-                {/* default list of times will be updated */}
                 <option value="">Select time</option>
                 <option value="15">15 minutes</option>
                 <option value="30">30 minutes</option>
@@ -121,4 +127,3 @@ function Activities() {
 }
 
 export default Activities;
-
