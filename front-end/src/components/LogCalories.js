@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa'; 
+import { useNavigate } from 'react-router-dom';
+import { FaBars, FaArrowLeft, FaEdit, FaTrash } from 'react-icons/fa'; 
 import './LogCalories.css';
 
 function LogCalories() {
+  const navigate = useNavigate();
   const [meal, setMeal] = useState('');
   const [calories, setCalories] = useState('');
   const [meals, setMeals] = useState([]); 
-  const [date, setDate] = useState('10/13/2025');
+  const [date] = useState(() => {
+    const today = new Date();
+    return today.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+  });
+
+  const [showMenu, setShowMenu] = useState(false);
 
   const handleAddMeal = (e) => {
     e.preventDefault();
@@ -40,9 +47,30 @@ function LogCalories() {
   return (
     <div className="logcal-container">
       <header className="logcal-header">
-        <button className="icon-button">←</button>
+        <button className="back-button" onClick={() => navigate(-1)}>
+          <FaArrowLeft size={18} style={{ marginRight: '6px' }} />
+        </button>
         <h2 className="logcal-title">Log Calories</h2>
-        <button className="icon-button">☰</button>
+
+        <div className="menu-container">
+          <button className="hamburger-menu" onClick={() => setShowMenu(!showMenu)}>
+            <FaBars size={22} />
+          </button>
+          {showMenu && (
+            <div className="dropdown-menu">
+              <button onClick={() => navigate('/log-calories')}>Log Calories</button>
+              <button onClick={() => navigate('/my-meal-plan')}>My Meal Plan</button>
+              <button onClick={() => navigate('/generate-meal-plan')}>Generate Meal Plan</button>
+              <button onClick={() => navigate('/manage-plan')}>Manage Plan</button>
+              <button onClick={() => navigate('/activities')}>Log Activity</button>
+              <button onClick={() => navigate('/focus-mode')}>Focus Mode</button>
+              <button onClick={() => navigate('/biometrics')}>Biometric Data</button>
+              <button onClick={() => navigate('/connect-socials')}>Connect Socials</button>
+              <button onClick={() => navigate('/profile')}>Profile</button>
+              <button onClick={() => navigate('/signin')}>Logout</button>
+            </div>
+          )}
+        </div>
       </header>
 
       <form className="logcal-form" onSubmit={handleAddMeal}>
