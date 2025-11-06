@@ -6,8 +6,7 @@
   align-items: center;
   position: relative;
   color: #333;
-  overflow: hidden;
-  padding: 2rem 1rem;
+  padding: 2rem 2rem;
 }
 
 .focus-overlay {
@@ -28,10 +27,13 @@
   align-items: center;
   background: white;
   border-radius: 12px;
-  padding: 1rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   margin-bottom: 1.5rem;
   z-index: 10;
+  position: relative;
+  z-index: 50; 
+  overflow: visible;
 }
 
 .focus-title {
@@ -40,31 +42,35 @@
   color: #333;
 }
 
-.icon-button {
+.icon-button,
+.hamburger-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 40px;
   background: none;
   border: none;
+  color: #764ba2;
   font-size: 1.4rem;
   cursor: pointer;
-  color: #764ba2;
+  padding: 0;
   transition: transform 0.2s ease;
 }
 
-.icon-button:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
 
 .timer-box {
   background: white;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  padding: 2rem;
+  padding: 1.8rem;
   text-align: center;
   width: 100%;
   max-width: 600px;
-  margin-bottom: 2rem;
+  margin-bottom: 1.4rem;
   z-index: 10;
 }
+
 
 .focus-container .timer-display {
   font-size: 2.5rem;
@@ -156,23 +162,5 @@
   opacity: 0.4;
 }
 
-@media (max-width: 480px) {
-  .focus-header,
-  .timer-box {
-    width: 100%;
-    padding: 1.25rem;
-  }
 
-  .focus-title {
-    font-size: 1.25rem;
-  }
 
-  .timer-display {
-    font-size: 1.6rem;
-  }
-
-  .pet-image {
-    width: 200px;
-    height: 200px;
-  }
-}
