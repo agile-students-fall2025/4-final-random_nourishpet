@@ -37,38 +37,3 @@ During ideation, we chose to create **NourishPet** because we wanted to bring ou
 We're hoping to practitce the Scrum framework, with sprint-based milestones, spikes, and task boards managed via GitHub Projects.
 
 For contribution details, see [CONTRIBUTING.md](CONTRIBUTING.md).
-
----
-
-## Build & Test Instructions
-
-### Front-End Development
-
-The front-end is built with React.js. To get started:
-
-1. Navigate to the front-end directory:
-   ```bash
-   cd front-end
-   ```
-
-2. Install dependencies (first time only):
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm start
-   ```
-
-4. The app will open at [http://localhost:3000](http://localhost:3000)
-
-### Back-End Development
-
-_This section will be updated as development progresses._
-
-### Database Setup
-
-_This section will be updated as development progresses._
-
-
