@@ -1,7 +1,6 @@
 
 # Contributing
 
-
 ## Team Norms
 
 ### Team Values
@@ -18,9 +17,8 @@
 
 ### Daily Standups
 
-[](https://github.com/nyu-software-engineering/scrum-framework/blob/main/team-norms.md#daily-standups)
--   Every Monday, Wednesday, and Thursday, the team meets on Zoom at 12 PM EST for a 45-minute Daily Standup.
-- At each Standup, each developer answers: 
+- Every Thursday from 2-3 PM and Wednesday from 6:30-7:30 PM, the team meets on Zoom for a standup.
+- At each standup, each developer answers: 
 	-   What have you done since last time?
 	-   What are you doing now?
 	-   Is there anything blocking your progress?
@@ -30,8 +28,8 @@
 
 ### Coding Standards
 
-Our team codes in **Visual Studio Code** using **Prettier** for consistent formatting.  
-- All code must be peer-reviewed and tested before merging into `main`.
+Our team codes in **Visual Studio Code** using **Prettier** and **ESLint** for consistent formatting.  
+- All code must be peer-reviewed and tested before merging into `master`.
 - Only push working code; if you break things, fix them right away.  
 - Commit small, focused changes with clear messages.  
 - Write readable, self-documenting code with meaningful names.  
@@ -42,10 +40,10 @@ Our team codes in **Visual Studio Code** using **Prettier** for consistent forma
 
 This is our shared Git workflow for all sprints. Every branch, commit, and pull request should follow this process to keep our code clean, reviewed, and in sync.
 
-1. **Pull latest main**
+1. **Pull latest master**
 2. **Create a new branch**
 - Formatting examples:
-    - `task/<name>` 
+    - `task/<name>`
     - `spike/<name>` 
     - `bugfix/<name>`
 3. **Commit small changes**
@@ -53,6 +51,44 @@ This is our shared Git workflow for all sprints. Every branch, commit, and pull 
 5. **Open a Pull Request (PR)**  
 6. **Review & Merge**  
 
-## Build and Test Instructions
+---
 
-_To be updated_
+## Build & Test Instructions
+
+### Front-End Development
+
+The front-end is built with React.js. To get started:
+
+1. Fork the [repository](https://github.com/agile-students-fall2025/4-final-random_nutripal) on GitHub.
+
+2. Clone the repository onto your machine:
+    ```bash
+    git clone https://github.com/agile-students-fall2025/4-final-random_nutripal
+    ```
+
+3. Navigate to the front-end directory:
+   ```bash
+   cd front-end
+   ```
+
+4. Install dependencies (first time only):
+   ```bash
+   npm install
+   ```
+
+5. Start the development server:
+   ```bash
+   npm start
+   ```
+
+6. The app will open at [http://localhost:3000](http://localhost:3000).
+
+### Back-End Development
+
+_This section will be updated as development progresses._
+
+### Database Setup
+
+_This section will be updated as development progresses._
+
+
