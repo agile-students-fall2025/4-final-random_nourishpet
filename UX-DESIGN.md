@@ -1,10 +1,10 @@
 # UX Design Documentation
 
-This document presents the prototype, app map, and the complete set of wireframes for the nourishpet project.  
+This document presents the prototype, app map, and the complete set of wireframes for the NutriPal project.  
 
 ## Interactive Prototype
 
-Our initial prototype showcases an example of the minimum viable product of nourishpet with interactive wireframe diagrams. It is viewable [here](https://www.figma.com/proto/ZUZtsZU2b6FteRoFpRN528/Random_NourishPet?node-id=0-1&t=c58JPs3iFqfZW9Px-1)!
+Our initial prototype showcases an example of the minimum viable product of NutriPal with interactive wireframe diagrams. It is viewable [here](https://www.figma.com/proto/ZUZtsZU2b6FteRoFpRN528/Random_NourishPet?node-id=0-1&t=c58JPs3iFqfZW9Px-1)!
 
 You can access the prototype source files at [Google Drive](https://drive.google.com/drive/folders/1bYv3y7M9t8yZWd8Hfi3gr0gRvOHKrtrQ?usp=sharing).
 
