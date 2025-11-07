@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import HamburgerMenu from './HamburgerMenu';
 import './ProfileScreen.css';
 
 function ProfileScreen() {
@@ -13,11 +14,7 @@ function ProfileScreen() {
             ←
           </div>
           <h1 className="profile-title">Profile</h1>
-          <div className="menu-icon">
-            <div className="menu-line"></div>
-            <div className="menu-line"></div>
-            <div className="menu-line"></div>
-          </div>
+          <HamburgerMenu />
         </div>
 
         <div className="profile-form">

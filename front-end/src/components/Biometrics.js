@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import HamburgerMenu from './HamburgerMenu';
 import './Biometrics.css';
 
 function Biometrics() {
   const navigate = useNavigate();
-  const [showMenu, setShowMenu] = useState(false);
   const [biometricData, setBiometricData] = useState({
     height: 'Set data for meal plan',
     weight: 'Set data for meal plan',
@@ -50,18 +50,7 @@ function Biometrics() {
             ← Back
           </button>
           <h1 className="page-title">Biometric Data</h1>
-          <div className="menu-container">
-            <button className="hamburger-menu" onClick={() => setShowMenu(!showMenu)}>
-              ☰
-            </button>
-            {showMenu && (
-              <div className="dropdown-menu">
-                <button onClick={() => navigate('/biometrics')}>Biometric Data</button>
-                <button onClick={() => navigate('/activities')}>Activities</button>
-                <button onClick={() => navigate('/signin')}>Sign Out</button>
-              </div>
-            )}
-          </div>
+          <HamburgerMenu />
         </div>
 
         <div className="biometrics-content">

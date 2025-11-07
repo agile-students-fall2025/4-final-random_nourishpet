@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import HamburgerMenu from './HamburgerMenu';
 import './ManagePlan.css';
 
 function ManagePlan() {
@@ -13,6 +14,7 @@ function ManagePlan() {
             ← Back
           </button>
           <h1 className="page-title">Manage Plan</h1>
+          <HamburgerMenu />
         </div>
 
         <div className="manage-plan-content">

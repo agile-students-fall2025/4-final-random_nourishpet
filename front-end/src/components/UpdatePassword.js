@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import HamburgerMenu from './HamburgerMenu';
 import './UpdatePassword.css';
 
 function UpdatePassword() {
@@ -13,7 +14,7 @@ function UpdatePassword() {
             ←
           </div>
           <h1 className="update-password-title">Forgot Password</h1>
-          <div className="spacer"></div>
+          <HamburgerMenu />
         </div>
 
         <div className="update-password-form">

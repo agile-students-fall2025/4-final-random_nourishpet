@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import HamburgerMenu from './HamburgerMenu';
 import './UpdateBiometrics.css';
 
 function UpdateBiometrics() {
   const navigate = useNavigate();
-  const [showMenu, setShowMenu] = useState(false);
   const [formData, setFormData] = useState({
     height: '',
     weight: '',
@@ -64,18 +64,7 @@ function UpdateBiometrics() {
             ← Back
           </button>
           <h1 className="page-title">Update Biometric Data</h1>
-          <div className="menu-container">
-            <button className="hamburger-menu" onClick={() => setShowMenu(!showMenu)}>
-              ☰
-            </button>
-            {showMenu && (
-              <div className="dropdown-menu">
-                <button onClick={() => navigate('/biometrics')}>Biometric Data</button>
-                <button onClick={() => navigate('/activities')}>Activities</button>
-                <button onClick={() => navigate('/signin')}>Sign Out</button>
-              </div>
-            )}
-          </div>
+          <HamburgerMenu />
         </div>
         {/* default form fields will be updated to take in inches/cm, and kg/lbs */}
         <div className="update-biometrics-content">

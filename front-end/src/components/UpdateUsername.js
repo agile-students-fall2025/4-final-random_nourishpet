@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import HamburgerMenu from './HamburgerMenu';
 import './UpdateUsername.css';
 
 function UpdateUsername() {
@@ -13,7 +14,7 @@ function UpdateUsername() {
             ←
           </div>
           <h1 className="update-username-title">Update Username</h1>
-          <div className="spacer"></div>
+          <HamburgerMenu />
         </div>
 
         <div className="update-username-form">

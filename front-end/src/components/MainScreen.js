@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import HamburgerMenu from './HamburgerMenu';
 import './MainScreen.css';
 
 function MainScreen() {
@@ -16,11 +17,7 @@ function MainScreen() {
               className="avatar-image"
             />
           </div>
-          <div className="menu-icon">
-            <div className="menu-line"></div>
-            <div className="menu-line"></div>
-            <div className="menu-line"></div>
-          </div>
+          <HamburgerMenu />
         </div>
 
         <div className="streak-button">
