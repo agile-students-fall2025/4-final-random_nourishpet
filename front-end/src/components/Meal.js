@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import HamburgerMenu from './HamburgerMenu';
 import './Meal.css';
 
 function Meal() {
@@ -10,7 +11,6 @@ function Meal() {
   const [budget, setBudget] = useState('');
   const [description, setDescription] = useState('');
   const navigate = useNavigate();
-  const [showMenu, setShowMenu] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -29,18 +29,7 @@ return (
                     ← Back
                 </button>
                 <h1 className="page-title">Generate Plan</h1>
-                <div className="menu-container">
-                    <button className="hamburger-menu" onClick={() => setShowMenu(!showMenu)}>
-                    ☰
-                    </button>
-                    {showMenu && (
-                    <div className="dropdown-menu">
-                        <button onClick={() => navigate('/biometrics')}>Biometric Data</button>
-                        <button onClick={() => navigate('/activities')}>Activities</button>
-                        <button onClick={() => navigate('/signin')}>Sign Out</button>
-                    </div>
-                    )}
-                </div>
+                <HamburgerMenu />
             </div>
 
             <form className="generateplan-form" onSubmit={handleSubmit}>

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaBars, FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
+import HamburgerMenu from './HamburgerMenu';
 import './Activities.css';
 
 function Activities() {
   const navigate = useNavigate();
   const [activityType, setActivityType] = useState('');
   const [timeSpent, setTimeSpent] = useState('');
-  const [showMenu, setShowMenu] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -36,25 +36,7 @@ function Activities() {
             <FaArrowLeft size={18} style={{ marginRight: '6px' }} />
           </button>
           <h1 className="page-title">Activity</h1>
-          <div className="menu-container">
-            <button className="hamburger-menu" onClick={() => setShowMenu(!showMenu)}>
-              <FaBars size={22} />
-            </button>
-            {showMenu && (
-              <div className="dropdown-menu">
-                <button onClick={() => navigate('/log-calories')}>Log Calories</button>
-                <button onClick={() => navigate('/my-meal-plan')}>My Meal Plan</button>
-                <button onClick={() => navigate('/generate-meal-plan')}>Generate Meal Plan</button>
-                <button onClick={() => navigate('/manage-plan')}>Manage Plan</button>
-                <button onClick={() => navigate('/activities')}>Log Activity</button>
-                <button onClick={() => navigate('/focus-mode')}>Focus Mode</button>
-                <button onClick={() => navigate('/biometrics')}>Biometric Data</button>
-                <button onClick={() => navigate('/connect-socials')}>Connect Socials</button>
-                <button onClick={() => navigate('/profile')}>Profile</button>
-                <button onClick={() => navigate('/signin')}>Logout</button>
-              </div>
-            )}
-          </div>
+          <HamburgerMenu />
         </div>
 
         <div className="activities-content">

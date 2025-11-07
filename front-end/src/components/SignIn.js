@@ -65,15 +65,32 @@ function SignIn() {
               <input type="checkbox" />
               <span>Remember me</span>
             </label>
-            <a href="#forgot" className="forgot-password">Forgot password?</a>
+            <button 
+              type="button"
+              className="forgot-password" 
+              onClick={() => navigate('/update-password')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            >
+              Forgot password?
+            </button>
           </div>
 
-          <button type="submit" className="signin-button">
+          <button type="submit" className="signin-button" onClick={(e) => {
+            e.preventDefault();
+            handleSubmit(e);
+            navigate('/main');
+          }}>
             Sign In
           </button>
 
           <div className="signup-link">
-            Don't have an account? <a href="#signup">Sign up</a>
+            Don't have an account? <button 
+              type="button"
+              onClick={() => navigate('/signup')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', textDecoration: 'underline' }}
+            >
+              Sign up
+            </button>
           </div>
         </form>
       </div>

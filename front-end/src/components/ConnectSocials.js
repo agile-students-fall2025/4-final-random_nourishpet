@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import HamburgerMenu from './HamburgerMenu';
 import './ConnectSocials.css';
 
 function ConnectSocials() {
   const navigate = useNavigate();
-  const [showMenu, setShowMenu] = useState(false);
 
   return (
     <div className="connect-socials-container">
@@ -14,18 +14,7 @@ function ConnectSocials() {
             ← Back
           </button>
           <h1 className="page-title">Connect Socials</h1>
-          <div className="menu-container">
-            <button className="hamburger-menu" onClick={() => setShowMenu(!showMenu)}>
-              ☰
-            </button>
-            {showMenu && (
-              <div className="dropdown-menu">
-                <button onClick={() => navigate('/biometrics')}>Biometric Data</button>
-                <button onClick={() => navigate('/activities')}>Activities</button>
-                <button onClick={() => navigate('/signin')}>Sign Out</button>
-              </div>
-            )}
-          </div>
+          <HamburgerMenu />
         </div>
         {/* default list of social icons will be updated for actual connections and popular apps */}
         <div className="social-icons-grid">
