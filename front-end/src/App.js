@@ -18,22 +18,11 @@ import MyMealPlan from './components/MyMealPlan';
 import ManagePlan from './components/ManagePlan';
 
 
-function Home() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <h1>NourishPet</h1>
-        <p>Transform nutrition tracking into an engaging, game-like experience</p>
-      </header>
-    </div>
-  );
-}
-
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<SignIn />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/activities" element={<Activities />} />
