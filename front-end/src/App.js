@@ -14,6 +14,8 @@ import UpdatePassword from './components/UpdatePassword';
 import Meal from './components/Meal';
 import LogCalories from './components/LogCalories';
 import FocusMode from './components/FocusMode';
+import MyMealPlan from './components/MyMealPlan';
+import ManagePlan from './components/ManagePlan';
 
 
 function Home() {
@@ -45,6 +47,8 @@ function App() {
         <Route path="/generate-meal-plan" element={<Meal />} />
         <Route path="/log-calories" element={<LogCalories />} />
         <Route path="/focus-mode" element={<FocusMode />} />
+        <Route path="/my-meal-plan" element={<MyMealPlan />} />
+        <Route path="/manage-plan" element={<ManagePlan />} />
       </Routes>
     </Router>
   );

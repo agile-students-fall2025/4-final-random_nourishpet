@@ -124,16 +124,38 @@ function SignUp() {
           <div className="form-options">
             <label className="terms-and-conditions">
               <input type="checkbox" required />
-              <span>I agree to the <a href="#terms">Terms and Conditions</a> and <a href="#privacy">Privacy Policy</a></span>
+              <span>I agree to the <button 
+                type="button"
+                onClick={() => {/* Terms page - placeholder */}}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', textDecoration: 'underline' }}
+              >
+                Terms and Conditions
+              </button> and <button 
+                type="button"
+                onClick={() => {/* Privacy page - placeholder */}}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', textDecoration: 'underline' }}
+              >
+                Privacy Policy
+              </button></span>
             </label>
           </div>
 
-          <button type="submit" className="signup-button">
+          <button type="submit" className="signup-button" onClick={(e) => {
+            e.preventDefault();
+            handleSubmit(e);
+            navigate('/signin');
+          }}>
             Create Account
           </button>
 
           <div className="signin-link">
-            Already have an account? <a href="#signin">Sign in</a>
+            Already have an account? <button 
+              type="button"
+              onClick={() => navigate('/signin')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', textDecoration: 'underline' }}
+            >
+              Sign in
+            </button>
           </div>
         </form>
       </div>
