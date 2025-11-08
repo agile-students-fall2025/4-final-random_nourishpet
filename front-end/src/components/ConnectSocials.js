@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './ConnectSocials.css';
 
@@ -9,13 +10,13 @@ function ConnectSocials() {
   return (
     <div className="connect-socials-container">
       <div className="connect-socials-card">
-        <div className="top-bar">
+        <header className="connect-socials-header">
           <button className="back-button" onClick={() => navigate(-1)}>
-            ← Back
+            <FaArrowLeft size={18} style={{ marginRight: '6px' }} />
           </button>
-          <h1 className="page-title">Connect Socials</h1>
+          <h2 className="connect-socials-title">Connect Socials</h2>
           <HamburgerMenu />
-        </div>
+        </header>
         {/* default list of social icons will be updated for actual connections and popular apps */}
         <div className="social-icons-grid">
           <div className="social-icon-box">

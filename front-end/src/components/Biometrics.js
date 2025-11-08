@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './Biometrics.css';
 
@@ -45,13 +46,13 @@ function Biometrics() {
   return (
     <div className="biometrics-container">
       <div className="biometrics-card">
-        <div className="top-bar">
+        <header className="biometrics-header">
           <button className="back-button" onClick={() => navigate(-1)}>
-            ← Back
+            <FaArrowLeft size={18} style={{ marginRight: '6px' }} />
           </button>
-          <h1 className="page-title">Biometric Data</h1>
+          <h2 className="biometrics-title">Biometric Data</h2>
           <HamburgerMenu />
-        </div>
+        </header>
 
         <div className="biometrics-content">
           <div className="biometric-box">
