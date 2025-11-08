@@ -18,7 +18,7 @@
   padding: 40px 35px;
   max-width: 450px;
   width: 100%;
-  min-height: 400px;
+  min-height: 350px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
@@ -28,7 +28,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 60px;
+  margin-bottom: 50px;
 }
 
 .back-arrow {
@@ -45,22 +45,18 @@
 }
 
 .update-username-title {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
   margin: 0;
-  color: #333;
+  color: #667eea !important;
   text-align: center;
   flex: 1;
-}
-
-.spacer {
-  width: 38px;
 }
 
 .update-username-form {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 30px;
   flex: 1;
   justify-content: center;
 }
@@ -101,6 +97,7 @@
   transition: all 0.3s;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
   width: 100%;
+  margin-top: 10px;
 }
 
 .save-button:hover {
