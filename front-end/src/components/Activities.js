@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft, FaPaperPlane } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './Activities.css';
 
@@ -31,13 +31,13 @@ function Activities() {
   return (
     <div className="activities-container">
       <div className="activities-card">
-        <div className="top-bar">
+        <header className="activities-header">
           <button className="back-button" onClick={() => navigate(-1)}>
             <FaArrowLeft size={18} style={{ marginRight: '6px' }} />
           </button>
-          <h1 className="page-title">Activity</h1>
+          <h2 className="activities-title">Activity</h2>
           <HamburgerMenu />
-        </div>
+        </header>
 
         <div className="activities-content">
           <div className="image-upload-section">
@@ -100,7 +100,8 @@ function Activities() {
             onClick={handlePost}
             disabled={!activityType || !timeSpent}
           >
-            POST
+            <FaPaperPlane className="btn-icon" />
+            Post
           </button>
         </div>
       </div>

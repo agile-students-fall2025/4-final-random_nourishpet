@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './UpdateBiometrics.css';
 
@@ -59,13 +60,13 @@ function UpdateBiometrics() {
   return (
     <div className="update-biometrics-container">
       <div className="update-biometrics-card">
-        <div className="top-bar">
+        <header className="update-biometrics-header">
           <button className="back-button" onClick={() => navigate(-1)}>
-            ← Back
+            <FaArrowLeft size={18} style={{ marginRight: '6px' }} />
           </button>
-          <h1 className="page-title">Update Biometric Data</h1>
+          <h2 className="update-biometrics-title">Update Biometric Data</h2>
           <HamburgerMenu />
-        </div>
+        </header>
         {/* default form fields will be updated to take in inches/cm, and kg/lbs */}
         <div className="update-biometrics-content">
           <div className="form-box">
