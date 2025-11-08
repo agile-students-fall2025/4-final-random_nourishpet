@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HamburgerMenu from './HamburgerMenu';
+import Streak from './Streak';
 import './MainScreen.css';
 
 function MainScreen() {
   const navigate = useNavigate();
+  const [showStreak, setShowStreak] = useState(false);
 
   return (
     <div className="main-screen">
@@ -20,7 +22,7 @@ function MainScreen() {
           <HamburgerMenu />
         </div>
 
-        <div className="streak-button">
+        <div className="streak-button" onClick={() => setShowStreak(true)}>
           <span>Streak</span>
         </div>
 
@@ -37,6 +39,7 @@ function MainScreen() {
           <button className="action-btn" onClick={() => navigate('/generate-meal-plan')}>Plan</button>
         </div>
       </div>
+      {showStreak && <Streak onClose={() => setShowStreak(false)} />}
     </div>
   );
 }
