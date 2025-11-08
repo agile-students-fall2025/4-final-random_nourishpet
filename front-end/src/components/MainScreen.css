@@ -89,9 +89,11 @@
 }
 
 .pet-image {
-  width: 320px;
-  height: auto;
-  object-fit: contain;
+  width: 320px !important;
+  height: auto !important;
+  object-fit: contain !important;
+  border-radius: 0 !important;
+  background: none !important;
 }
 
 .action-buttons {
