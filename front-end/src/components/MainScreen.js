@@ -33,8 +33,8 @@ function MainScreen() {
         </div>
 
         <div className="action-buttons">
-          <button className="action-btn" onClick={() => navigate('/log-calories')}>Log</button>
-          <button className="action-btn" onClick={() => navigate('/generate-meal-plan')}>Plan</button>
+          <button className="action-btn">Log</button>
+          <button className="action-btn">Plan</button>
         </div>
       </div>
     </div>
