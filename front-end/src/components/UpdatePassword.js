@@ -13,18 +13,30 @@ function UpdatePassword() {
           <div className="back-arrow" onClick={() => navigate('/profile')}>
             ←
           </div>
-          <h1 className="update-password-title">Forgot Password</h1>
+          <h1 className="update-password-title">Update Password</h1>
           <HamburgerMenu />
         </div>
 
         <div className="update-password-form">
           <input 
-            type="email" 
-            placeholder="Email" 
+            type="password" 
+            placeholder="Old Password" 
             className="update-password-input"
           />
           
-          <button className="send-button">Send Email Link</button>
+          <input 
+            type="password" 
+            placeholder="New Password" 
+            className="update-password-input"
+          />
+          
+          <input 
+            type="password" 
+            placeholder="Confirm Password" 
+            className="update-password-input"
+          />
+          
+          <button className="save-button">Save Changes</button>
         </div>
       </div>
     </div>
