@@ -68,7 +68,7 @@ function SignIn() {
             <button 
               type="button"
               className="forgot-password" 
-              onClick={() => navigate('/update-password')}
+              onClick={() => navigate('/forgot-password')}
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
             >
               Forgot password?
