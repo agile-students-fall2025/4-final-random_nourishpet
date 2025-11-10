@@ -8,12 +8,32 @@ function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Frontend only - just log the values
-    console.log('Sign in attempted with:', { email, password });
-    // In a real app, you would navigate to dashboard here
-    // navigate('/dashboard');
+    
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        console.log('Sign in successful:', data);
+        // Store user data in localStorage or context
+        localStorage.setItem('user', JSON.stringify(data.user));
+        navigate('/main');
+      } else {
+        alert(data.message || 'Sign in failed');
+      }
+    } catch (error) {
+      console.error('Error signing in:', error);
+      alert('An error occurred. Please try again.');
+    }
   };
 
   return (
@@ -75,11 +95,7 @@ function SignIn() {
             </button>
           </div>
 
-          <button type="submit" className="signin-button" onClick={(e) => {
-            e.preventDefault();
-            handleSubmit(e);
-            navigate('/main');
-          }}>
+          <button type="submit" className="signin-button">
             Sign In
           </button>
 
