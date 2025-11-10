@@ -21,11 +21,8 @@ function SignUp() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Frontend only - just log the values
-    console.log('Sign up attempted with:', formData);
     
     // Basic client-side validation
     if (formData.password !== formData.confirmPassword) {
@@ -38,8 +35,28 @@ function SignUp() {
       return;
     }
     
-    // In a real app, you would call an API here
-    console.log('Form is valid, would submit to backend');
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        console.log('Sign up successful:', data);
+        alert('Account created successfully! Please sign in.');
+        navigate('/signin');
+      } else {
+        alert(data.message || 'Sign up failed');
+      }
+    } catch (error) {
+      console.error('Error signing up:', error);
+      alert('An error occurred. Please try again.');
+    }
   };
 
   return (
@@ -140,11 +157,7 @@ function SignUp() {
             </label>
           </div>
 
-          <button type="submit" className="signup-button" onClick={(e) => {
-            e.preventDefault();
-            handleSubmit(e);
-            navigate('/signin');
-          }}>
+          <button type="submit" className="signup-button">
             Create Account
           </button>
 

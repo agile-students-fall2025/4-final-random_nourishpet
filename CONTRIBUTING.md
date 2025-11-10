@@ -85,7 +85,36 @@ The front-end is built with React.js. To get started:
 
 ### Back-End Development
 
-_This section will be updated as development progresses._
+The back-end is built with Express.js. To get started:
+
+1. Navigate to the back-end directory:
+   ```bash
+   cd back-end
+   ```
+
+2. Install dependencies (first time only):
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm start
+   ```
+
+4. The API will run at [http://localhost:3001](http://localhost:3001).
+
+5. Run tests:
+   ```bash
+   npm test
+   ```
+
+6. Check test coverage:
+   ```bash
+   npm run test:coverage
+   ```
+
+**Note:** The back-end must be running on port 3001 for the front-end to connect properly.
 
 ### Database Setup
 
