@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaLock, FaLockOpen, FaArrowLeft } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './ManagePlan.css';
 
@@ -11,6 +12,7 @@ function ManagePlan() {
   const [allergies, setAllergies] = useState('');
   const [budget, setBudget] = useState('');
   const [description, setDescription] = useState('');
+  const [focusLock, setFocusLock] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -18,15 +20,21 @@ function ManagePlan() {
 
   return (
     <div className="manage-plan-container">
-      <div className="manage-plan-card">
-        <div className="top-bar">
-          <button className="back-button" onClick={() => navigate(-1)}>
-            ← Back
-          </button>
-          <h1 className="page-title">Manage Plan</h1>
-          <HamburgerMenu />
-        </div>
+      <header className={`manage-plan-header ${focusLock ? 'disabled' : ''}`}>
+        <button
+          className="icon-button"
+          onClick={() => navigate(-1)}
+          disabled={focusLock}
+        >
+          <FaArrowLeft />
+        </button>
+        <h2 className="manage-plan-title">
+          {focusLock ? 'Focus Lock Enabled' : 'Manage Plan'}
+        </h2>
 
+        <HamburgerMenu disabled={focusLock} />
+      </header>
+      <div className="manage-plan-card">
         <div className="manage-plan-content">
           <form className="manage-plan-form" onSubmit={handleSubmit}>
                 <div className="form-group">
@@ -118,4 +126,3 @@ function ManagePlan() {
 }
 
 export default ManagePlan;
-

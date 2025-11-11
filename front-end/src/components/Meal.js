@@ -1,19 +1,33 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaLock, FaLockOpen, FaArrowLeft } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './Meal.css';
 
 function Meal() {
+  const navigate = useNavigate();
   const [goal, setGoal] = useState('');
   const [duration, setDuration] = useState('');
   const [restrictions, setRestrictions] = useState('');
   const [allergies, setAllergies] = useState('');
   const [budget, setBudget] = useState('');
   const [description, setDescription] = useState('');
-  const navigate = useNavigate();
+  const [focusLock, setFocusLock] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const mealPlanData = {
+        goal,
+        duration,
+        restrictions,
+        allergies,
+        budget,
+        description,
+    };
+
+    // navigate to MyMealPlan.js and pass the data
+    navigate('/my-mealplan', { state:  mealPlanData });
   };
 
 //   const handlePost = () => {
@@ -23,15 +37,22 @@ function Meal() {
 
 return (
     <div className="generateplan-container">
-        <div className="generateplan-card">
-            <div className="top-bar">
-                <button className="back-button" onClick={() => navigate(-1)}>
-                    ← Back
-                </button>
-                <h1 className="page-title">Generate Plan</h1>
-                <HamburgerMenu />
-            </div>
+        <header className={`generate-plan-header ${focusLock ? 'disabled' : ''}`}>
+          <button
+            className="icon-button"
+            onClick={() => navigate(-1)}
+            disabled={focusLock}
+          >
+            <FaArrowLeft />
+          </button>
+          <h2 className="generate-plan-title">
+            {focusLock ? 'Focus Lock Enabled' : 'Generate Plan'}
+          </h2>
 
+          <HamburgerMenu disabled={focusLock} />
+        </header>
+        
+        <div className="generateplan-card">
             <form className="generateplan-form" onSubmit={handleSubmit}>
                 <div className="form-group">
                     <select
@@ -121,4 +142,3 @@ return (
 }
 
 export default Meal;
-
