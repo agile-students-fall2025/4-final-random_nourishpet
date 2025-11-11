@@ -47,7 +47,7 @@ function LogCalories() {
     <div className="logcal-container">
       <header className="logcal-header">
         <button className="back-button" onClick={() => navigate(-1)}>
-          <FaArrowLeft size={18} style={{ marginRight: '6px' }} />
+          <FaArrowLeft style={{ marginRight: '6px' }} />
         </button>
         <h2 className="logcal-title">Log Calories</h2>
 
