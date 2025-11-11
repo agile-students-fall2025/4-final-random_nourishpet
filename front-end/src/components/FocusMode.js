@@ -76,13 +76,6 @@ function FocusMode() {
         >
           <img src="/dog.png" alt="Pet" className="pet-image" />
         </div>
-
-        {!focusLock && (
-          <p className="focus-quote">
-            Small steps every day lead to big changes! <br />
-            You’ve got this!
-          </p>
-        )}
       </div>
 
       <div className="focus-footer">
