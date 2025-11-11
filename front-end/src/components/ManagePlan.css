@@ -7,6 +7,30 @@
   padding: 2rem;
 }
 
+.manage-plan-header {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  margin-bottom: 1.5rem;
+  z-index: 10;
+  position: relative;
+  z-index: 50; 
+  overflow: visible;
+}
+
+.manage-plan-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+
 .manage-plan-card {
   background: white;
   border-radius: 16px;

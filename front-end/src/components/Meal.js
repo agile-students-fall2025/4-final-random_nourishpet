@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaLock, FaLockOpen, FaArrowLeft } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './Meal.css';
 
@@ -10,6 +11,7 @@ function Meal() {
   const [allergies, setAllergies] = useState('');
   const [budget, setBudget] = useState('');
   const [description, setDescription] = useState('');
+  const [focusLock, setFocusLock] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -24,13 +26,20 @@ function Meal() {
 return (
     <div className="generateplan-container">
         <div className="generateplan-card">
-            <div className="top-bar">
-                <button className="back-button" onClick={() => navigate(-1)}>
-                    ← Back
-                </button>
-                <h1 className="page-title">Generate Plan</h1>
-                <HamburgerMenu />
-            </div>
+        <header className={`generate-plan-header ${focusLock ? 'disabled' : ''}`}>
+          <button
+            className="icon-button"
+            onClick={() => navigate(-1)}
+            disabled={focusLock}
+          >
+            <FaArrowLeft />
+        </button>
+        <h2 className="generate-plan-title">
+          {focusLock ? 'Focus Lock Enabled' : 'Generate Plan'}
+        </h2>
+
+        <HamburgerMenu disabled={focusLock} />
+      </header>
 
             <form className="generateplan-form" onSubmit={handleSubmit}>
                 <div className="form-group">
