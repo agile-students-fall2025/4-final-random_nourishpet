@@ -25,7 +25,6 @@ function Meal() {
 
 return (
     <div className="generateplan-container">
-        <div className="generateplan-card">
         <header className={`generate-plan-header ${focusLock ? 'disabled' : ''}`}>
           <button
             className="icon-button"
@@ -33,14 +32,15 @@ return (
             disabled={focusLock}
           >
             <FaArrowLeft />
-        </button>
-        <h2 className="generate-plan-title">
-          {focusLock ? 'Focus Lock Enabled' : 'Generate Plan'}
-        </h2>
+          </button>
+          <h2 className="generate-plan-title">
+            {focusLock ? 'Focus Lock Enabled' : 'Generate Plan'}
+          </h2>
 
-        <HamburgerMenu disabled={focusLock} />
-      </header>
-
+          <HamburgerMenu disabled={focusLock} />
+        </header>
+        
+        <div className="generateplan-card">
             <form className="generateplan-form" onSubmit={handleSubmit}>
                 <div className="form-group">
                     <select

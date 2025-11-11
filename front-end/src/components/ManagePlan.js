@@ -20,7 +20,6 @@ function ManagePlan() {
 
   return (
     <div className="manage-plan-container">
-      <div className="manage-plan-card">
       <header className={`manage-plan-header ${focusLock ? 'disabled' : ''}`}>
         <button
           className="icon-button"
@@ -35,7 +34,7 @@ function ManagePlan() {
 
         <HamburgerMenu disabled={focusLock} />
       </header>
-
+      <div className="manage-plan-card">
         <div className="manage-plan-content">
           <form className="manage-plan-form" onSubmit={handleSubmit}>
                 <div className="form-group">
