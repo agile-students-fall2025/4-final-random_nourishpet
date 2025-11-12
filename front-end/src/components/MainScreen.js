@@ -35,8 +35,12 @@ function MainScreen() {
         </div>
 
         <div className="action-buttons">
-          <button className="action-btn">Log</button>
-          <button className="action-btn">Plan</button>
+          <button className="action-btn" onClick={() => navigate('/log-calories')}>
+            Log
+          </button>
+          <button className="action-btn" onClick={() => navigate('/my-meal-plan')}>
+            Plan
+          </button>
         </div>
       </div>
       {showStreak && <Streak onClose={() => setShowStreak(false)} />}
