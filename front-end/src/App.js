@@ -31,7 +31,7 @@ function App() {
         <Route path="/connect-socials" element={<ConnectSocials />} />
         <Route path="/biometrics" element={<Biometrics />} />
         <Route path="/update-biometrics" element={<UpdateBiometrics />} />
-        <Route path="/main" element={<MainScreen />} />
+        <Route path="/main-screen" element={<MainScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
         <Route path="/update-profile" element={<UpdateProfile />} />
         <Route path="/update-username" element={<UpdateUsername />} />
