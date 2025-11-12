@@ -40,7 +40,7 @@ function SignIn() {
     <div className="signin-container">
       <div className="signin-card">
         <div className="signin-header">
-          <h1 className="signin-logo">NourishPet</h1>
+          <h1 className="signin-logo">NutriPal</h1>
           <p className="signin-subtitle">Welcome back! Sign in to continue your journey</p>
         </div>
 
