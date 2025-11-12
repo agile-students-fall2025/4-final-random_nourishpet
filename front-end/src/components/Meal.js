@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaLock, FaLockOpen, FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './Meal.css';
 
@@ -28,6 +28,10 @@ function Meal() {
 
     // navigate to MyMealPlan.js and pass the data
     navigate('/my-mealplan', { state:  mealPlanData });
+  };
+
+  const handleClick = () => {
+    navigate('/my-meal-plan');
   };
 
 //   const handlePost = () => {
@@ -132,7 +136,7 @@ return (
                     />
                 </div>
 
-                <button type="submit" className="generate-button">
+                <button type="button" className="generate-button" onClick={handleClick}>
                     Generate
                 </button>
             </form>
