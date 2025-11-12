@@ -9,6 +9,7 @@ import Biometrics from './components/Biometrics';
 import UpdateBiometrics from './components/UpdateBiometrics';
 import MainScreen from './components/MainScreen';
 import ProfileScreen from './components/ProfileScreen';
+import UpdateProfile from './components/UpdateProfile';
 import UpdateUsername from './components/UpdateUsername';
 import UpdatePassword from './components/UpdatePassword';
 import ForgotPassword from './components/ForgotPassword';
@@ -32,6 +33,7 @@ function App() {
         <Route path="/update-biometrics" element={<UpdateBiometrics />} />
         <Route path="/main" element={<MainScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/update-profile" element={<UpdateProfile />} />
         <Route path="/update-username" element={<UpdateUsername />} />
         <Route path="/update-password" element={<UpdatePassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
