@@ -63,7 +63,7 @@ function SignUp() {
     <div className="signup-container">
       <div className="signup-card">
         <div className="signup-header">
-          <h1 className="signup-logo">NourishPet</h1>
+          <h1 className="signup-logo">NutriPal</h1>
           <p className="signup-subtitle">Create your account to start your nutrition journey</p>
         </div>
 
