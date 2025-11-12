@@ -1,5 +1,13 @@
 {
   "dependencies": {
     "react-icons": "^5.5.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "scripts": {
+    "start": "concurrently -n \"SERVER,CLIENT\" -c \"yellow,cyan\" \"npm run server\" \"npm run client\"",
+    "server": "cd back-end && npm run dev",
+    "client": "cd front-end && npm start"
   }
 }
