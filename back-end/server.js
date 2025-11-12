@@ -10,15 +10,21 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Mock user database (in-memory for now)
-const users = [];
+// Mock user database (in-memory until we implement DB)w)
+const users = []; 
 
-// Routes
+// Mock meal database (in-memory until we implement DB)
+const meals = []; 
 
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
+
+
+// ---------------------------------------------------
+// Authentication routes 
+// ---------------------------------------------------
 
 // Sign Up route
 app.post('/api/auth/signup', (req, res) => {
@@ -28,7 +34,7 @@ app.post('/api/auth/signup', (req, res) => {
   if (!username || !email || !password || !confirmPassword) {
     return res.status(400).json({
       success: false,
-      message: 'All fields are required'
+      message: 'All fields are required',
     });
   }
 
@@ -36,7 +42,7 @@ app.post('/api/auth/signup', (req, res) => {
   if (password !== confirmPassword) {
     return res.status(400).json({
       success: false,
-      message: 'Passwords do not match'
+      message: 'Passwords do not match',
     });
   }
 
@@ -44,16 +50,18 @@ app.post('/api/auth/signup', (req, res) => {
   if (password.length < 6) {
     return res.status(400).json({
       success: false,
-      message: 'Password must be at least 6 characters long'
+      message: 'Password must be at least 6 characters long',
     });
   }
 
   // Check if user already exists
-  const existingUser = users.find(u => u.email === email || u.username === username);
+  const existingUser = users.find(
+    (u) => u.email === email || u.username === username
+  );
   if (existingUser) {
     return res.status(409).json({
       success: false,
-      message: 'User with this email or username already exists'
+      message: 'User with this email or username already exists',
     });
   }
 
@@ -62,8 +70,8 @@ app.post('/api/auth/signup', (req, res) => {
     id: users.length + 1,
     username,
     email,
-    password, // In production, this should be hashed
-    createdAt: new Date().toISOString()
+    password, // this will be hashed after the next sprint
+    createdAt: new Date().toISOString(),
   };
 
   users.push(newUser);
@@ -76,8 +84,8 @@ app.post('/api/auth/signup', (req, res) => {
       id: newUser.id,
       username: newUser.username,
       email: newUser.email,
-      createdAt: newUser.createdAt
-    }
+      createdAt: newUser.createdAt,
+    },
   });
 });
 
@@ -89,17 +97,17 @@ app.post('/api/auth/signin', (req, res) => {
   if (!email || !password) {
     return res.status(400).json({
       success: false,
-      message: 'Email and password are required'
+      message: 'Email and password are required',
     });
   }
 
   // Find user
-  const user = users.find(u => u.email === email);
-  
+  const user = users.find((u) => u.email === email);
+
   if (!user) {
     return res.status(401).json({
       success: false,
-      message: 'Invalid email or password'
+      message: 'Invalid email or password',
     });
   }
 
@@ -107,7 +115,7 @@ app.post('/api/auth/signin', (req, res) => {
   if (user.password !== password) {
     return res.status(401).json({
       success: false,
-      message: 'Invalid email or password'
+      message: 'Invalid email or password',
     });
   }
 
@@ -119,8 +127,8 @@ app.post('/api/auth/signin', (req, res) => {
       id: user.id,
       username: user.username,
       email: user.email,
-      createdAt: user.createdAt
-    }
+      createdAt: user.createdAt,
+    },
   });
 });
 
@@ -129,15 +137,74 @@ app.get('/api/users', (req, res) => {
   const usersWithoutPasswords = users.map(({ password, ...user }) => user);
   res.json({
     success: true,
-    users: usersWithoutPasswords
+    users: usersWithoutPasswords,
   });
 });
+
+
+// ---------------------------------------------------
+// Prototype routes for meals
+// ---------------------------------------------------
+
+// Meals POST: Create a new meal
+app.post('/api/meals', (req, res) => {
+  const { userId, name, calories, date } = req.body;
+
+  // Validate inputs
+  if (!name || !calories) {
+    return res.status(400).json({
+      success: false,
+      message: 'Meal name and calories are required.',
+    });
+  }
+
+  const newMeal = {
+    id: meals.length + 1,
+    userId: userId || null, // optional for now, until we add JWT
+    name,
+    calories: parseInt(calories, 10),
+    date: date || new Date().toISOString().split('T')[0], // "YYYY-MM-DD"
+  };
+
+  meals.push(newMeal);
+
+  res.status(201).json({
+    success: true,
+    message: 'Meal added successfully.',
+    meal: newMeal,
+  });
+});
+
+// Meals GET: Retrieve meals (optionally filter by date or user)
+app.get('/api/meals', (req, res) => {
+  const { userId, date } = req.query;
+
+  let filteredMeals = meals;
+
+  if (userId) {
+    filteredMeals = filteredMeals.filter((m) => m.userId == userId);
+  }
+
+  if (date) {
+    filteredMeals = filteredMeals.filter((m) => m.date === date);
+  }
+
+  res.json({
+    success: true,
+    meals: filteredMeals,
+  });
+});
+
+
+// ---------------------------------------------------
+// Error Handling 
+// ---------------------------------------------------
 
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found'
+    message: 'Route not found',
   });
 });
 
@@ -146,7 +213,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
     success: false,
-    message: 'Internal server error'
+    message: 'Internal server error',
   });
 });
 
@@ -159,4 +226,3 @@ if (require.main === module) {
 
 // Export for testing
 module.exports = app;
-
