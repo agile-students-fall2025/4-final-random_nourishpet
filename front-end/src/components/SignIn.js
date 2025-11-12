@@ -24,9 +24,11 @@ function SignIn() {
 
       if (response.ok && data.success) {
         console.log('Sign in successful:', data);
-        // Store user data in localStorage or context
+        // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/main');
+        localStorage.setItem('userEmail', email);
+        localStorage.setItem('username', data.user.username);
+        navigate('/main-screen');
       } else {
         alert(data.message || 'Sign in failed');
       }
@@ -115,4 +117,3 @@ function SignIn() {
 }
 
 export default SignIn;
-

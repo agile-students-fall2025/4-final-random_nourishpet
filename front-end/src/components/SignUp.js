@@ -48,8 +48,12 @@ function SignUp() {
 
       if (response.ok && data.success) {
         console.log('Sign up successful:', data);
-        alert('Account created successfully! Please sign in.');
-        navigate('/signin');
+        // Store user data in localStorage and auto-login
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('userEmail', formData.email);
+        localStorage.setItem('username', data.user.username);
+        alert('Account created successfully!');
+        navigate('/main-screen');
       } else {
         alert(data.message || 'Sign up failed');
       }
@@ -177,4 +181,3 @@ function SignUp() {
 }
 
 export default SignUp;
-
