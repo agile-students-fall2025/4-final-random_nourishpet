@@ -22,8 +22,8 @@ function MyMealPlan() {
   });
 
   const DUMMY_SCHEDULE = {
-    'Mon 13': { meals: [{ type: 'Meal 1', name: 'Oats' }, { type: 'Meal 2', name: 'Fish' }, { type: 'Meal 3', name: 'Shake' }], total: '1850 kcal', mood: 'Happy' },
-    'Tue 14': { meals: [{ type: 'Meal 1', name: 'Yoghurt' }, { type: 'Meal 2', name: 'Pasta' }, { type: 'Meal 3', name: 'Chicken' }], total: '1920 kcal', mood: 'Energetic' },
+    'Mon 13': { meals: [{ type: 'Meal 1', name: 'Oats' }, { type: 'Meal 2', name: 'Fish' }, { type: 'Meal 3', name: 'Steak' }], total: '1850 kcal', mood: 'Happy' },
+    'Tue 14': { meals: [{ type: 'Meal 1', name: 'Yogurt' }, { type: 'Meal 2', name: 'Pasta' }, { type: 'Meal 3', name: 'Chicken' }], total: '1920 kcal', mood: 'Energetic' },
     'Wed 15': { meals: [{ type: 'Meal 1', name: 'Eggs' }, { type: 'Meal 2', name: 'Salad' }, { type: 'Meal 3', name: 'Soup' }], total: '1950 kcal', mood: 'Calm', currentDay: true },
     'Thu 16': { meals: [], total: null, mood: null },
     'Fri 17': { meals: [], total: null, mood: null },
