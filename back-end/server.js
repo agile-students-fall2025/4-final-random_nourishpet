@@ -13,6 +13,15 @@ app.use(express.urlencoded({ extended: true }));
 // Mock user database (in-memory for now)
 const users = [];
 
+// Mock user profiles (linked to users by email)
+const userProfiles = {};
+
+// Mock pet data
+const petData = {};
+
+// Mock streak data
+const streakData = {};
+
 // Routes
 
 // Health check
@@ -67,6 +76,33 @@ app.post('/api/auth/signup', (req, res) => {
   };
 
   users.push(newUser);
+
+  // Initialize default profile data
+  userProfiles[email] = {
+    firstName: '',
+    lastName: '',
+    email: email,
+    dateOfBirth: '',
+    username: username,
+    bio: '',
+    profilePicture: '/user.png'
+  };
+
+  // Initialize pet data
+  petData[email] = {
+    petImage: '/dog.png',
+    petName: 'Buddy',
+    petType: 'dog',
+    happiness: 100,
+    health: 100
+  };
+
+  // Initialize streak data
+  streakData[email] = {
+    currentStreak: 0,
+    longestStreak: 0,
+    lastLogDate: null
+  };
 
   // Return success response (without password)
   res.status(201).json({
@@ -124,6 +160,37 @@ app.post('/api/auth/signin', (req, res) => {
   });
 });
 
+// ========== MAIN SCREEN ROUTES ==========
+
+// Get main screen data (user, pet, streak)
+app.get('/api/main-screen/:email', (req, res) => {
+  const { email } = req.params;
+
+  const user = users.find(u => u.email === email);
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    });
+  }
+
+  const profile = userProfiles[email] || {};
+  const pet = petData[email] || {};
+  const streak = streakData[email] || {};
+
+  res.json({
+    success: true,
+    data: {
+      user: {
+        username: user.username,
+        profilePicture: profile.profilePicture
+      },
+      pet: pet,
+      streak: streak
+    }
+  });
+});
+
 // Get all users (for testing purposes - would not exist in production)
 app.get('/api/users', (req, res) => {
   const usersWithoutPasswords = users.map(({ password, ...user }) => user);
@@ -159,4 +226,3 @@ if (require.main === module) {
 
 // Export for testing
 module.exports = app;
-
