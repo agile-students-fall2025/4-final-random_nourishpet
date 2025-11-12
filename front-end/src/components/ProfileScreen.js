@@ -66,7 +66,10 @@ function ProfileScreen() {
             rows="3"
           />
           
-          <button className="update-button">Update Profile</button>
+         <button className="update-button" 
+          onClick={() => navigate('/update-profile')}>
+          Update Profile
+          </button>
         </div>
       </div>
     </div>
