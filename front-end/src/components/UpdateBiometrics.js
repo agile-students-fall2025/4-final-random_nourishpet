@@ -23,6 +23,8 @@ function UpdateBiometrics() {
     gender: 'Set data for meal plan',
     age: 'Set data for meal plan'
   });
+  const [isSaving, setIsSaving] = useState(false);
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
 
   useEffect(() => {
     const savedData = localStorage.getItem('biometricData');
@@ -40,7 +42,13 @@ function UpdateBiometrics() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (isSaving) {
+      return;
+    }
+
+    setIsSaving(true);
+
     const updatedData = { ...originalData };
     
     Object.keys(formData).forEach(key => {
@@ -49,10 +57,44 @@ function UpdateBiometrics() {
       }
     });
 
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/biometrics/update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedData)
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        throw new Error(errorBody.message || 'Failed to update biometrics');
+      }
+
+      console.log('Biometric data submitted:', updatedData);
+    } catch (error) {
+      console.error('Error submitting biometric data:', error);
+      alert('We could not update your biometrics right now. Please try again.');
+      setIsSaving(false);
+      return;
+    }
+
     // Save to local storage
     localStorage.setItem('biometricData', JSON.stringify(updatedData));
     window.dispatchEvent(new Event('biometricDataUpdated'));
     
+    setOriginalData(updatedData);
+    setFormData({
+      height: '',
+      weight: '',
+      bmi: '',
+      ethnicity: '',
+      gender: '',
+      age: ''
+    });
+
+    setIsSaving(false);
+
     // go back to biometrics page
     navigate('/biometrics');
   };
@@ -160,8 +202,8 @@ function UpdateBiometrics() {
             />
           </div>
 
-          <button className="save-button" onClick={handleSave}>
-            Save Changes
+          <button className="save-button" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </div>

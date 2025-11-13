@@ -10,6 +10,9 @@ function Activities() {
   const [timeSpent, setTimeSpent] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -23,9 +26,42 @@ function Activities() {
     }
   };
 
-  const handlePost = () => {
-    console.log('Posting activity:', { activityType, timeSpent, selectedImage });
-    navigate('/connect-socials');
+  const handlePost = async () => {
+    if (!activityType || !timeSpent || isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const payload = {
+      activityType,
+      timeSpent,
+      imageName: selectedImage ? selectedImage.name : null,
+      imageType: selectedImage ? selectedImage.type : null
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/activities`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        throw new Error(errorBody.message || 'Failed to submit activity');
+      }
+
+      console.log('Activity submission sent:', payload);
+      navigate('/connect-socials');
+    } catch (error) {
+      console.error('Error submitting activity:', error);
+      alert('We could not submit your activity right now. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -98,10 +134,10 @@ function Activities() {
           <button
             className="post-button"
             onClick={handlePost}
-            disabled={!activityType || !timeSpent}
+            disabled={!activityType || !timeSpent || isSubmitting}
           >
             <FaPaperPlane className="btn-icon" />
-            Post
+            {isSubmitting ? 'Posting...' : 'Post'}
           </button>
         </div>
       </div>
