@@ -132,6 +132,87 @@ app.post('/api/auth/signin', (req, res) => {
   });
 });
 
+// Activity submission route
+app.post('/api/activities', (req, res) => {
+  const { activityType, timeSpent, imageName, imageType } = req.body || {};
+
+  if (!activityType || !timeSpent) {
+    return res.status(400).json({
+      success: false,
+      message: 'Activity type and time spent are required'
+    });
+  }
+
+  console.log('Activity submission received:', {
+    activityType,
+    timeSpent,
+    imageName: imageName || null,
+    imageType: imageType || null
+  });
+
+  res.status(200).json({
+    success: true,
+    message: 'Activity logged successfully'
+  });
+});
+
+// Streak share route
+app.post('/api/streak', (req, res) => {
+  const { message } = req.body || {};
+
+  if (!message) {
+    return res.status(400).json({
+      success: false,
+      message: 'Message is required'
+    });
+  }
+
+  console.log('Streak share message:', message);
+
+  res.status(200).json({
+    success: true,
+    message: 'Streak message logged'
+  });
+});
+
+// Update biometrics route
+app.post('/api/biometrics/update', (req, res) => {
+  const {
+    height,
+    weight,
+    bmi,
+    ethnicity,
+    gender,
+    age
+  } = req.body || {};
+
+  const payload = {
+    height: height ?? null,
+    weight: weight ?? null,
+    bmi: bmi ?? null,
+    ethnicity: ethnicity ?? null,
+    gender: gender ?? null,
+    age: age ?? null
+  };
+
+  // Ensure at least one field provided (can be empty strings)
+  const hasField = Object.values(payload).some(value => value !== null && value !== undefined);
+
+  if (!hasField) {
+    return res.status(400).json({
+      success: false,
+      message: 'No biometric data provided'
+    });
+  }
+
+  console.log('Biometric update submission:', payload);
+
+  res.status(200).json({
+    success: true,
+    message: 'Biometric data logged'
+  });
+});
+
 // Get all users (for testing purposes - would not exist in production)
 app.get('/api/users', (req, res) => {
   const usersWithoutPasswords = users.map(({ password, ...user }) => user);
