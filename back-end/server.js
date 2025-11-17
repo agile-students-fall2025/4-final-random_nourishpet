@@ -16,7 +16,7 @@ const users = [];
 // Mock meal database (in-memory until we implement DB)
 const meals = []; 
 
-// Mock user profiles (for Main Screen - linked by email)
+// Mock user profiles (for Main Screen & Profile - linked by email)
 const userProfiles = {};
 
 // Mock pet data (for Main Screen - linked by email)
@@ -85,7 +85,7 @@ app.post('/api/auth/signup', (req, res) => {
 
   users.push(newUser);
 
-  // Initialize profile data for Main Screen
+  // Initialize profile data for Main Screen & Profile
   userProfiles[email] = {
     firstName: '',
     lastName: '',
@@ -288,6 +288,39 @@ app.get('/api/main-screen/:email', (req, res) => {
       },
       pet: pet,
       streak: streak
+    }
+  });
+});
+
+
+// ---------------------------------------------------
+// PROFILE ROUTES
+// ---------------------------------------------------
+
+// Get user profile
+app.get('/api/profile/:email', (req, res) => {
+  const { email } = req.params;
+
+  const user = users.find(u => u.email === email);
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    });
+  }
+
+  const profile = userProfiles[email] || {};
+
+  res.json({
+    success: true,
+    profile: {
+      firstName: profile.firstName || '',
+      lastName: profile.lastName || '',
+      email: profile.email || email,
+      dateOfBirth: profile.dateOfBirth || '',
+      username: user.username,
+      bio: profile.bio || '',
+      profilePicture: profile.profilePicture || '/user.png'
     }
   });
 });
