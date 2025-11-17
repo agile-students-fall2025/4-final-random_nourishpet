@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './UpdateProfile.css';
 
@@ -13,6 +13,41 @@ function UpdateProfile() {
     password: '',
     bio: ''
   });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // Get email from localStorage
+  const userEmail = localStorage.getItem('userEmail');
+
+  // Fetch current profile data on component load
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch(`http://localhost:3001/api/profile/${userEmail}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          setFormData({
+            firstName: data.profile.firstName || '',
+            lastName: data.profile.lastName || '',
+            email: data.profile.email || '',
+            dateOfBirth: data.profile.dateOfBirth || '',
+            username: data.profile.username || '',
+            password: '', // Don't populate password
+            bio: data.profile.bio || ''
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (userEmail) {
+      fetchProfile();
+    }
+  }, [userEmail]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -23,13 +58,40 @@ function UpdateProfile() {
   };
 
   const handleBack = () => {
-    navigate('/profile'); // Navigate back to profile page
+    navigate('/profile');
   };
 
-  const handleSaveChanges = () => {
-    console.log('Saving changes:', formData);
-    // Add your save logic here
-    // navigate('/profile'); // Optionally navigate back after saving
+  const handleSaveChanges = async () => {
+    setSaving(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/profile/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: userEmail,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          dateOfBirth: formData.dateOfBirth,
+          bio: formData.bio
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Profile updated successfully!');
+        navigate('/profile'); // Navigate back to profile page
+      } else {
+        alert('Failed to update profile: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Error updating profile. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleUpdateUsername = () => {
@@ -39,6 +101,10 @@ function UpdateProfile() {
   const handleUpdatePassword = () => {
     navigate('/update-password');
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="update-profile-screen">
@@ -78,7 +144,7 @@ function UpdateProfile() {
             placeholder="Email" 
             className="update-profile-input"
             value={formData.email}
-            onChange={handleInputChange}
+            readOnly
           />
           
           <input 
@@ -97,7 +163,7 @@ function UpdateProfile() {
               placeholder="Username" 
               className="update-profile-input"
               value={formData.username}
-              onChange={handleInputChange}
+              readOnly
             />
             <div className="update-link">
               Click <span onClick={handleUpdateUsername} className="here-link">here</span> to update username
@@ -111,7 +177,7 @@ function UpdateProfile() {
               placeholder="Password" 
               className="update-profile-input"
               value={formData.password}
-              onChange={handleInputChange}
+              readOnly
             />
             <div className="update-link">
               Click <span onClick={handleUpdatePassword} className="here-link">here</span> to update password
@@ -127,8 +193,12 @@ function UpdateProfile() {
             rows="5"
           />
           
-          <button className="save-changes-button" onClick={handleSaveChanges}>
-            Save Changes
+          <button 
+            className="save-changes-button" 
+            onClick={handleSaveChanges}
+            disabled={saving}
+          >
+            {saving ? 'Saving...' : 'Save Changes'}
           </button>
           
           <div className="biometric-link">

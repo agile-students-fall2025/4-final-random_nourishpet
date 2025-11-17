@@ -325,6 +325,45 @@ app.get('/api/profile/:email', (req, res) => {
   });
 });
 
+// Update profile
+app.post('/api/profile/update', (req, res) => {
+  const { email, firstName, lastName, dateOfBirth, bio } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email is required'
+    });
+  }
+
+  const user = users.find(u => u.email === email);
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    });
+  }
+
+  // Update profile data
+  if (!userProfiles[email]) {
+    userProfiles[email] = {};
+  }
+
+  userProfiles[email] = {
+    ...userProfiles[email],
+    firstName: firstName || userProfiles[email].firstName || '',
+    lastName: lastName || userProfiles[email].lastName || '',
+    dateOfBirth: dateOfBirth || userProfiles[email].dateOfBirth || '',
+    bio: bio || userProfiles[email].bio || ''
+  };
+
+  res.json({
+    success: true,
+    message: 'Profile updated successfully',
+    profile: userProfiles[email]
+  });
+});
+
 
 // ---------------------------------------------------
 // Prototype routes for meals
