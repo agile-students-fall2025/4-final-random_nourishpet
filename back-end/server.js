@@ -364,6 +364,49 @@ app.post('/api/profile/update', (req, res) => {
   });
 });
 
+// Update username
+app.post('/api/profile/update-username', (req, res) => {
+  const { email, newUsername } = req.body;
+
+  if (!email || !newUsername) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email and new username are required'
+    });
+  }
+
+  const user = users.find(u => u.email === email);
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    });
+  }
+
+  // Check if new username already exists
+  const usernameExists = users.find(u => u.username === newUsername && u.email !== email);
+  if (usernameExists) {
+    return res.status(409).json({
+      success: false,
+      message: 'Username already taken'
+    });
+  }
+
+  // Update username in users array
+  user.username = newUsername;
+
+  // Update username in userProfiles
+  if (userProfiles[email]) {
+    userProfiles[email].username = newUsername;
+  }
+
+  res.json({
+    success: true,
+    message: 'Username updated successfully',
+    username: newUsername
+  });
+});
+
 
 // ---------------------------------------------------
 // Prototype routes for meals
