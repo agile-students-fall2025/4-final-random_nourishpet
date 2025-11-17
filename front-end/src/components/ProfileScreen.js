@@ -10,7 +10,7 @@ function ProfileScreen() {
     <div className="profile-screen">
       <div className="profile-container">
         <div className="profile-header">
-          <div className="back-arrow" onClick={() => navigate('/main')}>
+          <div className="back-arrow" onClick={() => navigate('/main-screen')}>
             ←
           </div>
           <h1 className="profile-title">Profile</h1>
