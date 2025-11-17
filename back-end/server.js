@@ -10,11 +10,20 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Mock user database (in-memory until we implement DB)w)
+// Mock user database (in-memory until we implement DB)
 const users = []; 
 
 // Mock meal database (in-memory until we implement DB)
 const meals = []; 
+
+// Mock user profiles (for Main Screen - linked by email)
+const userProfiles = {};
+
+// Mock pet data (for Main Screen - linked by email)
+const petData = {};
+
+// Mock streak data (for Main Screen - linked by email)
+const streakData = {};
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -75,6 +84,33 @@ app.post('/api/auth/signup', (req, res) => {
   };
 
   users.push(newUser);
+
+  // Initialize profile data for Main Screen
+  userProfiles[email] = {
+    firstName: '',
+    lastName: '',
+    email: email,
+    dateOfBirth: '',
+    username: username,
+    bio: '',
+    profilePicture: '/user.png'
+  };
+
+  // Initialize pet data for Main Screen
+  petData[email] = {
+    petImage: '/dog.png',
+    petName: 'Buddy',
+    petType: 'dog',
+    happiness: 100,
+    health: 100
+  };
+
+  // Initialize streak data for Main Screen
+  streakData[email] = {
+    currentStreak: 0,
+    longestStreak: 0,
+    lastLogDate: null
+  };
 
   // Return success response (without password)
   res.status(201).json({
@@ -219,6 +255,40 @@ app.get('/api/users', (req, res) => {
   res.json({
     success: true,
     users: usersWithoutPasswords,
+  });
+});
+
+
+// ---------------------------------------------------
+// MAIN SCREEN ROUTES
+// ---------------------------------------------------
+
+// Get main screen data (user, pet, streak)
+app.get('/api/main-screen/:email', (req, res) => {
+  const { email } = req.params;
+
+  const user = users.find(u => u.email === email);
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    });
+  }
+
+  const profile = userProfiles[email] || {};
+  const pet = petData[email] || {};
+  const streak = streakData[email] || {};
+
+  res.json({
+    success: true,
+    data: {
+      user: {
+        username: user.username,
+        profilePicture: profile.profilePicture
+      },
+      pet: pet,
+      streak: streak
+    }
   });
 });
 
