@@ -37,10 +37,10 @@ app.get('/api/health', (req, res) => {
 
 // Sign Up route
 app.post('/api/auth/signup', (req, res) => {
-  const { username, email, password, confirmPassword } = req.body;
+  const { firstName, lastName, username, email, dateOfBirth, password, confirmPassword } = req.body;
 
   // Validate required fields
-  if (!username || !email || !password || !confirmPassword) {
+  if (!firstName || !lastName || !username || !email || !dateOfBirth || !password || !confirmPassword) {
     return res.status(400).json({
       success: false,
       message: 'All fields are required',
@@ -87,10 +87,10 @@ app.post('/api/auth/signup', (req, res) => {
 
   // Initialize profile data for Main Screen & Profile
   userProfiles[email] = {
-    firstName: '',
-    lastName: '',
+    firstName: firstName,
+    lastName: lastName,
     email: email,
-    dateOfBirth: '',
+    dateOfBirth: dateOfBirth,
     username: username,
     bio: '',
     profilePicture: '/user.png'

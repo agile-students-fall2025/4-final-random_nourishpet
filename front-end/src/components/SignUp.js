@@ -4,8 +4,11 @@ import './SignUp.css';
 
 function SignUp() {
   const [formData, setFormData] = useState({
-    username: '',
+    firstName: '',
+    lastName: '',
     email: '',
+    dateOfBirth: '',
+    username: '',
     password: '',
     confirmPassword: ''
   });
@@ -73,14 +76,27 @@ function SignUp() {
 
         <form className="signup-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="firstName">First Name</label>
             <input
               type="text"
-              id="username"
-              name="username"
-              value={formData.username}
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
               onChange={handleChange}
-              placeholder="Choose a username"
+              placeholder="Enter your first name"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="lastName">Last Name</label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              placeholder="Enter your last name"
               required
             />
           </div>
@@ -94,6 +110,31 @@ function SignUp() {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter your email"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="dateOfBirth">Date of Birth</label>
+            <input
+              type="date"
+              id="dateOfBirth"
+              name="dateOfBirth"
+              value={formData.dateOfBirth}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="Choose a username"
               required
             />
           </div>
