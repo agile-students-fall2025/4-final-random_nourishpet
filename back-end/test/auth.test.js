@@ -17,8 +17,11 @@ describe('Authentication API Tests', () => {
 
   describe('POST /api/auth/signup', () => {
     const validSignUpData = {
+      firstName: 'Test',
+      lastName: 'User',
       username: 'testuser',
       email: 'test@example.com',
+      dateOfBirth: '1990-01-01',
       password: 'password123',
       confirmPassword: 'password123'
     };
@@ -37,11 +40,48 @@ describe('Authentication API Tests', () => {
       expect(res.body.user).to.not.have.property('password');
     });
 
+    it('should return 400 if firstName is missing', async () => {
+      const res = await request(app)
+        .post('/api/auth/signup')
+        .send({
+          lastName: 'User',
+          username: 'testuser2',
+          email: 'test2@example.com',
+          dateOfBirth: '1990-01-01',
+          password: 'password123',
+          confirmPassword: 'password123'
+        })
+        .expect(400);
+      
+      expect(res.body).to.have.property('success', false);
+      expect(res.body).to.have.property('message', 'All fields are required');
+    });
+
+    it('should return 400 if lastName is missing', async () => {
+      const res = await request(app)
+        .post('/api/auth/signup')
+        .send({
+          firstName: 'Test',
+          username: 'testuser3',
+          email: 'test3@example.com',
+          dateOfBirth: '1990-01-01',
+          password: 'password123',
+          confirmPassword: 'password123'
+        })
+        .expect(400);
+      
+      expect(res.body).to.have.property('success', false);
+      expect(res.body).to.have.property('message', 'All fields are required');
+    });
+
     it('should return 400 if username is missing', async () => {
       const res = await request(app)
         .post('/api/auth/signup')
         .send({
-          email: 'test2@example.com',
+          firstName: 'Test',
+          lastName: 'User',
+          email: 'test4@example.com',
+          dateOfBirth: '1990-01-01',
           password: 'password123',
           confirmPassword: 'password123'
         })
@@ -55,7 +95,27 @@ describe('Authentication API Tests', () => {
       const res = await request(app)
         .post('/api/auth/signup')
         .send({
-          username: 'testuser2',
+          firstName: 'Test',
+          lastName: 'User',
+          username: 'testuser5',
+          dateOfBirth: '1990-01-01',
+          password: 'password123',
+          confirmPassword: 'password123'
+        })
+        .expect(400);
+      
+      expect(res.body).to.have.property('success', false);
+      expect(res.body).to.have.property('message', 'All fields are required');
+    });
+
+    it('should return 400 if dateOfBirth is missing', async () => {
+      const res = await request(app)
+        .post('/api/auth/signup')
+        .send({
+          firstName: 'Test',
+          lastName: 'User',
+          username: 'testuser6',
+          email: 'test6@example.com',
           password: 'password123',
           confirmPassword: 'password123'
         })
@@ -69,8 +129,11 @@ describe('Authentication API Tests', () => {
       const res = await request(app)
         .post('/api/auth/signup')
         .send({
-          username: 'testuser3',
-          email: 'test3@example.com',
+          firstName: 'Test',
+          lastName: 'User',
+          username: 'testuser7',
+          email: 'test7@example.com',
+          dateOfBirth: '1990-01-01',
           confirmPassword: 'password123'
         })
         .expect(400);
@@ -83,8 +146,11 @@ describe('Authentication API Tests', () => {
       const res = await request(app)
         .post('/api/auth/signup')
         .send({
-          username: 'testuser4',
-          email: 'test4@example.com',
+          firstName: 'Test',
+          lastName: 'User',
+          username: 'testuser8',
+          email: 'test8@example.com',
+          dateOfBirth: '1990-01-01',
           password: 'password123',
           confirmPassword: 'differentpassword'
         })
@@ -98,8 +164,11 @@ describe('Authentication API Tests', () => {
       const res = await request(app)
         .post('/api/auth/signup')
         .send({
-          username: 'testuser5',
-          email: 'test5@example.com',
+          firstName: 'Test',
+          lastName: 'User',
+          username: 'testuser9',
+          email: 'test9@example.com',
+          dateOfBirth: '1990-01-01',
           password: '12345',
           confirmPassword: '12345'
         })
@@ -114,8 +183,11 @@ describe('Authentication API Tests', () => {
       await request(app)
         .post('/api/auth/signup')
         .send({
+          firstName: 'Unique',
+          lastName: 'User',
           username: 'uniqueuser',
           email: 'duplicate@example.com',
+          dateOfBirth: '1990-01-01',
           password: 'password123',
           confirmPassword: 'password123'
         });
@@ -124,8 +196,11 @@ describe('Authentication API Tests', () => {
       const res = await request(app)
         .post('/api/auth/signup')
         .send({
+          firstName: 'Another',
+          lastName: 'User',
           username: 'anotheruser',
           email: 'duplicate@example.com',
+          dateOfBirth: '1990-01-01',
           password: 'password123',
           confirmPassword: 'password123'
         })
@@ -140,8 +215,11 @@ describe('Authentication API Tests', () => {
       await request(app)
         .post('/api/auth/signup')
         .send({
+          firstName: 'User',
+          lastName: 'One',
           username: 'duplicateusername',
           email: 'user1@example.com',
+          dateOfBirth: '1990-01-01',
           password: 'password123',
           confirmPassword: 'password123'
         });
@@ -150,8 +228,11 @@ describe('Authentication API Tests', () => {
       const res = await request(app)
         .post('/api/auth/signup')
         .send({
+          firstName: 'User',
+          lastName: 'Two',
           username: 'duplicateusername',
           email: 'user2@example.com',
+          dateOfBirth: '1990-01-01',
           password: 'password123',
           confirmPassword: 'password123'
         })
@@ -168,8 +249,11 @@ describe('Authentication API Tests', () => {
       await request(app)
         .post('/api/auth/signup')
         .send({
+          firstName: 'SignIn',
+          lastName: 'User',
           username: 'signinuser',
           email: 'signin@example.com',
+          dateOfBirth: '1990-01-01',
           password: 'password123',
           confirmPassword: 'password123'
         });
