@@ -4,10 +4,23 @@ const { body, validationResult } = require('express-validator');
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    // Check for missing required fields (name or calories)
+    const hasMissingName = errors.array().some(err => err.path === 'name' && err.msg.includes('required'));
+    const hasMissingCalories = errors.array().some(err => err.path === 'calories' && err.msg.includes('required'));
+    const hasMissingUserEmail = errors.array().some(err => err.path === 'userEmail' && err.msg.includes('required'));
+    
+    if ((hasMissingName || hasMissingCalories || hasMissingUserEmail) && req.path === '/api/meals') {
+      return res.status(400).json({
+        success: false,
+        message: 'Meal name and calories are required.'
+      });
+    }
+    
+    // For other validation errors, return the first error message
+    const firstError = errors.array()[0];
     return res.status(400).json({
       success: false,
-      message: 'Validation failed',
-      errors: errors.array()
+      message: firstError.msg
     });
   }
   next();

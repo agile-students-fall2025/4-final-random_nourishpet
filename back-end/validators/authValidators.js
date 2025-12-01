@@ -4,10 +4,36 @@ const { body, validationResult } = require('express-validator');
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    // Check if it's a signup with missing required fields
+    const missingFields = ['firstName', 'lastName', 'username', 'email', 'dateOfBirth', 'password', 'confirmPassword'];
+    const hasMissingRequired = missingFields.some(field => 
+      errors.array().some(err => err.path === field && err.msg.includes('required'))
+    );
+    
+    if (hasMissingRequired && req.path === '/api/auth/signup') {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
+    }
+    
+    // Check if it's a signin with missing email or password
+    if (req.path === '/api/auth/signin') {
+      const hasMissingEmail = errors.array().some(err => err.path === 'email' && err.msg.includes('required'));
+      const hasMissingPassword = errors.array().some(err => err.path === 'password' && err.msg.includes('required'));
+      if (hasMissingEmail || hasMissingPassword) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email and password are required'
+        });
+      }
+    }
+    
+    // For other validation errors, return the first error message
+    const firstError = errors.array()[0];
     return res.status(400).json({
       success: false,
-      message: 'Validation failed',
-      errors: errors.array()
+      message: firstError.msg
     });
   }
   next();
