@@ -2,6 +2,15 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+// Database connection
+const connectDB = require('./config/db');
+
+// Models
+const User = require('./models/User');
+const UserProfile = require('./models/UserProfile');
+const PetData = require('./models/PetData');
+const StreakData = require('./models/StreakData');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -9,21 +18,6 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Mock user database (in-memory until we implement DB)
-const users = []; 
-
-// Mock meal database (in-memory until we implement DB)
-const meals = []; 
-
-// Mock user profiles (for Main Screen & Profile - linked by email)
-const userProfiles = {};
-
-// Mock pet data (for Main Screen - linked by email)
-const petData = {};
-
-// Mock streak data (for Main Screen - linked by email)
-const streakData = {};
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -36,136 +30,163 @@ app.get('/api/health', (req, res) => {
 // ---------------------------------------------------
 
 // Sign Up route
-app.post('/api/auth/signup', (req, res) => {
-  const { firstName, lastName, username, email, dateOfBirth, password, confirmPassword } = req.body;
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { firstName, lastName, username, email, dateOfBirth, password, confirmPassword } = req.body;
 
-  // Validate required fields
-  if (!firstName || !lastName || !username || !email || !dateOfBirth || !password || !confirmPassword) {
-    return res.status(400).json({
+    // Validate required fields
+    if (!firstName || !lastName || !username || !email || !dateOfBirth || !password || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required',
+      });
+    }
+
+    // Validate password match
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Passwords do not match',
+      });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long',
+      });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({
+      $or: [{ email: email.toLowerCase() }, { username: username }]
+    });
+    
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: 'User with this email or username already exists',
+      });
+    }
+
+    // Create new user
+    const newUser = new User({
+      username,
+      email: email.toLowerCase(),
+      password, // this will be hashed after the next sprint
+    });
+
+    await newUser.save();
+
+    // Initialize profile data for Main Screen & Profile
+    const newProfile = new UserProfile({
+      email: email.toLowerCase(),
+      firstName,
+      lastName,
+      dateOfBirth,
+      username,
+      bio: '',
+      profilePicture: '/user.png'
+    });
+    await newProfile.save();
+
+    // Initialize pet data for Main Screen
+    const newPetData = new PetData({
+      email: email.toLowerCase(),
+      petImage: '/dog.png',
+      petName: 'Buddy',
+      petType: 'dog',
+      happiness: 100,
+      health: 100
+    });
+    await newPetData.save();
+
+    // Initialize streak data for Main Screen
+    const newStreakData = new StreakData({
+      email: email.toLowerCase(),
+      currentStreak: 0,
+      longestStreak: 0,
+      lastLogDate: null
+    });
+    await newStreakData.save();
+
+    // Return success response (without password)
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+        createdAt: newUser.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error('Signup error:', error);
+    if (error.code === 11000) {
+      // Duplicate key error
+      return res.status(409).json({
+        success: false,
+        message: 'User with this email or username already exists',
+      });
+    }
+    res.status(500).json({
       success: false,
-      message: 'All fields are required',
+      message: 'Internal server error',
     });
   }
-
-  // Validate password match
-  if (password !== confirmPassword) {
-    return res.status(400).json({
-      success: false,
-      message: 'Passwords do not match',
-    });
-  }
-
-  // Validate password length
-  if (password.length < 6) {
-    return res.status(400).json({
-      success: false,
-      message: 'Password must be at least 6 characters long',
-    });
-  }
-
-  // Check if user already exists
-  const existingUser = users.find(
-    (u) => u.email === email || u.username === username
-  );
-  if (existingUser) {
-    return res.status(409).json({
-      success: false,
-      message: 'User with this email or username already exists',
-    });
-  }
-
-  // Create new user
-  const newUser = {
-    id: users.length + 1,
-    username,
-    email,
-    password, // this will be hashed after the next sprint
-    createdAt: new Date().toISOString(),
-  };
-
-  users.push(newUser);
-
-  // Initialize profile data for Main Screen & Profile
-  userProfiles[email] = {
-    firstName: firstName,
-    lastName: lastName,
-    email: email,
-    dateOfBirth: dateOfBirth,
-    username: username,
-    bio: '',
-    profilePicture: '/user.png'
-  };
-
-  // Initialize pet data for Main Screen
-  petData[email] = {
-    petImage: '/dog.png',
-    petName: 'Buddy',
-    petType: 'dog',
-    happiness: 100,
-    health: 100
-  };
-
-  // Initialize streak data for Main Screen
-  streakData[email] = {
-    currentStreak: 0,
-    longestStreak: 0,
-    lastLogDate: null
-  };
-
-  // Return success response (without password)
-  res.status(201).json({
-    success: true,
-    message: 'User created successfully',
-    user: {
-      id: newUser.id,
-      username: newUser.username,
-      email: newUser.email,
-      createdAt: newUser.createdAt,
-    },
-  });
 });
 
 // Sign In route
-app.post('/api/auth/signin', (req, res) => {
-  const { email, password } = req.body;
+app.post('/api/auth/signin', async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-  // Validate required fields
-  if (!email || !password) {
-    return res.status(400).json({
+    // Validate required fields
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and password are required',
+      });
+    }
+
+    // Find user
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password',
+      });
+    }
+
+    // Verify password (in production, use bcrypt to compare hashes)
+    if (user.password !== password) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password',
+      });
+    }
+
+    // Return success response (without password)
+    res.status(200).json({
+      success: true,
+      message: 'Sign in successful',
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error('Signin error:', error);
+    res.status(500).json({
       success: false,
-      message: 'Email and password are required',
+      message: 'Internal server error',
     });
   }
-
-  // Find user
-  const user = users.find((u) => u.email === email);
-
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid email or password',
-    });
-  }
-
-  // Verify password (in production, use bcrypt to compare hashes)
-  if (user.password !== password) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid email or password',
-    });
-  }
-
-  // Return success response (without password)
-  res.status(200).json({
-    success: true,
-    message: 'Sign in successful',
-    user: {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      createdAt: user.createdAt,
-    },
-  });
 });
 
 // Activity submission route
@@ -250,12 +271,20 @@ app.post('/api/biometrics/update', (req, res) => {
 });
 
 // Get all users (for testing purposes - would not exist in production)
-app.get('/api/users', (req, res) => {
-  const usersWithoutPasswords = users.map(({ password, ...user }) => user);
-  res.json({
-    success: true,
-    users: usersWithoutPasswords,
-  });
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find({}).select('-password');
+    res.json({
+      success: true,
+      users: users,
+    });
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
 });
 
 
@@ -264,32 +293,40 @@ app.get('/api/users', (req, res) => {
 // ---------------------------------------------------
 
 // Get main screen data (user, pet, streak)
-app.get('/api/main-screen/:email', (req, res) => {
-  const { email } = req.params;
+app.get('/api/main-screen/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
 
-  const user = users.find(u => u.email === email);
-  if (!user) {
-    return res.status(404).json({
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const profile = await UserProfile.findOne({ email: email.toLowerCase() }) || {};
+    const pet = await PetData.findOne({ email: email.toLowerCase() }) || {};
+    const streak = await StreakData.findOne({ email: email.toLowerCase() }) || {};
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          username: user.username,
+          profilePicture: profile.profilePicture || '/user.png'
+        },
+        pet: pet || {},
+        streak: streak || {}
+      }
+    });
+  } catch (error) {
+    console.error('Get main screen error:', error);
+    res.status(500).json({
       success: false,
-      message: 'User not found'
+      message: 'Internal server error',
     });
   }
-
-  const profile = userProfiles[email] || {};
-  const pet = petData[email] || {};
-  const streak = streakData[email] || {};
-
-  res.json({
-    success: true,
-    data: {
-      user: {
-        username: user.username,
-        profilePicture: profile.profilePicture
-      },
-      pet: pet,
-      streak: streak
-    }
-  });
 });
 
 
@@ -298,113 +335,150 @@ app.get('/api/main-screen/:email', (req, res) => {
 // ---------------------------------------------------
 
 // Get user profile
-app.get('/api/profile/:email', (req, res) => {
-  const { email } = req.params;
+app.get('/api/profile/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
 
-  const user = users.find(u => u.email === email);
-  if (!user) {
-    return res.status(404).json({
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const profile = await UserProfile.findOne({ email: email.toLowerCase() }) || {};
+
+    res.json({
+      success: true,
+      profile: {
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
+        email: profile.email || email,
+        dateOfBirth: profile.dateOfBirth || '',
+        username: user.username,
+        bio: profile.bio || '',
+        profilePicture: profile.profilePicture || '/user.png'
+      }
+    });
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({
       success: false,
-      message: 'User not found'
+      message: 'Internal server error',
     });
   }
-
-  const profile = userProfiles[email] || {};
-
-  res.json({
-    success: true,
-    profile: {
-      firstName: profile.firstName || '',
-      lastName: profile.lastName || '',
-      email: profile.email || email,
-      dateOfBirth: profile.dateOfBirth || '',
-      username: user.username,
-      bio: profile.bio || '',
-      profilePicture: profile.profilePicture || '/user.png'
-    }
-  });
 });
 
 // Update profile
-app.post('/api/profile/update', (req, res) => {
-  const { email, firstName, lastName, dateOfBirth, bio } = req.body;
+app.post('/api/profile/update', async (req, res) => {
+  try {
+    const { email, firstName, lastName, dateOfBirth, bio } = req.body;
 
-  if (!email) {
-    return res.status(400).json({
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Update or create profile data
+    const updateData = {};
+    if (firstName !== undefined) updateData.firstName = firstName;
+    if (lastName !== undefined) updateData.lastName = lastName;
+    if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
+    if (bio !== undefined) updateData.bio = bio;
+
+    const profile = await UserProfile.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      { $set: updateData },
+      { new: true, upsert: true, runValidators: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      profile: profile
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({
       success: false,
-      message: 'Email is required'
+      message: 'Internal server error',
     });
   }
-
-  const user = users.find(u => u.email === email);
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: 'User not found'
-    });
-  }
-
-  // Update profile data
-  if (!userProfiles[email]) {
-    userProfiles[email] = {};
-  }
-
-  userProfiles[email] = {
-    ...userProfiles[email],
-    firstName: firstName || userProfiles[email].firstName || '',
-    lastName: lastName || userProfiles[email].lastName || '',
-    dateOfBirth: dateOfBirth || userProfiles[email].dateOfBirth || '',
-    bio: bio || userProfiles[email].bio || ''
-  };
-
-  res.json({
-    success: true,
-    message: 'Profile updated successfully',
-    profile: userProfiles[email]
-  });
 });
 
 // Update username
-app.post('/api/profile/update-username', (req, res) => {
-  const { email, newUsername } = req.body;
+app.post('/api/profile/update-username', async (req, res) => {
+  try {
+    const { email, newUsername } = req.body;
 
-  if (!email || !newUsername) {
-    return res.status(400).json({
+    if (!email || !newUsername) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and new username are required'
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if new username already exists
+    const usernameExists = await User.findOne({ 
+      username: newUsername, 
+      email: { $ne: email.toLowerCase() } 
+    });
+    
+    if (usernameExists) {
+      return res.status(409).json({
+        success: false,
+        message: 'Username already taken'
+      });
+    }
+
+    // Update username in User
+    user.username = newUsername;
+    await user.save();
+
+    // Update username in UserProfile
+    await UserProfile.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      { $set: { username: newUsername } },
+      { upsert: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Username updated successfully',
+      username: newUsername
+    });
+  } catch (error) {
+    console.error('Update username error:', error);
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: 'Username already taken'
+      });
+    }
+    res.status(500).json({
       success: false,
-      message: 'Email and new username are required'
+      message: 'Internal server error',
     });
   }
-
-  const user = users.find(u => u.email === email);
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: 'User not found'
-    });
-  }
-
-  // Check if new username already exists
-  const usernameExists = users.find(u => u.username === newUsername && u.email !== email);
-  if (usernameExists) {
-    return res.status(409).json({
-      success: false,
-      message: 'Username already taken'
-    });
-  }
-
-  // Update username in users array
-  user.username = newUsername;
-
-  // Update username in userProfiles
-  if (userProfiles[email]) {
-    userProfiles[email].username = newUsername;
-  }
-
-  res.json({
-    success: true,
-    message: 'Username updated successfully',
-    username: newUsername
-  });
 });
 
 
@@ -485,8 +559,14 @@ app.use((err, req, res, next) => {
 
 // Start server (only if not being required for testing)
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+  // Connect to database first, then start server
+  connectDB().then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+    });
+  }).catch((error) => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
   });
 }
 

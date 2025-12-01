@@ -112,7 +112,7 @@ function UpdateBiometrics() {
         {/* default form fields will be updated to take in inches/cm, and kg/lbs */}
         <div className="update-biometrics-content">
           <div className="form-box">
-            <label htmlFor="height">Height (e.g., 5'10", 180cm)</label>
+            <label htmlFor="height">Height (ONLY IN CM)</label>
             <input
               type="text"
               id="height"
@@ -125,7 +125,7 @@ function UpdateBiometrics() {
           </div>
 
           <div className="form-box">
-            <label htmlFor="weight">Weight (e.g., 70kg, 154lbs)</label>
+            <label htmlFor="weight">Weight (ONLY IN KG)</label>
             <input
               type="text"
               id="weight"
@@ -172,19 +172,18 @@ function UpdateBiometrics() {
           </div>
 
           <div className="form-box">
-            <label htmlFor="gender">Gender</label>
+            <label htmlFor="sex">Sex</label>
             <select
-              id="gender"
-              name="gender"
-              value={formData.gender}
+              id="sex"
+              name="sex"
+              value={formData.sex}
               onChange={handleChange}
               className="input-field"
             >
               {/* default list of genders will be updated in the future */}
-              <option value="">Select gender</option>
+              <option value="">Select biological sex</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
-              <option value="Non-binary">Non-binary</option>
               <option value="Prefer not to say">Prefer not to say</option>
             </select>
           </div>
