@@ -14,6 +14,8 @@ const Meal = require('./models/Meal');
 
 // Validators
 const { validateSignup, validateSignin } = require('./validators/authValidators');
+const { validateProfileUpdate, validateUsernameUpdate } = require('./validators/profileValidators');
+const { validateMeal } = require('./validators/mealValidators');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -343,16 +345,9 @@ app.get('/api/profile/:email', async (req, res) => {
 });
 
 // Update profile
-app.post('/api/profile/update', async (req, res) => {
+app.post('/api/profile/update', validateProfileUpdate, async (req, res) => {
   try {
     const { email, firstName, lastName, dateOfBirth, bio } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email is required'
-      });
-    }
 
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
@@ -390,16 +385,9 @@ app.post('/api/profile/update', async (req, res) => {
 });
 
 // Update username
-app.post('/api/profile/update-username', async (req, res) => {
+app.post('/api/profile/update-username', validateUsernameUpdate, async (req, res) => {
   try {
     const { email, newUsername } = req.body;
-
-    if (!email || !newUsername) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email and new username are required'
-      });
-    }
 
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
@@ -459,16 +447,9 @@ app.post('/api/profile/update-username', async (req, res) => {
 // ---------------------------------------------------
 
 // Create a meal
-app.post('/api/meals', async (req, res) => {
+app.post('/api/meals', validateMeal, async (req, res) => {
   try {
     const { userEmail, name, calories, date } = req.body;
-
-    if (!userEmail || !name || !calories) {
-      return res.status(400).json({
-        success: false,
-        message: 'userEmail, meal name, and calories are required.'
-      });
-    }
 
     const meal = new Meal({
       userEmail: userEmail.toLowerCase(),
