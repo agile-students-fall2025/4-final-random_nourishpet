@@ -4,7 +4,8 @@ const userProfileSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
+    // commenting out the line below because i think it may be causing a duplicate key error
+    // unique: true,
     lowercase: true,
     trim: true,
   },

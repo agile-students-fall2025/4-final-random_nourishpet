@@ -26,7 +26,7 @@ function SignIn() {
         console.log('Sign in successful:', data);
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('userEmail', email);
+        localStorage.setItem('email', email);
         localStorage.setItem('username', data.user.username);
         navigate('/main-screen');
       } else {
