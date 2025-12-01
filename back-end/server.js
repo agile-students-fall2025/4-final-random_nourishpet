@@ -24,6 +24,12 @@ const { calculateBMI } = require('./services/bmiService');
 const meals = [];
 const Meal = require('./models/Meal');
 
+// Validators
+const { validateSignup, validateSignin } = require('./validators/authValidators');
+const { validateProfileUpdate, validateUsernameUpdate } = require('./validators/profileValidators');
+const { validateMeal } = require('./validators/mealValidators');
+const { validateActivity, validateStreak, validateBiometrics } = require('./validators/activityValidators');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 const dbConnectionPromise = connectDB();
@@ -44,7 +50,7 @@ app.get('/api/health', (req, res) => {
 // ---------------------------------------------------
 
 // Sign Up route
-app.post('/api/auth/signup', async (req, res) => {
+app.post('/api/auth/signup', validateSignup, async (req, res) => {
   try {
     const { firstName, lastName, username, email, dateOfBirth, password, confirmPassword } = req.body;
 
@@ -153,7 +159,7 @@ app.post('/api/auth/signup', async (req, res) => {
 });
 
 // Sign In route
-app.post('/api/auth/signin', async (req, res) => {
+app.post('/api/auth/signin', validateSignin, async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -204,15 +210,8 @@ app.post('/api/auth/signin', async (req, res) => {
 });
 
 // Activity submission route
-app.post('/api/activities', (req, res) => {
-  const { activityType, timeSpent, imageName, imageType } = req.body || {};
-
-  if (!activityType || !timeSpent) {
-    return res.status(400).json({
-      success: false,
-      message: 'Activity type and time spent are required'
-    });
-  }
+app.post('/api/activities', validateActivity, (req, res) => {
+  const { activityType, timeSpent, imageName, imageType } = req.body;
 
   console.log('Activity submission received:', {
     activityType,
@@ -228,15 +227,8 @@ app.post('/api/activities', (req, res) => {
 });
 
 // Streak share route
-app.post('/api/streak', (req, res) => {
-  const { message } = req.body || {};
-
-  if (!message) {
-    return res.status(400).json({
-      success: false,
-      message: 'Message is required'
-    });
-  }
+app.post('/api/streak', validateStreak, (req, res) => {
+  const { message } = req.body;
 
   console.log('Streak share message:', message);
 
@@ -247,7 +239,7 @@ app.post('/api/streak', (req, res) => {
 });
 
 // Update biometrics route
-app.post('/api/biometrics/update', async (req, res) => {
+app.post('/api/biometrics/update', validateBiometrics, async (req, res) => {
   try {
     const {
       email,
@@ -257,14 +249,7 @@ app.post('/api/biometrics/update', async (req, res) => {
       ethnicityOther,
       sex,
       age
-    } = req.body || {};
-
-    if (!email || typeof email !== 'string' || !email.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email is required'
-      });
-    }
+    } = req.body;
 
     const normalizedEmail = email.trim().toLowerCase();
     const user = await User.findOne({ email: normalizedEmail });
@@ -530,7 +515,7 @@ app.get('/api/profile/:email', async (req, res) => {
 });
 
 // Update profile
-app.post('/api/profile/update', async (req, res) => {
+app.post('/api/profile/update', validateProfileUpdate, async (req, res) => {
   try {
     const { email, firstName, lastName, dateOfBirth, bio } = req.body;
 
@@ -577,7 +562,7 @@ app.post('/api/profile/update', async (req, res) => {
 });
 
 // Update username
-app.post('/api/profile/update-username', async (req, res) => {
+app.post('/api/profile/update-username', validateUsernameUpdate, async (req, res) => {
   try {
     const { email, newUsername } = req.body;
 
@@ -724,7 +709,7 @@ app.post('/api/groq/test', async (req, res) => {
 // ---------------------------------------------------
 
 // Create a meal
-app.post('/api/meals', async (req, res) => {
+app.post('/api/meals', validateMeal, async (req, res) => {
   try {
     const { userEmail, name, calories, date } = req.body;
 
