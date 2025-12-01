@@ -10,10 +10,18 @@ const User = require('./models/User');
 const UserProfile = require('./models/UserProfile');
 const PetData = require('./models/PetData');
 const StreakData = require('./models/StreakData');
+const BiometricData = require('./models/BiometricData');
+
+// Services
+const { calculateBMI } = require('./services/bmiService');
+
+// Prototype collections (in-memory) for features still under development
+const meals = [];
 const Meal = require('./models/Meal');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const dbConnectionPromise = connectDB();
 
 // Middleware
 app.use(cors());
@@ -234,41 +242,186 @@ app.post('/api/streak', (req, res) => {
 });
 
 // Update biometrics route
-app.post('/api/biometrics/update', (req, res) => {
-  const {
-    height,
-    weight,
-    bmi,
-    ethnicity,
-    gender,
-    age
-  } = req.body || {};
+app.post('/api/biometrics/update', async (req, res) => {
+  try {
+    const {
+      email,
+      height,
+      weight,
+      ethnicity,
+      ethnicityOther,
+      sex,
+      age
+    } = req.body || {};
 
-  const payload = {
-    height: height ?? null,
-    weight: weight ?? null,
-    bmi: bmi ?? null,
-    ethnicity: ethnicity ?? null,
-    gender: gender ?? null,
-    age: age ?? null
-  };
+    if (!email || typeof email !== 'string' || !email.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
 
-  // Ensure at least one field provided (can be empty strings)
-  const hasField = Object.values(payload).some(value => value !== null && value !== undefined);
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
 
-  if (!hasField) {
-    return res.status(400).json({
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Helper utilities
+    const valueProvided = (value) => !(value === undefined || value === null || (typeof value === 'string' && value.trim() === ''));
+    const parseNumber = (value) => {
+      if (!valueProvided(value)) {
+        return undefined;
+      }
+      const parsed = Number(value);
+      if (Number.isNaN(parsed)) {
+        return undefined;
+      }
+      return parsed;
+    };
+
+    const heightCmInput = parseNumber(height);
+    if (valueProvided(height) && heightCmInput === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'Height must be a numeric value in centimeters'
+      });
+    }
+
+    const weightLbsInput = parseNumber(weight);
+    if (valueProvided(weight) && weightLbsInput === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'Weight must be a numeric value in pounds'
+      });
+    }
+
+    const ageInput = parseNumber(age);
+    if (valueProvided(age) && ageInput === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'Age must be a numeric value'
+      });
+    }
+
+    const existingRecord = await BiometricData.findOne({ email: normalizedEmail });
+
+    const merged = {
+      heightCm: heightCmInput ?? existingRecord?.heightCm,
+      weightLbs: weightLbsInput ?? existingRecord?.weightLbs,
+      ethnicity: (typeof ethnicity === 'string' && ethnicity.trim().length > 0)
+        ? ethnicity.trim()
+        : (existingRecord?.ethnicity || ''),
+      ethnicityOther: ethnicityOther ?? existingRecord?.ethnicityOther ?? '',
+      sex: (typeof sex === 'string' && sex.trim().length > 0)
+        ? sex.trim()
+        : (existingRecord?.sex || ''),
+      age: Number.isFinite(ageInput) ? ageInput : (existingRecord?.age ?? null)
+    };
+
+    if (!merged.heightCm || !merged.weightLbs) {
+      return res.status(400).json({
+        success: false,
+        message: 'Height (cm) and weight (lbs) are required'
+      });
+    }
+
+    if (merged.ethnicity !== 'Other') {
+      merged.ethnicityOther = '';
+    } else {
+      merged.ethnicityOther = (typeof ethnicityOther === 'string' && ethnicityOther.trim().length > 0)
+        ? ethnicityOther.trim()
+        : (existingRecord?.ethnicityOther || '');
+    }
+
+    const bmiResult = await calculateBMI({
+      heightCm: merged.heightCm,
+      weightLbs: merged.weightLbs,
+      sex: merged.sex,
+      age: merged.age,
+      ethnicity: merged.ethnicity,
+      ethnicityOther: merged.ethnicityOther,
+    });
+
+    const updatedBiometrics = await BiometricData.findOneAndUpdate(
+      { email: normalizedEmail },
+      {
+        $set: {
+          heightCm: merged.heightCm,
+          weightLbs: merged.weightLbs,
+          ethnicity: merged.ethnicity,
+          ethnicityOther: merged.ethnicity === 'Other' ? merged.ethnicityOther : '',
+          sex: merged.sex,
+          age: merged.age ?? null,
+          bmi: bmiResult.bmi,
+          bmiSource: bmiResult.source,
+          lastCalculatedAt: new Date(),
+        },
+        $setOnInsert: { email: normalizedEmail }
+      },
+      { new: true, upsert: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Biometric data updated',
+      biometrics: updatedBiometrics,
+    });
+  } catch (error) {
+    console.error('Update biometrics error:', error);
+    res.status(500).json({
       success: false,
-      message: 'No biometric data provided'
+      message: 'Internal server error',
     });
   }
+});
 
-  console.log('Biometric update submission:', payload);
+// Get biometrics for a user
+app.get('/api/biometrics/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
 
-  res.status(200).json({
-    success: true,
-    message: 'Biometric data logged'
-  });
+    if (!email || !email.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const biometrics = await BiometricData.findOne({ email: normalizedEmail });
+
+    if (!biometrics) {
+      return res.status(404).json({
+        success: false,
+        message: 'No biometrics found for this user'
+      });
+    }
+
+    res.json({
+      success: true,
+      biometrics,
+    });
+  } catch (error) {
+    console.error('Get biometrics error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
 });
 
 // Get all users (for testing purposes - would not exist in production)
@@ -562,8 +715,7 @@ app.use((err, req, res, next) => {
 
 // Start server (only if not being required for testing)
 if (require.main === module) {
-  // Connect to database first, then start server
-  connectDB().then(() => {
+  dbConnectionPromise.then(() => {
     app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
     });

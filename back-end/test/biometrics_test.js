@@ -1,306 +1,148 @@
 const request = require('supertest');
-const assert = require('chai').assert;
+const { expect } = require('chai');
 const app = require('../server');
 
 describe('Biometrics API Tests', () => {
-  
+  const baseUser = {
+    firstName: 'Bio',
+    lastName: 'Test',
+    username: `biouser${Date.now()}`,
+    email: `bio${Date.now()}@example.com`,
+    dateOfBirth: '1990-01-01',
+    password: 'password123',
+    confirmPassword: 'password123',
+  };
+
+  before(async () => {
+    await request(app).post('/api/auth/signup').send(baseUser);
+  });
+
   describe('POST /api/biometrics/update', () => {
-    const validBiometricData = {
-      height: '5\'10"',
-      weight: '70kg',
-      bmi: '22.5',
-      ethnicity: 'Asian',
-      gender: 'Male',
-      age: '30'
-    };
-
-    it('should successfully log biometric data with all fields', async () => {
-      const res = await request(app)
-        .post('/api/biometrics/update')
-        .send(validBiometricData)
-        .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
-      assert.strictEqual(res.body.message, 'Biometric data logged');
-    });
-
-    it('should successfully log biometric data with only height', async () => {
-      const res = await request(app)
-        .post('/api/biometrics/update')
-        .send({ height: '180cm' })
-        .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
-    });
-
-    it('should successfully log biometric data with only weight', async () => {
-      const res = await request(app)
-        .post('/api/biometrics/update')
-        .send({ weight: '154lbs' })
-        .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
-    });
-
-    it('should successfully log biometric data with only bmi', async () => {
-      const res = await request(app)
-        .post('/api/biometrics/update')
-        .send({ bmi: '24.0' })
-        .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
-    });
-
-    it('should successfully log biometric data with only ethnicity', async () => {
-      const res = await request(app)
-        .post('/api/biometrics/update')
-        .send({ ethnicity: 'White' })
-        .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
-    });
-
-    it('should successfully log biometric data with only gender', async () => {
-      const res = await request(app)
-        .post('/api/biometrics/update')
-        .send({ gender: 'Female' })
-        .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
-    });
-
-    it('should successfully log biometric data with only age', async () => {
-      const res = await request(app)
-        .post('/api/biometrics/update')
-        .send({ age: '25' })
-        .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
-    });
-
-    it('should successfully log biometric data with multiple fields', async () => {
+    it('creates a biometric record and calculates BMI', async () => {
       const res = await request(app)
         .post('/api/biometrics/update')
         .send({
-          height: '175cm',
-          weight: '68kg',
-          age: '28'
+          email: baseUser.email,
+          height: 180,
+          weight: 150,
+          ethnicity: 'Asian',
+          sex: 'Male',
+          age: 30,
         })
         .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
+
+      expect(res.body.success).to.be.true;
+      expect(res.body.biometrics).to.include({
+        email: baseUser.email.toLowerCase(),
+        heightCm: 180,
+        weightLbs: 150,
+        ethnicity: 'Asian',
+        sex: 'Male',
+        age: 30,
+      });
+      expect(res.body.biometrics).to.have.property('bmi');
     });
 
-    it('should accept empty string values for fields', async () => {
-      const res = await request(app)
+    it('updates an existing record with partial data', async () => {
+      const updateResponse = await request(app)
         .post('/api/biometrics/update')
         .send({
-          height: '',
-          weight: '',
-          bmi: '',
-          ethnicity: '',
-          gender: '',
-          age: ''
+          email: baseUser.email,
+          age: 31,
         })
         .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
+
+      expect(updateResponse.body.success).to.be.true;
+      expect(updateResponse.body.biometrics.age).to.equal(31);
+      expect(updateResponse.body.biometrics.heightCm).to.equal(180);
+      expect(updateResponse.body.biometrics.weightLbs).to.equal(150);
     });
 
-    it('should accept various height formats', async () => {
-      const heightFormats = ['5\'10"', '180cm', '180 cm', '70 inches', '1.8m'];
-      
-      for (const height of heightFormats) {
-        const res = await request(app)
-          .post('/api/biometrics/update')
-          .send({ height })
-          .expect(200);
-        
-        assert.strictEqual(res.body.success, true);
-      }
-    });
-
-    it('should accept various weight formats', async () => {
-      const weightFormats = ['70kg', '70 kg', '154lbs', '154 lbs', '11 stone'];
-      
-      for (const weight of weightFormats) {
-        const res = await request(app)
-          .post('/api/biometrics/update')
-          .send({ weight })
-          .expect(200);
-        
-        assert.strictEqual(res.body.success, true);
-      }
-    });
-
-    it('should accept all valid ethnicity options', async () => {
-      const ethnicities = ['Asian', 'Black', 'Hispanic', 'White', 'Native American', 'Pacific Islander', 'Other'];
-      
-      for (const ethnicity of ethnicities) {
-        const res = await request(app)
-          .post('/api/biometrics/update')
-          .send({ ethnicity })
-          .expect(200);
-        
-        assert.strictEqual(res.body.success, true);
-      }
-    });
-
-    it('should accept all valid gender options', async () => {
-      const genders = ['Male', 'Female', 'Non-binary', 'Prefer not to say'];
-      
-      for (const gender of genders) {
-        const res = await request(app)
-          .post('/api/biometrics/update')
-          .send({ gender })
-          .expect(200);
-        
-        assert.strictEqual(res.body.success, true);
-      }
-    });
-
-    it('should accept numeric age values', async () => {
-      const ages = ['18', '25', '50', '100'];
-      
-      for (const age of ages) {
-        const res = await request(app)
-          .post('/api/biometrics/update')
-          .send({ age })
-          .expect(200);
-        
-        assert.strictEqual(res.body.success, true);
-      }
-    });
-
-    it('should accept numeric BMI values', async () => {
-      const bmis = ['18.5', '22.0', '25.5', '30.0'];
-      
-      for (const bmi of bmis) {
-        const res = await request(app)
-          .post('/api/biometrics/update')
-          .send({ bmi })
-          .expect(200);
-        
-        assert.strictEqual(res.body.success, true);
-      }
-    });
-
-    it('should return 400 if no biometric data is provided', async () => {
-      const res = await request(app)
-        .post('/api/biometrics/update')
-        .send({})
-        .expect(400);
-      
-      assert.strictEqual(res.body.success, false);
-      assert.strictEqual(res.body.message, 'No biometric data provided');
-    });
-
-    it('should return 400 if all fields are null', async () => {
+    it('rejects requests without an email', async () => {
       const res = await request(app)
         .post('/api/biometrics/update')
         .send({
-          height: null,
-          weight: null,
-          bmi: null,
-          ethnicity: null,
-          gender: null,
-          age: null
+          height: 180,
+          weight: 150,
         })
         .expect(400);
-      
-      assert.strictEqual(res.body.success, false);
-      assert.strictEqual(res.body.message, 'No biometric data provided');
+
+      expect(res.body.success).to.be.false;
+      expect(res.body.message).to.equal('Email is required');
     });
 
-    it('should return 400 if all fields are undefined', async () => {
+    it('rejects requests without height and weight for new records', async () => {
+      const tempUser = {
+        firstName: 'Temp',
+        lastName: 'User',
+        username: `tempuser${Date.now()}`,
+        email: `temp${Date.now()}@example.com`,
+        dateOfBirth: '1992-02-02',
+        password: 'password123',
+        confirmPassword: 'password123',
+      };
+
+      await request(app).post('/api/auth/signup').send(tempUser);
+
       const res = await request(app)
         .post('/api/biometrics/update')
         .send({
-          height: undefined,
-          weight: undefined,
-          bmi: undefined,
-          ethnicity: undefined,
-          gender: undefined,
-          age: undefined
+          email: tempUser.email,
+          age: 25,
         })
         .expect(400);
-      
-      assert.strictEqual(res.body.success, false);
-      assert.strictEqual(res.body.message, 'No biometric data provided');
+
+      expect(res.body.success).to.be.false;
+      expect(res.body.message).to.equal('Height (cm) and weight (lbs) are required');
     });
 
-    it('should handle empty request body', async () => {
+    it('validates numeric inputs', async () => {
       const res = await request(app)
         .post('/api/biometrics/update')
-        .send()
+        .send({
+          email: baseUser.email,
+          height: 'invalid',
+          weight: 150,
+        })
         .expect(400);
-      
-      assert.strictEqual(res.body.success, false);
-      assert.strictEqual(res.body.message, 'No biometric data provided');
+
+      expect(res.body.success).to.be.false;
+      expect(res.body.message).to.equal('Height must be a numeric value in centimeters');
     });
 
-    it('should accept partial updates with some fields missing', async () => {
+    it('returns 404 for unknown users', async () => {
       const res = await request(app)
         .post('/api/biometrics/update')
         .send({
-          height: '6\'0"',
-          weight: '80kg'
+          email: 'missing@example.com',
+          height: 170,
+          weight: 150,
         })
+        .expect(404);
+
+      expect(res.body.success).to.be.false;
+      expect(res.body.message).to.equal('User not found');
+    });
+  });
+
+  describe('GET /api/biometrics/:email', () => {
+    it('retrieves the stored biometrics', async () => {
+      const res = await request(app)
+        .get(`/api/biometrics/${encodeURIComponent(baseUser.email)}`)
         .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
+
+      expect(res.body.success).to.be.true;
+      expect(res.body.biometrics.email).to.equal(baseUser.email.toLowerCase());
+      expect(res.body.biometrics.heightCm).to.equal(180);
+      expect(res.body.biometrics.weightLbs).to.equal(150);
     });
 
-    it('should handle mixed null and valid values', async () => {
+    it('returns 404 when no biometrics are stored', async () => {
       const res = await request(app)
-        .post('/api/biometrics/update')
-        .send({
-          height: null,
-          weight: '75kg',
-          bmi: null,
-          age: '35'
-        })
-        .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
-    });
+        .get('/api/biometrics/unknown@example.com')
+        .expect(404);
 
-    it('should accept whitespace-only strings as valid empty strings', async () => {
-      const res = await request(app)
-        .post('/api/biometrics/update')
-        .send({
-          height: '   ',
-          weight: '70kg'
-        })
-        .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
-    });
-
-    it('should handle very long string values', async () => {
-      const longString = 'A'.repeat(1000);
-      const res = await request(app)
-        .post('/api/biometrics/update')
-        .send({
-          height: longString,
-          weight: '70kg'
-        })
-        .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
-    });
-
-    it('should handle special characters in text fields', async () => {
-      const res = await request(app)
-        .post('/api/biometrics/update')
-        .send({
-          height: '5\'10"',
-          weight: '70kg',
-          ethnicity: 'Mixed/Other'
-        })
-        .expect(200);
-      
-      assert.strictEqual(res.body.success, true);
+      expect(res.body.success).to.be.false;
     });
   });
 });
