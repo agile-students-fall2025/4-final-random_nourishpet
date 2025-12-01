@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaEdit, FaTrash } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
@@ -14,28 +15,65 @@ function LogCalories() {
     return today.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
   });
 
-  const handleAddMeal = (e) => {
+  const userEmail = localStorage.getItem("email");
+
+  // Load meals from backend
+  useEffect(() => {
+    if (!userEmail) return;
+
+    fetch(`http://localhost:3001/api/meals/${userEmail}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setMeals(data.meals);
+      })
+      .catch(err => console.error('Fetch meals error:', err));
+  }, [userEmail]);
+
+  // Adding meals to backend
+  const handleAddMeal = async (e) => {
     e.preventDefault();
+
     if (!meal || !calories) {
       alert('Please fill in both fields.');
       return;
     }
+
     const newMeal = {
-      id: Date.now(),
+      userEmail,
       name: meal,
-      calories: parseInt(calories, 10),
+      calories,
+      date
     };
-    setMeals((prev) => [...prev, newMeal]);
-    setMeal('');
-    setCalories('');
+
+    try {
+      const res = await fetch('http://localhost:3001/api/meals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newMeal),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Update UI with saved meal from DB
+        setMeals(prev => [data.meal, ...prev]);
+        setMeal('');
+        setCalories('');
+      } else {
+        alert(data.message || 'Error saving meal');
+      }
+    } catch (err) {
+      console.error('Add meal error:', err);
+      alert('Server error');
+    }
   };
 
   const handleDelete = (id) => {
-    setMeals((prev) => prev.filter((m) => m.id !== id));
+    setMeals((prev) => prev.filter((m) => m._id !== id));
   };
 
   const handleEdit = (id) => {
-    const item = meals.find((m) => m.id === id);
+    const item = meals.find((m) => m._id === id);
     if (item) {
       setMeal(item.name);
       setCalories(item.calories);
@@ -105,20 +143,20 @@ function LogCalories() {
               </tr>
             ) : (
               meals.map((m) => (
-                <tr key={m.id}>
+                <tr key={m._id}>
                   <td>{m.name}</td>
                   <td>{m.calories}</td>
                   <td className="actions">
                     <button
                       className="edit-btn"
-                      onClick={() => handleEdit(m.id)}
+                      onClick={() => handleEdit(m._id)}
                       aria-label="Edit meal"
                     >
                       <FaEdit />
                     </button>
                     <button
                       className="delete-btn"
-                      onClick={() => handleDelete(m.id)}
+                      onClick={() => handleDelete(m._id)}
                       aria-label="Delete meal"
                     >
                       <FaTrash />

@@ -10,6 +10,7 @@ const User = require('./models/User');
 const UserProfile = require('./models/UserProfile');
 const PetData = require('./models/PetData');
 const StreakData = require('./models/StreakData');
+const Meal = require('./models/Meal');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -486,55 +487,57 @@ app.post('/api/profile/update-username', async (req, res) => {
 // Prototype routes for meals
 // ---------------------------------------------------
 
-// Meals POST: Create a new meal
-app.post('/api/meals', (req, res) => {
-  const { userId, name, calories, date } = req.body;
+// Create a meal
+app.post('/api/meals', async (req, res) => {
+  try {
+    const { userEmail, name, calories, date } = req.body;
 
-  // Validate inputs
-  if (!name || !calories) {
-    return res.status(400).json({
-      success: false,
-      message: 'Meal name and calories are required.',
+    if (!userEmail || !name || !calories) {
+      return res.status(400).json({
+        success: false,
+        message: 'userEmail, meal name, and calories are required.'
+      });
+    }
+
+    const meal = new Meal({
+      userEmail: userEmail.toLowerCase(),
+      name,
+      calories: parseInt(calories, 10),
+      date: date || new Date().toLocaleDateString('en-US')
     });
+
+    await meal.save();
+
+    res.status(201).json({
+      success: true,
+      meal
+    });
+  } catch (error) {
+    console.error('Meal POST error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
-
-  const newMeal = {
-    id: meals.length + 1,
-    userId: userId || null, // optional for now, until we add JWT
-    name,
-    calories: parseInt(calories, 10),
-    date: date || new Date().toISOString().split('T')[0], // "YYYY-MM-DD"
-  };
-
-  meals.push(newMeal);
-
-  res.status(201).json({
-    success: true,
-    message: 'Meal added successfully.',
-    meal: newMeal,
-  });
 });
 
-// Meals GET: Retrieve meals (optionally filter by date or user)
-app.get('/api/meals', (req, res) => {
-  const { userId, date } = req.query;
+// Get meals for a user (optionally filtered by date)
+app.get('/api/meals/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    const { date } = req.query;
 
-  let filteredMeals = meals;
+    const query = { userEmail: email.toLowerCase() };
+    if (date) query.date = date;
 
-  if (userId) {
-    filteredMeals = filteredMeals.filter((m) => m.userId == userId);
+    const meals = await Meal.find(query).sort({ _id: -1 });
+
+    res.json({
+      success: true,
+      meals
+    });
+  } catch (error) {
+    console.error('Meal GET error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
-
-  if (date) {
-    filteredMeals = filteredMeals.filter((m) => m.date === date);
-  }
-
-  res.json({
-    success: true,
-    meals: filteredMeals,
-  });
 });
-
 
 // ---------------------------------------------------
 // Error Handling 
