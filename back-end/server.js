@@ -16,6 +16,7 @@ const Meal = require('./models/Meal');
 const { validateSignup, validateSignin } = require('./validators/authValidators');
 const { validateProfileUpdate, validateUsernameUpdate } = require('./validators/profileValidators');
 const { validateMeal } = require('./validators/mealValidators');
+const { validateActivity, validateStreak, validateBiometrics } = require('./validators/activityValidators');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -164,15 +165,8 @@ app.post('/api/auth/signin', validateSignin, async (req, res) => {
 });
 
 // Activity submission route
-app.post('/api/activities', (req, res) => {
-  const { activityType, timeSpent, imageName, imageType } = req.body || {};
-
-  if (!activityType || !timeSpent) {
-    return res.status(400).json({
-      success: false,
-      message: 'Activity type and time spent are required'
-    });
-  }
+app.post('/api/activities', validateActivity, (req, res) => {
+  const { activityType, timeSpent, imageName, imageType } = req.body;
 
   console.log('Activity submission received:', {
     activityType,
@@ -188,15 +182,8 @@ app.post('/api/activities', (req, res) => {
 });
 
 // Streak share route
-app.post('/api/streak', (req, res) => {
-  const { message } = req.body || {};
-
-  if (!message) {
-    return res.status(400).json({
-      success: false,
-      message: 'Message is required'
-    });
-  }
+app.post('/api/streak', validateStreak, (req, res) => {
+  const { message } = req.body;
 
   console.log('Streak share message:', message);
 
@@ -207,7 +194,7 @@ app.post('/api/streak', (req, res) => {
 });
 
 // Update biometrics route
-app.post('/api/biometrics/update', (req, res) => {
+app.post('/api/biometrics/update', validateBiometrics, (req, res) => {
   const {
     height,
     weight,
@@ -215,7 +202,7 @@ app.post('/api/biometrics/update', (req, res) => {
     ethnicity,
     gender,
     age
-  } = req.body || {};
+  } = req.body;
 
   const payload = {
     height: height ?? null,
@@ -225,16 +212,6 @@ app.post('/api/biometrics/update', (req, res) => {
     gender: gender ?? null,
     age: age ?? null
   };
-
-  // Ensure at least one field provided (can be empty strings)
-  const hasField = Object.values(payload).some(value => value !== null && value !== undefined);
-
-  if (!hasField) {
-    return res.status(400).json({
-      success: false,
-      message: 'No biometric data provided'
-    });
-  }
 
   console.log('Biometric update submission:', payload);
 
