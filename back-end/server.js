@@ -12,6 +12,9 @@ const PetData = require('./models/PetData');
 const StreakData = require('./models/StreakData');
 const Meal = require('./models/Meal');
 
+// Validators
+const { validateSignup, validateSignin } = require('./validators/authValidators');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -31,33 +34,9 @@ app.get('/api/health', (req, res) => {
 // ---------------------------------------------------
 
 // Sign Up route
-app.post('/api/auth/signup', async (req, res) => {
+app.post('/api/auth/signup', validateSignup, async (req, res) => {
   try {
-    const { firstName, lastName, username, email, dateOfBirth, password, confirmPassword } = req.body;
-
-    // Validate required fields
-    if (!firstName || !lastName || !username || !email || !dateOfBirth || !password || !confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'All fields are required',
-      });
-    }
-
-    // Validate password match
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'Passwords do not match',
-      });
-    }
-
-    // Validate password length
-    if (password.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: 'Password must be at least 6 characters long',
-      });
-    }
+    const { firstName, lastName, username, email, dateOfBirth, password } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({
@@ -140,17 +119,9 @@ app.post('/api/auth/signup', async (req, res) => {
 });
 
 // Sign In route
-app.post('/api/auth/signin', async (req, res) => {
+app.post('/api/auth/signin', validateSignin, async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Validate required fields
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email and password are required',
-      });
-    }
 
     // Find user
     const user = await User.findOne({ email: email.toLowerCase() });
