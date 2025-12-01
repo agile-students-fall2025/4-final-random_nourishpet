@@ -63,23 +63,39 @@ const validateStreak = [
 
 // Biometrics update validation rules
 const validateBiometrics = [
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+  
   body('height')
     .optional()
-    .trim()
-    .isLength({ max: 50 })
-    .withMessage('Height must be at most 50 characters'),
+    .custom((value) => {
+      if (value === undefined || value === null || value === '') {
+        return true;
+      }
+      const num = Number(value);
+      if (Number.isNaN(num) || num <= 0) {
+        throw new Error('Height must be a positive number in centimeters');
+      }
+      return true;
+    }),
   
   body('weight')
     .optional()
-    .trim()
-    .isLength({ max: 50 })
-    .withMessage('Weight must be at most 50 characters'),
-  
-  body('bmi')
-    .optional()
-    .trim()
-    .isLength({ max: 20 })
-    .withMessage('BMI must be at most 20 characters'),
+    .custom((value) => {
+      if (value === undefined || value === null || value === '') {
+        return true;
+      }
+      const num = Number(value);
+      if (Number.isNaN(num) || num <= 0) {
+        throw new Error('Weight must be a positive number in pounds');
+      }
+      return true;
+    }),
   
   body('ethnicity')
     .optional()
@@ -87,26 +103,27 @@ const validateBiometrics = [
     .isLength({ max: 100 })
     .withMessage('Ethnicity must be at most 100 characters'),
   
-  body('gender')
+  body('ethnicityOther')
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Ethnicity other must be at most 100 characters'),
+  
+  body('sex')
     .optional()
     .trim()
     .isLength({ max: 50 })
-    .withMessage('Gender must be at most 50 characters'),
+    .withMessage('Sex must be at most 50 characters'),
   
   body('age')
     .optional()
-    .trim()
-    .isLength({ max: 10 })
-    .withMessage('Age must be at most 10 characters'),
-  
-  body()
     .custom((value) => {
-      const hasField = Object.keys(value).some(key => {
-        const val = value[key];
-        return val !== null && val !== undefined && val !== '';
-      });
-      if (!hasField) {
-        throw new Error('At least one biometric field must be provided');
+      if (value === undefined || value === null || value === '') {
+        return true;
+      }
+      const num = Number(value);
+      if (Number.isNaN(num) || num < 0 || num > 150) {
+        throw new Error('Age must be a number between 0 and 150');
       }
       return true;
     }),

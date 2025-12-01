@@ -55,8 +55,10 @@ function SignUp() {
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('userEmail', formData.email);
         localStorage.setItem('username', data.user.username);
+        localStorage.removeItem('biometricData');
+        window.dispatchEvent(new Event('biometricDataUpdated'));
         alert('Account created successfully!');
-        navigate('/main-screen');
+        navigate('/update-biometrics');
       } else {
         alert(data.message || 'Sign up failed');
       }
