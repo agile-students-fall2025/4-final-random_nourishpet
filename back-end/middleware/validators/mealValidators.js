@@ -39,7 +39,7 @@ const validateMeal = [
   body('name')
     .trim()
     .notEmpty()
-    .withMessage('Meal name is required')
+    .withMessage('Meal name and calories are required.')
     .isLength({ min: 1, max: 200 })
     .withMessage('Meal name must be between 1 and 200 characters'),
   
