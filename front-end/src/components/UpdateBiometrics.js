@@ -26,7 +26,7 @@ const defaultOriginalState = {
 function UpdateBiometrics() {
   const navigate = useNavigate();
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
-  const [userEmail, setUserEmail] = useState(null);
+  const [email, setEmail] = useState(null);
   const [formData, setFormData] = useState(defaultFormState);
   const [originalData, setOriginalData] = useState(defaultOriginalState);
   const [calculatedBmi, setCalculatedBmi] = useState(null);
@@ -36,14 +36,14 @@ function UpdateBiometrics() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const email = localStorage.getItem('userEmail');
+    const email = localStorage.getItem('email');
 
     if (!email) {
       navigate('/signin');
       return;
     }
 
-    setUserEmail(email);
+    setEmail(email);
     const loadBiometrics = async () => {
       setIsLoading(true);
       setError(null);
@@ -105,7 +105,7 @@ function UpdateBiometrics() {
   };
 
   const handleSave = async () => {
-    if (isSaving || !userEmail) {
+    if (isSaving || !email) {
       return;
     }
 
@@ -129,7 +129,7 @@ function UpdateBiometrics() {
     setIsSaving(true);
 
     const payload = {
-      email: userEmail,
+      email: email,
       height: heightCm,
       weight: weightLbs,
       ethnicity: formData.ethnicity,
