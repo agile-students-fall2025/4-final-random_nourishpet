@@ -32,7 +32,7 @@ describe('NourishPet API', function () {
       const res = await request(app)
         .post('/api/meals')
         .send({ 
-          userEmail: testEmail,
+          email: testEmail,
           name: 'Chicken Wrap', 
           calories: 450, 
           date: '11/12/2025' 
@@ -48,7 +48,7 @@ describe('NourishPet API', function () {
       const res = await request(app)
         .post('/api/meals')
         .send({ 
-          userEmail: testEmail,
+          email: testEmail,
           calories: 100 
         });
       assert.strictEqual(res.status, 400);

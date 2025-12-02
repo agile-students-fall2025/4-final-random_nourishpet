@@ -711,17 +711,17 @@ app.post('/api/groq/test', async (req, res) => {
 // Create a meal
 app.post('/api/meals', validateMeal, async (req, res) => {
   try {
-    const { userEmail, name, calories, date } = req.body;
+    const { email, name, calories, date } = req.body;
 
-    if (!userEmail || !name || !calories) {
+    if (!email || !name || !calories) {
       return res.status(400).json({
         success: false,
-        message: 'userEmail, meal name, and calories are required.'
+        message: 'email, meal name, and calories are required.'
       });
     }
 
     const meal = new Meal({
-      userEmail: userEmail.toLowerCase(),
+      email: email.toLowerCase(),
       name,
       calories: parseInt(calories, 10),
       date: date || new Date().toLocaleDateString('en-US')
@@ -745,7 +745,7 @@ app.get('/api/meals/:email', async (req, res) => {
     const { email } = req.params;
     const { date } = req.query;
 
-    const query = { userEmail: email.toLowerCase() };
+    const query = { email: email.toLowerCase() };
     if (date) query.date = date;
 
     const meals = await Meal.find(query).sort({ _id: -1 });

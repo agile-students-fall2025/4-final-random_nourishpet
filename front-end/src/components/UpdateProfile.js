@@ -17,13 +17,13 @@ function UpdateProfile() {
   const [saving, setSaving] = useState(false);
 
   // Get email from localStorage
-  const userEmail = localStorage.getItem('userEmail');
+  const email = localStorage.getItem('email');
 
   // Fetch current profile data on component load
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/profile/${userEmail}`);
+        const response = await fetch(`http://localhost:3001/api/profile/${email}`);
         const data = await response.json();
         
         if (data.success) {
@@ -44,10 +44,10 @@ function UpdateProfile() {
       }
     };
 
-    if (userEmail) {
+    if (email) {
       fetchProfile();
     }
-  }, [userEmail]);
+  }, [email]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -70,7 +70,7 @@ function UpdateProfile() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: userEmail,
+          email: email,
           firstName: formData.firstName,
           lastName: formData.lastName,
           dateOfBirth: formData.dateOfBirth,
