@@ -10,6 +10,7 @@ describe('Activity API Tests', () => {
       const res = await request(app)
         .post('/api/activities')
         .send({
+          email: 'test@example.com',
           activityType: 'running',
           timeSpent: 30,
           imageName: 'run.png',
