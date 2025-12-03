@@ -48,3 +48,33 @@ exports.logActivity = async (req, res) => {
     });
   }
 };
+
+// GET /api/activities/:email - Get user's activities
+exports.getActivities = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const activities = await Activity.find({ 
+      email: email.toLowerCase() 
+    }).sort({ date: -1 });
+
+    res.json({
+      success: true,
+      activities
+    });
+  } catch (error) {
+    console.error('Get activities error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
