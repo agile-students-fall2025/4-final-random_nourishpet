@@ -1,18 +1,50 @@
 // controllers/activityController.js
 
+const Activity = require('../models/Activity');
+const User = require('../models/User');
+
 // POST /api/activities
-exports.logActivity = (req, res) => {
-  const { activityType, timeSpent, imageName, imageType } = req.body;
+exports.logActivity = async (req, res) => {
+  try {
+    const { activityType, timeSpent, imageName, imageType, email } = req.body;
 
-  console.log('Activity submission received:', {
-    activityType,
-    timeSpent,
-    imageName: imageName || null,
-    imageType: imageType || null
-  });
+    // Verify user exists
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
 
-  res.status(200).json({
-    success: true,
-    message: 'Activity logged successfully'
-  });
+    // Create new activity record
+    const activity = new Activity({
+      email: email.toLowerCase(),
+      activityType,
+      timeSpent: parseInt(timeSpent, 10),
+      imageName: imageName || null,
+      imageType: imageType || null
+    });
+
+    await activity.save();
+
+    console.log('Activity saved to database:', {
+      activityType,
+      timeSpent,
+      imageName: imageName || null,
+      imageType: imageType || null
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Activity logged successfully',
+      activity: activity
+    });
+  } catch (error) {
+    console.error('Log activity error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
 };
