@@ -26,7 +26,8 @@ function Streak({ onClose }) {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ message: streakMessage })
+        body: JSON.stringify({ message: streakMessage }),
+        credentials: 'include' 
       });
 
       if (!response.ok) {
