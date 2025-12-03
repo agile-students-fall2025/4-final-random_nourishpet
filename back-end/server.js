@@ -1,35 +1,38 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const Groq = require('groq-sdk');
+const { protect } = require('./middleware/authMiddleware');
 
-// Initialize Groq client
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY
 });
 
-// Database connection
 const connectDB = require('./config/db');
-const User = require('./models/User'); // needed only for /api/users list
+const User = require('./models/User');
 
-// Initialize Express
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Connect to database
+console.log("SERVER STARTED ON PORT:", PORT);
+
 const dbConnectionPromise = connectDB();
 
-// Global middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
+
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check
 app.get('/api/health', (req, res) => {
+    console.log("HEALTH ROUTE HIT");
   res.json({ status: 'ok', message: 'Server is running' });
 });
 
-// Add a small Groq debug route (temporary). Returns GROQ_MODEL value and whether API key is present.
 app.get('/api/groq/debug', (req, res) => {
   res.json({
     GROQ_MODEL: process.env.GROQ_MODEL || null,
@@ -37,19 +40,27 @@ app.get('/api/groq/debug', (req, res) => {
   });
 });
 
+// Protected test route
+app.get('/api/test-protected', protect, (req, res) => {
+  res.json({
+    success: true,
+    message: 'Protected route hit',
+    user: req.user,
+  });
+});
+
 // Route mounting
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/meals', require('./routes/mealsRoutes'));
-app.use('/api/profile', require('./routes/profileRoutes'));
-app.use('/api/biometrics', require('./routes/biometricsRoutes'));
-app.use('/api/main-screen', require('./routes/mainScreenRoutes'));
-app.use('/api/activities', require('./routes/activityRoutes'));
-app.use('/api/streak', require('./routes/streakRoutes'));
+app.use('/api/meals', protect, require('./routes/mealsRoutes'));
+app.use('/api/profile', protect, require('./routes/profileRoutes'));
+app.use('/api/biometrics', protect, require('./routes/biometricsRoutes'));
+app.use('/api/main-screen', protect, require('./routes/mainScreenRoutes'));
+app.use('/api/activities', protect, require('./routes/activityRoutes'));
+app.use('/api/streak', protect, require('./routes/streakRoutes'));
 
-// INLINE ROUTES (TODO: move these into controllers)
+// INLINE ROUTES for testing
 
-// Get all users (testing only)
-app.get('/api/users', async (req, res) => {
+app.get('/api/users', protect, async (req, res) => {
   try {
     const users = await User.find({}).select('-password');
     res.json({
@@ -65,8 +76,7 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-// Groq test route
-app.post('/api/groq/test', async (req, res) => {
+app.post('/api/groq/test', protect, async (req, res) => {
   try {
     const modelToUse = process.env.GROQ_MODEL || 'llama3-8b-8192';
     const chatCompletion = await groq.chat.completions.create({
@@ -89,7 +99,6 @@ app.post('/api/groq/test', async (req, res) => {
 
 // =========== END INLINE ROUTES ===========
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -97,7 +106,6 @@ app.use((req, res) => {
   });
 });
 
-// Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -106,7 +114,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
 if (require.main === module) {
   dbConnectionPromise
     .then(() => {
