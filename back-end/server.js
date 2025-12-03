@@ -16,13 +16,12 @@ const UserProfile = require('./models/UserProfile');
 const PetData = require('./models/PetData');
 const StreakData = require('./models/StreakData');
 const BiometricData = require('./models/BiometricData');
+const Activity = require('./models/Activity');
+const StreakMessage = require('./models/StreakMessage');
+const Meal = require('./models/Meal');
 
 // Services
 const { calculateBMI } = require('./services/bmiService');
-
-// Prototype collections (in-memory) for features still under development
-const meals = [];
-const Meal = require('./models/Meal');
 
 // Validators
 const { validateSignup, validateSignin } = require('./validators/authValidators');
@@ -210,32 +209,155 @@ app.post('/api/auth/signin', validateSignin, async (req, res) => {
 });
 
 // Activity submission route
-app.post('/api/activities', validateActivity, (req, res) => {
-  const { activityType, timeSpent, imageName, imageType } = req.body;
+app.post('/api/activities', validateActivity, async (req, res) => {
+  try {
+    const { email, activityType, timeSpent, imageName, imageType } = req.body;
 
-  console.log('Activity submission received:', {
-    activityType,
-    timeSpent,
-    imageName: imageName || null,
-    imageType: imageType || null
-  });
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
 
-  res.status(200).json({
-    success: true,
-    message: 'Activity logged successfully'
-  });
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Save activity to database
+    const activity = new Activity({
+      email: normalizedEmail,
+      activityType,
+      timeSpent: parseInt(timeSpent, 10),
+      imageName: imageName || null,
+      imageType: imageType || null,
+      date: new Date()
+    });
+
+    await activity.save();
+
+    // Update streak logic
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const streakData = await StreakData.findOne({ email: normalizedEmail });
+
+    if (!streakData) {
+      // Create new streak data
+      const newStreakData = new StreakData({
+        email: normalizedEmail,
+        currentStreak: 1,
+        longestStreak: 1,
+        lastLogDate: today
+      });
+      await newStreakData.save();
+    } else {
+      const lastLogDate = streakData.lastLogDate ? new Date(streakData.lastLogDate) : null;
+      
+      if (lastLogDate) {
+        lastLogDate.setHours(0, 0, 0, 0);
+      }
+
+      const daysDiff = lastLogDate 
+        ? Math.floor((today - lastLogDate) / (1000 * 60 * 60 * 24))
+        : null;
+
+      let newCurrentStreak = 1;
+      let newLongestStreak = streakData.longestStreak || 0;
+
+      if (daysDiff === null || daysDiff === 0) {
+        // Same day - no change to streak
+        newCurrentStreak = streakData.currentStreak || 0;
+      } else if (daysDiff === 1) {
+        // Consecutive day - increment streak
+        newCurrentStreak = (streakData.currentStreak || 0) + 1;
+        if (newCurrentStreak > newLongestStreak) {
+          newLongestStreak = newCurrentStreak;
+        }
+      } else {
+        // Gap > 1 day - reset to 1
+        newCurrentStreak = 1;
+        if (newCurrentStreak > newLongestStreak) {
+          newLongestStreak = newCurrentStreak;
+        }
+      }
+
+      await StreakData.findOneAndUpdate(
+        { email: normalizedEmail },
+        {
+          $set: {
+            currentStreak: newCurrentStreak,
+            longestStreak: newLongestStreak,
+            lastLogDate: today
+          }
+        },
+        { upsert: true }
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Activity logged successfully',
+      activity: activity
+    });
+  } catch (error) {
+    console.error('Activity submission error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
 });
 
 // Streak share route
-app.post('/api/streak', validateStreak, (req, res) => {
-  const { message } = req.body;
+app.post('/api/streak', validateStreak, async (req, res) => {
+  try {
+    const { email, message } = req.body;
 
-  console.log('Streak share message:', message);
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
 
-  res.status(200).json({
-    success: true,
-    message: 'Streak message logged'
-  });
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Save streak message to database
+    const streakMessage = new StreakMessage({
+      email: normalizedEmail,
+      message: message.trim(),
+      date: new Date()
+    });
+
+    await streakMessage.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Streak message logged',
+      streakMessage: streakMessage
+    });
+  } catch (error) {
+    console.error('Streak share error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
 });
 
 // Update biometrics route
