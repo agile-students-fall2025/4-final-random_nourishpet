@@ -6,11 +6,11 @@ const calculateBmiFallback = (heightCm, weightLbs) => {
 
   const heightMeters = heightCm / 100;
   const weightKg = weightLbs * 0.45359237;
-  const bmi = weightKg / (heightMeters * heightMeters);
+  const bmiValue = weightKg / (heightMeters * heightMeters);
 
-  console.log("[SERVER] FALLBACK BMI result:", bmi);
+  console.log("[SERVER] FALLBACK BMI result:", bmiValue);
 
-  return Number(bmi.toFixed(2));
+  return { bmi: Number(bmiValue.toFixed(2)), source: 'formula' };
 };
 
 const requestBMIFromGroq = async (heightCm, weightLbs) => {
@@ -64,17 +64,17 @@ const requestBMIFromGroq = async (heightCm, weightLbs) => {
     throw new Error("Groq returned empty content");
   }
 
-  const match = content.match(/-?\d+(\.\d+)?/);
+  const match = String(content).match(/-?\d+(?:\.\d+)?/);
   console.log("[SERVER] Number regex match:", match);
 
   if (!match) {
     throw new Error("Groq did not return a numeric BMI");
   }
 
-  const bmi = Number(Number(match[0]).toFixed(2));
-  console.log("[SERVER] Parsed Groq BMI:", bmi);
+  const bmiValue = Number(Number(match[0]).toFixed(2));
+  console.log("[SERVER] Parsed Groq BMI:", bmiValue);
 
-  return bmi;
+  return { bmi: bmiValue, source: 'groq' };
 };
 
 const calculateBMI = async ({ heightCm, weightLbs }) => {
@@ -83,6 +83,7 @@ const calculateBMI = async ({ heightCm, weightLbs }) => {
   try {
     const result = await requestBMIFromGroq(heightCm, weightLbs);
     console.log("[SERVER] Groq BMI success:", result);
+    // requestBMIFromGroq now returns an object { bmi, source }
     return result;
   } catch (err) {
     console.warn("[SERVER] Groq BMI calculation failed. Falling back to formula.", err.message);

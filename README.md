@@ -36,4 +36,8 @@ We are a team of students collaborating on a class project for Agile Software de
 During ideation, we chose to create **NutriPal** because we wanted to bring our creativity and lightheartedness to the difficult realm of nutrition. We hope to integrate technology, design, and behavioral psychology to promote healthier habits.  
 We're hoping to practitce the Scrum framework, with sprint-based milestones, spikes, and task boards managed via GitHub Projects.
 
-For contribution details, see [CONTRIBUTING.md](CONTRIBUTING.md).
+---
+
+## Contributing + Building and Testing
+
+For contribution details and **build and test instructions** see [CONTRIBUTING.md](CONTRIBUTING.md).

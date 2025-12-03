@@ -1,10 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HamburgerMenu from './HamburgerMenu';
 import './ForgotPassword.css';
 
 function ForgotPassword() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!email) {
+      setError('Please enter your email');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setMessage('');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage('If an account exists with this email, a password reset link has been sent.');
+        setEmail('');
+      } else {
+        setError(data.message || 'Failed to send reset email');
+      }
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      setError('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="forgot-password-screen">
@@ -17,15 +60,27 @@ function ForgotPassword() {
           <HamburgerMenu />
         </div>
 
-        <div className="forgot-password-form">
+        <form className="forgot-password-form" onSubmit={handleSubmit}>
           <input 
             type="email" 
             placeholder="Email" 
             className="forgot-password-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
           />
           
-          <button className="send-button">Send Email Link</button>
-        </div>
+          {message && <p style={{ color: 'green', textAlign: 'center', fontSize: '14px' }}>{message}</p>}
+          {error && <p style={{ color: 'red', textAlign: 'center', fontSize: '14px' }}>{error}</p>}
+          
+          <button 
+            type="submit" 
+            className="send-button"
+            disabled={loading}
+          >
+            {loading ? 'Sending...' : 'Send Email Link'}
+          </button>
+        </form>
       </div>
     </div>
   );

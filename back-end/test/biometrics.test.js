@@ -1,5 +1,13 @@
 const request = require('supertest');
 const { expect } = require('chai');
+const bmiService = require('../services/bmiService');
+
+before(() => {
+  if (bmiService && typeof bmiService.calculateBMI === 'function') {
+    bmiService.calculateBMI = async () => ({ bmi: 24.42, source: 'test' });
+  }
+});
+
 const app = require('../server');
 
 describe('Biometrics API Tests', () => {
