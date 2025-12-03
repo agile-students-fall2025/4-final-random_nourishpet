@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignIn.css';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,16 +21,14 @@ function SignIn() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
+        credentials: 'include' 
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
         console.log('Sign in successful:', data);
-        // Store user data in localStorage
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('email', email);
-        localStorage.setItem('username', data.user.username);
+        setUser(data.user);  
         navigate('/main-screen');
       } else {
         alert(data.message || 'Sign in failed');

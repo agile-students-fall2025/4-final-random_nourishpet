@@ -17,17 +17,20 @@ function LogCalories() {
 
   const email = localStorage.getItem("email");
 
-  // Load meals from backend
   useEffect(() => {
     if (!email) return;
 
-    fetch(`http://localhost:3001/api/meals/${email}`)
+    fetch(`http://localhost:3001/api/meals/${email}`, {
+      method: 'GET',
+      credentials: 'include'
+    })
       .then(res => res.json())
       .then(data => {
         if (data.success) setMeals(data.meals);
       })
       .catch(err => console.error('Fetch meals error:', err));
-  }, [email]);
+  }, [email]);   // only re-run when email changes
+
 
   // Adding meals to backend
   const handleAddMeal = async (e) => {
@@ -50,6 +53,7 @@ function LogCalories() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newMeal),
+        credentials: 'include'
       });
 
       const data = await res.json();

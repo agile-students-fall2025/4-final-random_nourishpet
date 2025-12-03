@@ -23,7 +23,10 @@ function UpdateProfile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/profile/${email}`);
+        const response = await fetch(`http://localhost:3001/api/profile/${email}`, {
+          method: 'GET',
+          credentials: 'include' 
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -75,7 +78,8 @@ function UpdateProfile() {
           lastName: formData.lastName,
           dateOfBirth: formData.dateOfBirth,
           bio: formData.bio
-        })
+        }),
+        credentials: 'include' 
       });
 
       const data = await response.json();

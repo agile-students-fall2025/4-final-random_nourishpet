@@ -45,7 +45,8 @@ function UpdatePassword() {
           currentPassword: currentPassword,
           newPassword: newPassword,
           confirmPassword: confirmPassword
-        })
+        }),
+        credentials: 'include' 
       });
 
       const data = await response.json();
