@@ -29,6 +29,14 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
 
+// Add a small Groq debug route (temporary). Returns GROQ_MODEL value and whether API key is present.
+app.get('/api/groq/debug', (req, res) => {
+  res.json({
+    GROQ_MODEL: process.env.GROQ_MODEL || null,
+    GROQ_API_KEY_PRESENT: !!process.env.GROQ_API_KEY
+  });
+});
+
 // Route mounting
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/meals', require('./routes/mealsRoutes'));
@@ -60,9 +68,10 @@ app.get('/api/users', async (req, res) => {
 // Groq test route
 app.post('/api/groq/test', async (req, res) => {
   try {
+    const modelToUse = process.env.GROQ_MODEL || 'llama3-8b-8192';
     const chatCompletion = await groq.chat.completions.create({
       messages: [{ role: "user", content: "Say hello!" }],
-      model: "llama3-8b-8192"
+      model: modelToUse
     });
 
     res.json({
