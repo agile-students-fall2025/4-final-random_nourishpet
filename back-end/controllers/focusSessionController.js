@@ -7,14 +7,6 @@ exports.logFocusSession = async (req, res) => {
   try {
     const { userId, durationInSeconds, endedReason } = req.body;
 
-    // Check authentication - if no user in request and no authenticated user, return 401
-    if (!req.user && !userId) {
-      return res.status(401).json({
-        success: false,
-        message: 'Unauthorized'
-      });
-    }
-
     // Validation
     if (!durationInSeconds) {
       return res.status(400).json({
@@ -37,7 +29,7 @@ exports.logFocusSession = async (req, res) => {
       });
     }
 
-    // Use authenticated user ID if available, otherwise use provided userId
+    // Use authenticated user ID (from protect middleware) or provided userId
     const finalUserId = req.user?.id || req.user?._id?.toString() || userId || 'unknown';
 
     // Create focus session

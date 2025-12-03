@@ -5,9 +5,9 @@ const router = express.Router();
 
 const { logFocusSession } = require('../controllers/focusSessionController');
 const { validateFocusSession } = require('../middleware/validators/focusSessionValidators');
-// Note: Auth is checked in controller, not middleware, to allow userId in body for testing
 
 // POST /api/focus-sessions
+// Note: Auth is handled by protect middleware in server.js
 router.post('/', validateFocusSession, logFocusSession);
 
 module.exports = router;
