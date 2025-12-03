@@ -141,11 +141,6 @@ function Biometrics() {
             </div>
 
             <div className="biometric-box">
-              <div className="box-label">BMI</div>
-              <div className="box-value">{bmiDisplay}</div>
-            </div>
-
-            <div className="biometric-box">
               <div className="box-label">Ethnicity</div>
               <div className="box-value">{formatEthnicity()}</div>
             </div>
@@ -160,6 +155,11 @@ function Biometrics() {
               <div className="box-value">
                 {biometricData.age === null || biometricData.age === undefined ? 'Not set' : biometricData.age}
               </div>
+            </div>
+            
+            <div className="biometric-box">
+              <div className="box-label">BMI</div>
+              <div className="box-value">{bmiDisplay}</div>
             </div>
 
             <button className="update-button" onClick={handleUpdate}>

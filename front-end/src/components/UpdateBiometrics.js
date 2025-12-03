@@ -13,22 +13,11 @@ const defaultFormState = {
   age: '',
 };
 
-const defaultOriginalState = {
-  heightCm: null,
-  weightLbs: null,
-  ethnicity: '',
-  ethnicityOther: '',
-  sex: '',
-  age: null,
-  bmi: null,
-};
-
 function UpdateBiometrics() {
   const navigate = useNavigate();
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
   const [email, setEmail] = useState(null);
   const [formData, setFormData] = useState(defaultFormState);
-  const [originalData, setOriginalData] = useState(defaultOriginalState);
   const [calculatedBmi, setCalculatedBmi] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +41,6 @@ function UpdateBiometrics() {
         const response = await fetch(`${API_BASE_URL}/api/biometrics/${encodeURIComponent(email)}`);
         if (!response.ok) {
           if (response.status === 404) {
-            setOriginalData(defaultOriginalState);
             setFormData(defaultFormState);
             setCalculatedBmi(null);
             localStorage.removeItem('biometricData');
@@ -64,7 +52,6 @@ function UpdateBiometrics() {
         }
 
         const data = await response.json();
-        setOriginalData(data.biometrics);
         setFormData({
           heightCm: data.biometrics.heightCm?.toString() || '',
           weightLbs: data.biometrics.weightLbs?.toString() || '',
@@ -153,7 +140,6 @@ function UpdateBiometrics() {
       }
 
       const data = await response.json();
-      setOriginalData(data.biometrics);
       setFormData({
         heightCm: data.biometrics.heightCm?.toString() || '',
         weightLbs: data.biometrics.weightLbs?.toString() || '',
@@ -295,6 +281,10 @@ function UpdateBiometrics() {
                 />
               </div>
 
+              <button className="save-button" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+
               <div className="form-box">
                 <label htmlFor="bmiDisplay">BMI (auto-calculated)</label>
                 <input
@@ -307,10 +297,6 @@ function UpdateBiometrics() {
                 />
                 <p className="helper-text">Input your height and weight to automatically generate your BMI.</p>
               </div>
-
-              <button className="save-button" onClick={handleSave} disabled={isSaving}>
-                {isSaving ? 'Saving...' : 'Save Changes'}
-              </button>
             </>
           )}
         </div>
@@ -320,4 +306,3 @@ function UpdateBiometrics() {
 }
 
 export default UpdateBiometrics;
-
