@@ -1,15 +1,14 @@
-// routes/authRoutes.js
-
 const express = require('express');
 const router = express.Router();
 
-const { signup, signin } = require('../controllers/authController');
+const { signup, signin, logout, me } = require('../controllers/authController');
 const { validateSignup, validateSignin } = require('../middleware/validators/authValidators');
+const { protect } = require('../middleware/authMiddleware');
 
-// POST /api/auth/signup
 router.post('/signup', validateSignup, signup);
-
-// POST /api/auth/signin
 router.post('/signin', validateSignin, signin);
+router.post('/logout', logout);
+
+router.get('/me', protect, me);
 
 module.exports = router;

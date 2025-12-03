@@ -22,7 +22,10 @@ function ProfileScreen() {
     // Fetch profile data from backend
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/profile/${email}`);
+        const response = await fetch(`http://localhost:3001/api/profile/${email}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
         const data = await response.json();
         
         if (data.success) {

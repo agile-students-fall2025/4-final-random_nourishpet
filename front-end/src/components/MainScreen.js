@@ -17,7 +17,10 @@ function MainScreen() {
     // Fetch main screen data from backend
     const fetchMainScreenData = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/main-screen/${email}`);
+        const response = await fetch(`http://localhost:3001/api/main-screen/${email}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
         const data = await response.json();
         
         if (data.success) {

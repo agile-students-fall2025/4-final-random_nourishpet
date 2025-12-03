@@ -38,7 +38,10 @@ function UpdateBiometrics() {
       setError(null);
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/biometrics/${encodeURIComponent(email)}`);
+        const response = await fetch(`${API_BASE_URL}/api/biometrics/${encodeURIComponent(email)}`, {
+          method: 'GET',
+          credentials: 'include' 
+        });
         if (!response.ok) {
           if (response.status === 404) {
             setFormData(defaultFormState);
@@ -131,7 +134,8 @@ function UpdateBiometrics() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        credentials: 'include' 
       });
 
       if (!response.ok) {
