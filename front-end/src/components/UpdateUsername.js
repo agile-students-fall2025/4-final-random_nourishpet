@@ -11,13 +11,16 @@ function UpdateUsername() {
   const [error, setError] = useState('');
 
   // Get email from localStorage
-  const userEmail = localStorage.getItem('userEmail');
+  const email = localStorage.getItem('email');
 
   // Fetch current username on component load
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/profile/${userEmail}`);
+        const response = await fetch(`http://localhost:3001/api/profile/${email}`, {
+          method: 'GET',
+          credentials: 'include' 
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -28,10 +31,10 @@ function UpdateUsername() {
       }
     };
 
-    if (userEmail) {
+    if (email) {
       fetchProfile();
     }
-  }, [userEmail]);
+  }, [email]);
 
   const handleSaveChanges = async () => {
     // Validate new username
@@ -55,7 +58,7 @@ function UpdateUsername() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: userEmail,
+          email: email,
           newUsername: newUsername.trim()
         })
       });

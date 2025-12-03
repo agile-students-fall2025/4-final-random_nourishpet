@@ -7,9 +7,9 @@ const handleValidationErrors = (req, res, next) => {
     // Check for missing required fields (name or calories)
     const hasMissingName = errors.array().some(err => err.path === 'name' && err.msg.includes('required'));
     const hasMissingCalories = errors.array().some(err => err.path === 'calories' && err.msg.includes('required'));
-    const hasMissingUserEmail = errors.array().some(err => err.path === 'userEmail' && err.msg.includes('required'));
+    const hasMissingEmail = errors.array().some(err => err.path === 'email' && err.msg.includes('required'));
     
-    if ((hasMissingName || hasMissingCalories || hasMissingUserEmail) && req.path === '/api/meals') {
+    if ((hasMissingName || hasMissingCalories || hasMissingEmail) && req.path === '/api/meals') {
       return res.status(400).json({
         success: false,
         message: 'Meal name and calories are required.'
@@ -28,7 +28,7 @@ const handleValidationErrors = (req, res, next) => {
 
 // Meal creation validation rules
 const validateMeal = [
-  body('userEmail')
+  body('email')
     .trim()
     .notEmpty()
     .withMessage('User email is required')
@@ -39,7 +39,7 @@ const validateMeal = [
   body('name')
     .trim()
     .notEmpty()
-    .withMessage('Meal name is required')
+    .withMessage('Meal name and calories are required.')
     .isLength({ min: 1, max: 200 })
     .withMessage('Meal name must be between 1 and 200 characters'),
   

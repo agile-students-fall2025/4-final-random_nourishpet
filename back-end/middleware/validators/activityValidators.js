@@ -18,11 +18,11 @@ const validateActivity = [
   body('email')
     .trim()
     .notEmpty()
-    .withMessage('Email is required')
+    .withMessage('User email is required')
     .isEmail()
     .withMessage('Please provide a valid email address')
     .normalizeEmail(),
-  
+    
   body('activityType')
     .trim()
     .notEmpty()

@@ -45,6 +45,7 @@ function SignUp() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
+        credentials: 'include' 
       });
 
       const data = await response.json();
@@ -53,7 +54,7 @@ function SignUp() {
         console.log('Sign up successful:', data);
         // Store user data in localStorage and auto-login
         localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('userEmail', formData.email);
+        localStorage.setItem('email', formData.email);
         localStorage.setItem('username', data.user.username);
         localStorage.removeItem('biometricData');
         window.dispatchEvent(new Event('biometricDataUpdated'));

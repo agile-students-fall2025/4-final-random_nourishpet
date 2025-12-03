@@ -12,7 +12,7 @@ function UpdatePassword() {
   const [error, setError] = useState('');
 
   // Get email from localStorage
-  const userEmail = localStorage.getItem('userEmail');
+  const email = localStorage.getItem('email');
 
   const handleSaveChanges = async () => {
     // Validate inputs
@@ -41,11 +41,12 @@ function UpdatePassword() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: userEmail,
+          email: email,
           currentPassword: currentPassword,
           newPassword: newPassword,
           confirmPassword: confirmPassword
-        })
+        }),
+        credentials: 'include' 
       });
 
       const data = await response.json();

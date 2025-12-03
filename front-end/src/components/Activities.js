@@ -26,43 +26,54 @@ function Activities() {
     }
   };
 
-  const handlePost = async () => {
-    if (!activityType || !timeSpent || isSubmitting) {
-      return;
-    }
+const handlePost = async () => {
+  if (!activityType || !timeSpent || isSubmitting) {
+    return;
+  }
 
-    setIsSubmitting(true);
+  setIsSubmitting(true);
 
-    const payload = {
-      activityType,
-      timeSpent,
-      imageName: selectedImage ? selectedImage.name : null,
-      imageType: selectedImage ? selectedImage.type : null
-    };
+  // Get email from localStorage
+  const email = localStorage.getItem('email');
+  if (!email) {
+    alert('Please sign in to log activities');
+    navigate('/signin');
+    return;
+  }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/activities`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({}));
-        throw new Error(errorBody.message || 'Failed to submit activity');
-      }
-
-      console.log('Activity submission sent:', payload);
-      navigate('/connect-socials');
-    } catch (error) {
-      console.error('Error submitting activity:', error);
-      alert('We could not submit your activity right now. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const payload = {
+    email: email,  // Added email
+    activityType,
+    timeSpent,
+    imageName: selectedImage ? selectedImage.name : null,
+    imageType: selectedImage ? selectedImage.type : null
   };
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/activities`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload),
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(errorBody.message || 'Failed to submit activity');
+    }
+
+    console.log('Activity submission sent:', payload);
+    alert('Activity logged successfully!');
+    navigate('/connect-socials');
+  } catch (error) {
+    console.error('Error submitting activity:', error);
+    alert('We could not submit your activity right now. Please try again.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="activities-container">

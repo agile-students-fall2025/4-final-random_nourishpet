@@ -20,7 +20,7 @@ function Biometrics() {
   const [biometricData, setBiometricData] = useState(defaultBiometricData);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const userEmail = localStorage.getItem('userEmail');
+  const email = localStorage.getItem('email');
 
   useEffect(() => {
     const savedData = localStorage.getItem('biometricData');
@@ -51,7 +51,7 @@ function Biometrics() {
 
   useEffect(() => {
     const fetchBiometrics = async () => {
-      if (!userEmail) {
+      if (!email) {
         setIsLoading(false);
         return;
       }
@@ -60,7 +60,13 @@ function Biometrics() {
       setError(null);
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/biometrics/${encodeURIComponent(userEmail)}`);
+        const response = await fetch(
+          `${API_BASE_URL}/api/biometrics/${encodeURIComponent(email)}`,
+          {
+            method: 'GET',
+            credentials: 'include'
+          }
+        );
 
         if (!response.ok) {
           if (response.status !== 404) {
@@ -84,7 +90,7 @@ function Biometrics() {
     };
 
     fetchBiometrics();
-  }, [API_BASE_URL, userEmail]);
+  }, [API_BASE_URL, email]);
 
   const handleUpdate = () => {
     navigate('/update-biometrics');
@@ -124,7 +130,7 @@ function Biometrics() {
 
         {isLoading ? (
           <p className="status-text">Loading your biometrics...</p>
-        ) : !userEmail ? (
+        ) : !email ? (
           <p className="status-text">Sign in to view and update your biometrics.</p>
         ) : (
           <div className="biometrics-content">
@@ -138,11 +144,6 @@ function Biometrics() {
             <div className="biometric-box">
               <div className="box-label">Weight (lbs)</div>
               <div className="box-value">{formatMeasurement(biometricData.weightLbs, 'lbs')}</div>
-            </div>
-
-            <div className="biometric-box">
-              <div className="box-label">BMI</div>
-              <div className="box-value">{bmiDisplay}</div>
             </div>
 
             <div className="biometric-box">
@@ -160,6 +161,11 @@ function Biometrics() {
               <div className="box-value">
                 {biometricData.age === null || biometricData.age === undefined ? 'Not set' : biometricData.age}
               </div>
+            </div>
+            
+            <div className="biometric-box">
+              <div className="box-label">BMI</div>
+              <div className="box-value">{bmiDisplay}</div>
             </div>
 
             <button className="update-button" onClick={handleUpdate}>

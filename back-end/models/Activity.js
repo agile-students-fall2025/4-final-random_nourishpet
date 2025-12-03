@@ -11,6 +11,7 @@ const activitySchema = new mongoose.Schema({
   activityType: {
     type: String,
     required: true,
+    trim: true,
   },
   timeSpent: {
     type: Number,
@@ -29,7 +30,7 @@ const activitySchema = new mongoose.Schema({
   date: {
     type: Date,
     default: Date.now,
-  },
+  }
 }, {
   timestamps: true,
 });
@@ -38,4 +39,3 @@ const activitySchema = new mongoose.Schema({
 activitySchema.index({ email: 1, date: -1 });
 
 module.exports = mongoose.model('Activity', activitySchema);
-

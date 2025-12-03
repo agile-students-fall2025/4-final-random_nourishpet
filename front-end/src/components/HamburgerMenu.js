@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import './HamburgerMenu.css';
+import { AuthContext } from '../context/AuthContext';
 
 function HamburgerMenu({ disabled = false }) {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
+  const { setUser } = useContext(AuthContext);
+
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
 
   const menuItems = [
     { label: 'Log Calories', path: '/log-calories' },
@@ -17,11 +21,32 @@ function HamburgerMenu({ disabled = false }) {
     { label: 'Biometric Data', path: '/biometrics' },
     { label: 'Connect Socials', path: '/connect-socials' },
     { label: 'Profile', path: '/profile' },
-    { label: 'Logout', path: '/signin' }
+    { label: 'Logout', path: 'LOGOUT' }   // sentinel
   ];
 
-  const handleMenuClick = (path) => {
+  const handleMenuClick = async (path) => {
     setShowMenu(false);
+
+    if (path === 'LOGOUT') {
+      try {
+        // Backend logout
+        await fetch(`${API_BASE_URL}/api/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+
+        // Clear user from context
+        setUser(null);
+
+        // Redirect
+        navigate('/signin');
+      } catch (err) {
+        console.error('Logout failed:', err);
+      }
+
+      return;
+    }
+
     navigate(path);
   };
 
@@ -35,6 +60,7 @@ function HamburgerMenu({ disabled = false }) {
       >
         <FaBars size={22} />
       </button>
+
       {showMenu && !disabled && (
         <div className="hamburger-dropdown-menu">
           {menuItems.map((item, index) => (
@@ -53,4 +79,3 @@ function HamburgerMenu({ disabled = false }) {
 }
 
 export default HamburgerMenu;
-
