@@ -59,14 +59,6 @@ const validateActivity = [
 
 // Streak share validation rules
 const validateStreak = [
-  body('email')
-    .trim()
-    .notEmpty()
-    .withMessage('Email is required')
-    .isEmail()
-    .withMessage('Please provide a valid email address')
-    .normalizeEmail(),
-  
   body('message')
     .trim()
     .notEmpty()
