@@ -15,6 +15,14 @@ const handleValidationErrors = (req, res, next) => {
 
 // Activity submission validation rules
 const validateActivity = [
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('User email is required')
+    .isEmail()
+    .withMessage('Please provide a valid email address')
+    .normalizeEmail(),
+    
   body('activityType')
     .trim()
     .notEmpty()
