@@ -7,4 +7,8 @@ const MealSchema = new mongoose.Schema({
   date: { type: String, required: true } // MM/DD/YYYY
 });
 
+// Indexes for performance
+MealSchema.index({ userEmail: 1 });
+MealSchema.index({ userEmail: 1, date: 1 });
+
 module.exports = mongoose.model('Meal', MealSchema);
