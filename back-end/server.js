@@ -39,6 +39,7 @@ app.get('/api/groq/debug', (req, res) => {
 
 // Route mounting
 app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/auth', require('./routes/passwordResetRoutes'));
 app.use('/api/meals', require('./routes/mealsRoutes'));
 app.use('/api/profile', require('./routes/profileRoutes'));
 app.use('/api/biometrics', require('./routes/biometricsRoutes'));
