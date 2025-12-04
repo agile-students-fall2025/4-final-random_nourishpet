@@ -6,6 +6,7 @@ const activitySchema = new mongoose.Schema({
     required: true,
     lowercase: true,
     trim: true,
+    index: true,
   },
   activityType: {
     type: String,
@@ -16,6 +17,7 @@ const activitySchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 1,
+    max: 1440,
   },
   imageName: {
     type: String,
@@ -32,5 +34,8 @@ const activitySchema = new mongoose.Schema({
 }, {
   timestamps: true,
 });
+
+// Compound index for performance (email already has index: true)
+activitySchema.index({ email: 1, date: -1 });
 
 module.exports = mongoose.model('Activity', activitySchema);

@@ -57,6 +57,7 @@ app.use('/api/biometrics', protect, require('./routes/biometricsRoutes'));
 app.use('/api/main-screen', protect, require('./routes/mainScreenRoutes'));
 app.use('/api/activities', protect, require('./routes/activityRoutes'));
 app.use('/api/streak', protect, require('./routes/streakRoutes'));
+app.use('/api/focus-sessions', protect, require('./routes/focusSessionRoutes'));
 
 // INLINE ROUTES for testing
 

@@ -111,7 +111,24 @@ exports.signup = async (req, res) => {
     });
 
     // Set cookie + send response
-    return sendAuthResponse(res, newUser, 'User created successfully');
+    const token = generateToken(newUser);
+
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+        createdAt: newUser.createdAt,
+      },
+    });
   } catch (error) {
     console.error('Signup error:', error);
 
