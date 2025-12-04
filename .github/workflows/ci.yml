@@ -30,12 +30,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: back-end/package-lock.json
       
       - name: Install backend dependencies
         working-directory: ./back-end
-        run: npm ci
+        run: npm install
       
       - name: Run backend tests
         working-directory: ./back-end
@@ -43,6 +41,7 @@ jobs:
           NODE_ENV: test
           MONGODB_URI: mongodb://localhost:27017/nourishpet-test
           JWT_SECRET: test-jwt-secret-for-ci
+          GROQ_API_KEY: test-groq-api-key-for-ci
         run: npm test
       
       - name: Run backend tests with coverage
@@ -51,6 +50,7 @@ jobs:
           NODE_ENV: test
           MONGODB_URI: mongodb://localhost:27017/nourishpet-test
           JWT_SECRET: test-jwt-secret-for-ci
+          GROQ_API_KEY: test-groq-api-key-for-ci
         run: npm run test:coverage
 
   frontend-tests:
@@ -65,12 +65,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: front-end/package-lock.json
       
       - name: Install frontend dependencies
         working-directory: ./front-end
-        run: npm ci
+        run: npm install
       
       - name: Run frontend tests
         working-directory: ./front-end

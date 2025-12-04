@@ -14,7 +14,6 @@ import UpdateProfile from './components/UpdateProfile';
 import UpdateUsername from './components/UpdateUsername';
 import UpdatePassword from './components/UpdatePassword';
 import ForgotPassword from './components/ForgotPassword';
-import ResetPassword from './components/ResetPassword';
 import Meal from './components/Meal';
 import LogCalories from './components/LogCalories';
 import FocusMode from './components/FocusMode';

@@ -4,15 +4,20 @@ import { FaArrowLeft } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './MyMealPlan.css';
 
+const DUMMY_SCHEDULE = {
+  'Mon 13': { meals: [{ type: 'Meal 1', name: 'Oats' }, { type: 'Meal 2', name: 'Fish' }, { type: 'Meal 3', name: 'Steak' }], total: '1850 kcal', mood: 'Happy' },
+  'Tue 14': { meals: [{ type: 'Meal 1', name: 'Yogurt' }, { type: 'Meal 2', name: 'Pasta' }, { type: 'Meal 3', name: 'Chicken' }], total: '1920 kcal', mood: 'Energetic' },
+  'Wed 15': { meals: [{ type: 'Meal 1', name: 'Eggs' }, { type: 'Meal 2', name: 'Salad' }, { type: 'Meal 3', name: 'Soup' }], total: '1950 kcal', mood: 'Calm', currentDay: true },
+  'Thu 16': { meals: [], total: null, mood: null },
+  'Fri 17': { meals: [], total: null, mood: null },
+  'Sat 18': { meals: [], total: null, mood: null },
+  'Sun 19': { meals: [], total: null, mood: null },
+};
+
 function MyMealPlan() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [focusLock, setFocusLock] = useState(false);
-  const [currentView, setCurrentView] = useState('Weekly'); 
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  };
+  const [currentView, setCurrentView] = useState('Weekly');
 
   const [mealPlanData, setMealPlanData] = useState({
     goal: 'Balanced Diet',
@@ -20,16 +25,6 @@ function MyMealPlan() {
     calories: '2000 Calories',
     progress: 'Day 5 of 30'
   });
-
-  const DUMMY_SCHEDULE = {
-    'Mon 13': { meals: [{ type: 'Meal 1', name: 'Oats' }, { type: 'Meal 2', name: 'Fish' }, { type: 'Meal 3', name: 'Steak' }], total: '1850 kcal', mood: 'Happy' },
-    'Tue 14': { meals: [{ type: 'Meal 1', name: 'Yogurt' }, { type: 'Meal 2', name: 'Pasta' }, { type: 'Meal 3', name: 'Chicken' }], total: '1920 kcal', mood: 'Energetic' },
-    'Wed 15': { meals: [{ type: 'Meal 1', name: 'Eggs' }, { type: 'Meal 2', name: 'Salad' }, { type: 'Meal 3', name: 'Soup' }], total: '1950 kcal', mood: 'Calm', currentDay: true },
-    'Thu 16': { meals: [], total: null, mood: null },
-    'Fri 17': { meals: [], total: null, mood: null },
-    'Sat 18': { meals: [], total: null, mood: null },
-    'Sun 19': { meals: [], total: null, mood: null },
-  };
 
   const weeklySchedule = useMemo(() => 
     Object.entries(DUMMY_SCHEDULE).map(([day, data]) => ({ day, ...data }))
@@ -72,19 +67,16 @@ function MyMealPlan() {
 
   return (
     <div className="my-meal-plan-container">
-      <header className={`my-meal-plan-header ${focusLock ? 'disabled' : ''}`}>
+      <header className="my-meal-plan-header">
         <button
           className="icon-button"
           onClick={() => navigate(-1)}
-          disabled={focusLock}
         >
           <FaArrowLeft />
         </button>
-        <h2 className="my-meal-plan-title">
-          {focusLock ? 'Focus Lock Enabled' : 'My Meal Plan'}
-        </h2>
+        <h2 className="my-meal-plan-title">My Meal Plan</h2>
 
-        <HamburgerMenu disabled={focusLock} />
+        <HamburgerMenu />
       </header>
 
       <div className="my-meal-plan-card">
@@ -119,9 +111,9 @@ function MyMealPlan() {
           <div className="calendar-controls">
             {/* Date Navigation */}
             <div className="date-navigation">
-              <button className="nav-arrow" disabled={focusLock}>&lt;</button>
+              <button className="nav-arrow">&lt;</button>
               <span className="month-label">October 2025</span>
-              <button className="nav-arrow" disabled={focusLock}>&gt;</button>
+              <button className="nav-arrow">&gt;</button>
             </div>
 
             {/* View Toggles */}
@@ -131,7 +123,6 @@ function MyMealPlan() {
                   key={view}
                   className={`view-toggle-button ${currentView === view ? 'active' : ''}`}
                   onClick={() => setCurrentView(view)}
-                  disabled={focusLock}
                 >
                   {view}
                 </button>

@@ -1,5 +1,6 @@
 // controllers/profileController.js
 
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const UserProfile = require('../models/UserProfile');
 
@@ -183,14 +184,19 @@ exports.updatePassword = async (req, res) => {
       });
     }
 
-    if (user.password !== currentPassword) {
+    // Compare hashed password with current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
       return res.status(401).json({
         success: false,
         message: 'Current password is incorrect'
       });
     }
 
-    user.password = newPassword;
+    // Hash the new password before saving
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    user.password = hashedPassword;
     await user.save();
 
     res.json({

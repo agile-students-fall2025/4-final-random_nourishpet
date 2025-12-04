@@ -5,9 +5,10 @@ require('dotenv').config();
 const Groq = require('groq-sdk');
 const { protect } = require('./middleware/authMiddleware');
 
-const groq = new Groq({
+// Initialize Groq only if API key is provided
+const groq = process.env.GROQ_API_KEY ? new Groq({
   apiKey: process.env.GROQ_API_KEY
-});
+}) : null;
 
 const connectDB = require('./config/db');
 const User = require('./models/User');
@@ -92,6 +93,12 @@ app.get('/api/users', protect, async (req, res) => {
 
 app.post('/api/groq/test', protect, async (req, res) => {
   try {
+    if (!groq) {
+      return res.status(400).json({
+        success: false,
+        error: 'Groq API key not configured'
+      });
+    }
     const modelToUse = process.env.GROQ_MODEL || 'llama3-8b-8192';
     const chatCompletion = await groq.chat.completions.create({
       messages: [{ role: "user", content: "Say hello!" }],

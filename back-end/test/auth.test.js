@@ -1,8 +1,17 @@
 const request = require('supertest');
 const { expect } = require('chai');
 const app = require('../server');
+const User = require('../models/User');
 
 describe('Authentication API Tests', () => {
+  // Clean up database before and after tests
+  before(async () => {
+    await User.deleteMany({});
+  });
+
+  after(async () => {
+    await User.deleteMany({});
+  });
   
   describe('GET /api/health', () => {
     it('should return health check status', async () => {
@@ -16,17 +25,19 @@ describe('Authentication API Tests', () => {
   });
 
   describe('POST /api/auth/signup', () => {
-    const validSignUpData = {
+    // Use unique data for each test run
+    const getUniqueSignUpData = () => ({
       firstName: 'Test',
       lastName: 'User',
-      username: 'testuser',
-      email: 'test@example.com',
+      username: `testuser${Date.now()}`,
+      email: `test${Date.now()}@example.com`,
       dateOfBirth: '1990-01-01',
       password: 'password123',
       confirmPassword: 'password123'
-    };
+    });
 
     it('should successfully create a new user with valid data', async () => {
+      const validSignUpData = getUniqueSignUpData();
       const res = await request(app)
         .post('/api/auth/signup')
         .send(validSignUpData)
@@ -245,32 +256,34 @@ describe('Authentication API Tests', () => {
 
   describe('POST /api/auth/signin', () => {
     // Create a test user before running signin tests
+    const signInUser = {
+      firstName: 'SignIn',
+      lastName: 'User',
+      username: `signinuser${Date.now()}`,
+      email: `signin${Date.now()}@example.com`,
+      dateOfBirth: '1990-01-01',
+      password: 'password123',
+      confirmPassword: 'password123'
+    };
+
     before(async () => {
       await request(app)
         .post('/api/auth/signup')
-        .send({
-          firstName: 'SignIn',
-          lastName: 'User',
-          username: 'signinuser',
-          email: 'signin@example.com',
-          dateOfBirth: '1990-01-01',
-          password: 'password123',
-          confirmPassword: 'password123'
-        });
+        .send(signInUser);
     });
 
     it('should successfully sign in with valid credentials', async () => {
       const res = await request(app)
         .post('/api/auth/signin')
         .send({
-          email: 'signin@example.com',
+          email: signInUser.email,
           password: 'password123'
         })
         .expect(200);
       
       expect(res.body).to.have.property('success', true);
       expect(res.body).to.have.property('message', 'Sign in successful');
-      expect(res.body.user).to.have.property('email', 'signin@example.com');
+      expect(res.body.user).to.have.property('email', signInUser.email);
       expect(res.body.user).to.not.have.property('password');
     });
 
@@ -290,7 +303,7 @@ describe('Authentication API Tests', () => {
       const res = await request(app)
         .post('/api/auth/signin')
         .send({
-          email: 'signin@example.com'
+          email: signInUser.email
         })
         .expect(400);
       
@@ -315,7 +328,7 @@ describe('Authentication API Tests', () => {
       const res = await request(app)
         .post('/api/auth/signin')
         .send({
-          email: 'signin@example.com',
+          email: signInUser.email,
           password: 'wrongpassword'
         })
         .expect(401);

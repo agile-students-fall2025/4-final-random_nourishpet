@@ -3,7 +3,17 @@
 ## Project Description
 
 **NutriPal** is a web application that transforms nutrition tracking into an engaging, game-like experience.  
-Users “raise” a virtual pet that thrives when they make healthy food choices — turning meal logging and wellness tracking into a source of motivation and fun.
+Users "raise" a virtual pet that thrives when they make healthy food choices — turning meal logging and wellness tracking into a source of motivation and fun.
+
+### Deployment & Infrastructure
+
+NutriPal is deployed to **Digital Ocean** using Docker containers with fully automated CI/CD pipelines:
+
+- ✅ **Docker Container Deployment** - Application runs in containerized environments for consistency and scalability
+- ✅ **Continuous Integration (CI)** - Automated testing on every push/PR via GitHub Actions
+- ✅ **Continuous Deployment (CD)** - Automated deployment to production on merge to main/master
+
+See the [Production Deployment](#production-deployment) section for detailed information about the deployment architecture and process.
 
 ---
 
@@ -316,28 +326,81 @@ The application will be available at:
 
 ### Production Deployment
 
-For production deployment on Digital Ocean:
+NutriPal is deployed to a **Digital Ocean Droplet** using Docker containers with automated CI/CD pipelines.
 
-1. **SSH into your droplet:**
+#### Deployment Architecture
+
+- **Hosting:** Digital Ocean Droplet (Ubuntu)
+- **Containerization:** Docker & Docker Compose
+- **Deployment Path:** `/var/www/nourishpet` on the droplet
+- **CI/CD:** GitHub Actions for automated testing and deployment
+
+#### Extra Credit Features Implemented
+
+✅ **Docker Container Deployment** - Application runs in containerized environments for consistency and scalability  
+✅ **Continuous Integration (CI)** - Automated testing on every push/PR via GitHub Actions  
+✅ **Continuous Deployment (CD)** - Automated deployment to production on merge to main/master
+
+#### How Deployment Works
+
+1. **Initial Setup (One-time):**
+   - Create a Digital Ocean Droplet
+   - Install Docker and Docker Compose on the droplet
+   - Configure GitHub Secrets:
+     - `DO_HOST` - Droplet IP address or hostname
+     - `DO_USER` - SSH username (e.g., `root`)
+     - `DO_SSH_KEY` - Private SSH key for authentication
+     - `DO_PORT` - SSH port (default: 22)
+   - Create `.env` files on the droplet with production values
+
+2. **Automated Deployment Process:**
+   When code is pushed to `main` or `master` branch:
+   
+   a. **Continuous Integration (CI) Pipeline:**
+      - Runs backend unit tests with MongoDB
+      - Runs frontend tests and builds
+      - Builds Docker images to verify they compile correctly
+      - All tests must pass before deployment proceeds
+   
+   b. **Continuous Deployment (CD) Pipeline:**
+      - Builds the frontend production bundle
+      - Copies entire codebase to `/var/www/nourishpet` on the droplet via SCP
+      - SSHes into the droplet and:
+        - Stops existing containers
+        - Builds new Docker images
+        - Starts containers using `docker-compose.prod.yml`
+        - Cleans up old Docker images
+        - Shows container status and logs
+
+3. **Manual Deployment (if needed):**
    ```bash
+   # SSH into droplet
    ssh user@your-droplet-ip
-   ```
-
-2. **Clone the repository:**
-   ```bash
-   cd /var/www
-   git clone <your-repo-url> nourishpet
-   cd nourishpet
-   ```
-
-3. **Create `.env` files** on the server with production values
-
-4. **Start the services:**
-   ```bash
+   
+   # Navigate to deployment directory
+   cd /var/www/nourishpet
+   
+   # Pull latest code (if using git)
+   git pull origin main
+   
+   # Rebuild and restart containers
    docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
    ```
 
-5. **Set up a reverse proxy (nginx) on the host** to route traffic to the containers, or configure firewall rules to expose ports 3000 and 3001.
+4. **Access the Application:**
+   - Configure a reverse proxy (nginx) on the host to route traffic
+   - Or access directly via exposed ports (3000 for frontend, 3001 for backend)
+   - Set up firewall rules to expose necessary ports
+
+#### CI/CD Workflow Files
+
+- **CI Workflow:** `.github/workflows/ci.yml`
+  - Triggers on: push/PR to `main`, `master`, `develop`, `avi-deployment`
+  - Tests: Backend (with MongoDB), Frontend, Docker builds
+  
+- **CD Workflow:** `.github/workflows/cd.yml`
+  - Triggers on: push to `main`/`master` or manual workflow dispatch
+  - Deploys: Full application to Digital Ocean Droplet
 
 ### Docker Commands Reference
 

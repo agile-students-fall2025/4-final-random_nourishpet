@@ -2,7 +2,7 @@ name: Continuous Deployment
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, avi-deployment ]
   workflow_dispatch:
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
       - name: Build frontend
         working-directory: ./front-end
         run: |
-          npm ci
+          npm install
           npm run build
       
       - name: Deploy to Digital Ocean Droplet
@@ -52,17 +52,17 @@ jobs:
             fi
             
             # Stop existing containers
-            docker-compose -f docker-compose.yml -f docker-compose.prod.yml down || true
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml down || true
             
             # Build and start new containers
-            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
             
             # Clean up old images
             docker image prune -f
             
             # Show running containers
-            docker-compose -f docker-compose.yml -f docker-compose.prod.yml ps
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
             
             # Show logs
-            docker-compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=50
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=50
 
