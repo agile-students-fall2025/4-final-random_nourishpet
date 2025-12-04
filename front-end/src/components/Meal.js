@@ -12,7 +12,6 @@ function Meal() {
   const [allergies, setAllergies] = useState('');
   const [budget, setBudget] = useState('');
   const [description, setDescription] = useState('');
-  const [focusLock, setFocusLock] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
