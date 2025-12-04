@@ -22,7 +22,7 @@ jobs:
       - name: Build frontend
         working-directory: ./front-end
         run: |
-          npm ci
+          npm install
           npm run build
       
       - name: Deploy to Digital Ocean Droplet
