@@ -41,6 +41,7 @@ jobs:
           NODE_ENV: test
           MONGODB_URI: mongodb://localhost:27017/nourishpet-test
           JWT_SECRET: test-jwt-secret-for-ci
+          GROQ_API_KEY: test-groq-api-key-for-ci
         run: npm test
       
       - name: Run backend tests with coverage
@@ -49,6 +50,7 @@ jobs:
           NODE_ENV: test
           MONGODB_URI: mongodb://localhost:27017/nourishpet-test
           JWT_SECRET: test-jwt-secret-for-ci
+          GROQ_API_KEY: test-groq-api-key-for-ci
         run: npm run test:coverage
 
   frontend-tests:

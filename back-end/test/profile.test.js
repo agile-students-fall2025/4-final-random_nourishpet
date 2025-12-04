@@ -1,15 +1,18 @@
 const request = require('supertest');
 const assert = require('assert');
 const app = require('../server');
+const User = require('../models/User');
 
-// Test user constants
-const TEST_EMAIL = 'testprofile@example.com';
-const INITIAL_USERNAME = 'testuser_profile';
-const UPDATED_USERNAME = 'updateduser_profile';
+// Test user constants - use unique values to avoid conflicts
+const TEST_EMAIL = `testprofile${Date.now()}@example.com`;
+const INITIAL_USERNAME = `testuser_profile${Date.now()}`;
+const UPDATED_USERNAME = `updateduser_profile${Date.now()}`;
 
 describe('Profile Routes', function () {
-  // Before running profile tests, we must create the user so profile endpoints work.
+  // Clean up database before and after tests
   before(async function () {
+    await User.deleteMany({});
+    // Create the user for profile tests
     await request(app)
       .post('/api/auth/signup')
       .send({
@@ -22,6 +25,10 @@ describe('Profile Routes', function () {
         confirmPassword: 'password123'
       })
       .expect(201);
+  });
+
+  after(async function () {
+    await User.deleteMany({});
   });
 
   // ----------------------------------------------------------
