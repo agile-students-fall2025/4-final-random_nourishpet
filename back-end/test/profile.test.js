@@ -4,9 +4,11 @@ const app = require('../server');
 const User = require('../models/User');
 
 // Test user constants - use unique values to avoid conflicts
-const TEST_EMAIL = `testprofile${Date.now()}@example.com`;
-const INITIAL_USERNAME = `testuser_profile${Date.now()}`;
-const UPDATED_USERNAME = `updateduser_profile${Date.now()}`;
+// Note: Username must be 3-30 chars, so we use a shorter suffix
+const timestamp = Date.now().toString().slice(-6); // Last 6 digits for uniqueness
+const TEST_EMAIL = `testprofile${timestamp}@example.com`;
+const INITIAL_USERNAME = `testuser${timestamp}`;
+const UPDATED_USERNAME = `updated${timestamp}`;
 
 describe('Profile Routes', function () {
   // Clean up database before and after tests
