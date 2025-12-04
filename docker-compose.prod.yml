@@ -1,0 +1,17 @@
+version: '3.8'
+
+# Production overrides for docker-compose.yml
+# This file extends the base docker-compose.yml with production-specific settings
+
+services:
+  backend:
+    environment:
+      - NODE_ENV=production
+    # Remove volume mounts in production (use built image)
+    volumes: []
+    restart: always
+
+  frontend:
+    restart: always
+    # Frontend is built into nginx image, no volumes needed
+

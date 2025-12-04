@@ -1,0 +1,68 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Digital Ocean
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Build frontend
+        working-directory: ./front-end
+        run: |
+          npm ci
+          npm run build
+      
+      - name: Deploy to Digital Ocean Droplet
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          port: ${{ secrets.DO_PORT || 22 }}
+          source: "."
+          target: "/var/www/nourishpet"
+          strip_components: 0
+      
+      - name: SSH into Droplet and Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          port: ${{ secrets.DO_PORT || 22 }}
+          script: |
+            cd /var/www/nourishpet
+            
+            # Ensure .env files exist (they should be created manually on server)
+            if [ ! -f back-end/.env ]; then
+              echo "Warning: back-end/.env not found. Please create it on the server."
+            fi
+            
+            # Stop existing containers
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml down || true
+            
+            # Build and start new containers
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+            
+            # Clean up old images
+            docker image prune -f
+            
+            # Show running containers
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml ps
+            
+            # Show logs
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml logs --tail=50
+

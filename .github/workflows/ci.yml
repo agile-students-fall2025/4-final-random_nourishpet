@@ -1,0 +1,109 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, master, develop, avi-deployment ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: back-end/package-lock.json
+      
+      - name: Install backend dependencies
+        working-directory: ./back-end
+        run: npm ci
+      
+      - name: Run backend tests
+        working-directory: ./back-end
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://localhost:27017/nourishpet-test
+          JWT_SECRET: test-jwt-secret-for-ci
+        run: npm test
+      
+      - name: Run backend tests with coverage
+        working-directory: ./back-end
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://localhost:27017/nourishpet-test
+          JWT_SECRET: test-jwt-secret-for-ci
+        run: npm run test:coverage
+
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: front-end/package-lock.json
+      
+      - name: Install frontend dependencies
+        working-directory: ./front-end
+        run: npm ci
+      
+      - name: Run frontend tests
+        working-directory: ./front-end
+        run: npm test -- --watchAll=false --coverage --passWithNoTests
+      
+      - name: Build frontend
+        working-directory: ./front-end
+        run: npm run build
+
+  docker-build:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build backend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./back-end
+          file: ./back-end/Dockerfile
+          push: false
+          tags: nourishpet-backend:test
+      
+      - name: Build frontend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./front-end
+          file: ./front-end/Dockerfile
+          push: false
+          tags: nourishpet-frontend:test
+

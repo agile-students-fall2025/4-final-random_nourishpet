@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    container_name: nourishpet-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+    env_file:
+      - ./back-end/.env
+    volumes:
+      - ./back-end:/app
+      - /app/node_modules
+    networks:
+      - nourishpet-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    container_name: nourishpet-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - nourishpet-network
+    restart: unless-stopped
+
+networks:
+  nourishpet-network:
+    driver: bridge
+
