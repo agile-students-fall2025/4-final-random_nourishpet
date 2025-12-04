@@ -67,19 +67,16 @@ function MyMealPlan() {
 
   return (
     <div className="my-meal-plan-container">
-      <header className={`my-meal-plan-header ${focusLock ? 'disabled' : ''}`}>
+      <header className="my-meal-plan-header">
         <button
           className="icon-button"
           onClick={() => navigate(-1)}
-          disabled={focusLock}
         >
           <FaArrowLeft />
         </button>
-        <h2 className="my-meal-plan-title">
-          {focusLock ? 'Focus Lock Enabled' : 'My Meal Plan'}
-        </h2>
+        <h2 className="my-meal-plan-title">My Meal Plan</h2>
 
-        <HamburgerMenu disabled={focusLock} />
+        <HamburgerMenu />
       </header>
 
       <div className="my-meal-plan-card">
@@ -114,9 +111,9 @@ function MyMealPlan() {
           <div className="calendar-controls">
             {/* Date Navigation */}
             <div className="date-navigation">
-              <button className="nav-arrow" disabled={focusLock}>&lt;</button>
+              <button className="nav-arrow">&lt;</button>
               <span className="month-label">October 2025</span>
-              <button className="nav-arrow" disabled={focusLock}>&gt;</button>
+              <button className="nav-arrow">&gt;</button>
             </div>
 
             {/* View Toggles */}
@@ -126,7 +123,6 @@ function MyMealPlan() {
                   key={view}
                   className={`view-toggle-button ${currentView === view ? 'active' : ''}`}
                   onClick={() => setCurrentView(view)}
-                  disabled={focusLock}
                 >
                   {view}
                 </button>
