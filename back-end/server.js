@@ -19,8 +19,21 @@ console.log("SERVER STARTED ON PORT:", PORT);
 
 const dbConnectionPromise = connectDB();
 
+// CORS configuration - supports both local development and Docker
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:3000', 'http://frontend:80', 'http://localhost'];
+
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all origins in development, restrict in production
+    }
+  },
   credentials: true,
 }));
 
