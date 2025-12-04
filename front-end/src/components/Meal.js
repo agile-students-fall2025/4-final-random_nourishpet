@@ -40,19 +40,16 @@ function Meal() {
 
 return (
     <div className="generateplan-container">
-        <header className={`generate-plan-header ${focusLock ? 'disabled' : ''}`}>
+        <header className="generate-plan-header">
           <button
             className="icon-button"
             onClick={() => navigate(-1)}
-            disabled={focusLock}
           >
             <FaArrowLeft />
           </button>
-          <h2 className="generate-plan-title">
-            {focusLock ? 'Focus Lock Enabled' : 'Generate Plan'}
-          </h2>
+          <h2 className="generate-plan-title">Generate Plan</h2>
 
-          <HamburgerMenu disabled={focusLock} />
+          <HamburgerMenu />
         </header>
         
         <div className="generateplan-card">
