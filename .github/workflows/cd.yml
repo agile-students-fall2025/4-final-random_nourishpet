@@ -2,7 +2,7 @@ name: Continuous Deployment
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, avi-deployment ]
   workflow_dispatch:
 
 jobs:
