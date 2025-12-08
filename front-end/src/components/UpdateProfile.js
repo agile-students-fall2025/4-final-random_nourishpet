@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './UpdateProfile.css';
+import { API_BASE_URL } from '../utils/api';
 
 function UpdateProfile() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ function UpdateProfile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/profile/${email}`, {
+        const response = await fetch(`${API_BASE_URL}/api/profile/${email}`, {
           method: 'GET',
           credentials: 'include' 
         });
@@ -67,7 +68,7 @@ function UpdateProfile() {
   const handleSaveChanges = async () => {
     setSaving(true);
     try {
-      const response = await fetch('http://localhost:3001/api/profile/update', {
+      const response = await fetch(`${API_BASE_URL}/api/profile/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaEdit, FaTrash } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './LogCalories.css';
+import { API_BASE_URL } from '../utils/api';
 
 function LogCalories() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ function LogCalories() {
   useEffect(() => {
     if (!email) return;
 
-    fetch(`http://localhost:3001/api/meals/${email}`, {
+    fetch(`${API_BASE_URL}/api/meals/${email}`, {
       method: 'GET',
       credentials: 'include'
     })
@@ -49,7 +50,7 @@ function LogCalories() {
     };
 
     try {
-      const res = await fetch('http://localhost:3001/api/meals', {
+      const res = await fetch(`${API_BASE_URL}/api/meals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newMeal),

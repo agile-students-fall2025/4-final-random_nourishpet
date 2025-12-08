@@ -1,12 +1,11 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { API_BASE_URL } from '../utils/api';
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
 
   // Check login state on initial load
   useEffect(() => {
@@ -31,7 +30,7 @@ export function AuthProvider({ children }) {
     }
 
     checkAuth();
-  }, [API_BASE_URL]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, setUser, loading }}>
