@@ -49,7 +49,14 @@ function SignUp() {
         credentials: 'include' 
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('Failed to parse response:', jsonError);
+        alert(`Sign up failed: ${response.status} ${response.statusText}`);
+        return;
+      }
 
       if (response.ok && data.success) {
         console.log('Sign up successful:', data);
@@ -62,11 +69,11 @@ function SignUp() {
         alert('Account created successfully!');
         navigate('/update-biometrics');
       } else {
-        alert(data.message || 'Sign up failed');
+        alert(data.message || `Sign up failed: ${response.status} ${response.statusText}`);
       }
     } catch (error) {
       console.error('Error signing up:', error);
-      alert('An error occurred. Please try again.');
+      alert(`An error occurred: ${error.message || 'Please try again.'}`);
     }
   };
 
