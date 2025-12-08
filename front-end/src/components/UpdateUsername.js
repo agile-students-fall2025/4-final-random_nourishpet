@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HamburgerMenu from './HamburgerMenu';
 import './UpdateUsername.css';
+import { API_BASE_URL } from '../utils/api';
 
 function UpdateUsername() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ function UpdateUsername() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/profile/${email}`, {
+        const response = await fetch(`${API_BASE_URL}/api/profile/${email}`, {
           method: 'GET',
           credentials: 'include' 
         });
@@ -52,7 +53,7 @@ function UpdateUsername() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/profile/update-username', {
+      const response = await fetch(`${API_BASE_URL}/api/profile/update-username`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,7 +61,8 @@ function UpdateUsername() {
         body: JSON.stringify({
           email: email,
           newUsername: newUsername.trim()
-        })
+        }),
+        credentials: 'include'
       });
 
       const data = await response.json();

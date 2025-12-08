@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HamburgerMenu from './HamburgerMenu';
 import './UpdatePassword.css';
+import { API_BASE_URL } from '../utils/api';
 
 function UpdatePassword() {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ function UpdatePassword() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/profile/update-password', {
+      const response = await fetch(`${API_BASE_URL}/api/profile/update-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

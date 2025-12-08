@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HamburgerMenu from './HamburgerMenu';
 import './ProfileScreen.css';
+import { API_BASE_URL } from '../utils/api';
 
 function ProfileScreen() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ function ProfileScreen() {
     // Fetch profile data from backend
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/profile/${email}`, {
+        const response = await fetch(`${API_BASE_URL}/api/profile/${email}`, {
           method: 'GET',
           credentials: 'include'
         });
