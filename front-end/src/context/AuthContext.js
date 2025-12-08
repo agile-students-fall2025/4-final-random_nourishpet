@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
     }
 
     checkAuth();
-  }, [API_BASE_URL]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, setUser, loading }}>
