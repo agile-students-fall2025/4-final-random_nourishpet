@@ -7,13 +7,23 @@ const PetData = require('../models/PetData');
 const StreakData = require('../models/StreakData');
 const generateToken = require('../utils/generateToken');
 
+// Helper to determine if request is secure (HTTPS)
+const isSecure = (req) => {
+  // Check X-Forwarded-Proto header (set by nginx/proxy)
+  if (req.headers['x-forwarded-proto'] === 'https') {
+    return true;
+  }
+  // Check if connection is secure
+  return req.secure || req.protocol === 'https';
+};
+
 // Helper to create JWT, set cookie, and send response
-const sendAuthResponse = (res, user, message = 'Authentication successful') => {
+const sendAuthResponse = (req, res, user, message = 'Authentication successful') => {
   const token = generateToken(user);
 
   res.cookie('jwt', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isSecure(req),
     sameSite: 'lax',
     // no maxAge -> session cookie
   });
@@ -115,7 +125,7 @@ exports.signup = async (req, res) => {
 
     res.cookie('jwt', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecure(req),
       sameSite: 'lax',
     });
 
@@ -179,7 +189,7 @@ exports.signin = async (req, res) => {
     }
 
     // Set cookie + send response
-    return sendAuthResponse(res, user, 'Sign in successful');
+    return sendAuthResponse(req, res, user, 'Sign in successful');
   } catch (error) {
     console.error('Signin error:', error);
     res.status(500).json({
@@ -193,7 +203,7 @@ exports.signin = async (req, res) => {
 exports.logout = (req, res) => {
   res.clearCookie('jwt', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isSecure(req),
     sameSite: 'lax',
   });
 
