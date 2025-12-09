@@ -138,6 +138,8 @@ function MyMealPlan() {
         setCurrentMonth(prevMonth);
         break;
       }
+      default:
+        break;
     }
   };
 
@@ -161,6 +163,8 @@ function MyMealPlan() {
         setCurrentMonth(nextMonth);
         break;
       }
+      default:
+        break;
     }
   };
 
@@ -173,6 +177,7 @@ function MyMealPlan() {
     } else if (currentView === 'Monthly') {
       setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentView]);
 
   useEffect(() => {
