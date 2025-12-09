@@ -289,6 +289,18 @@
   overflow: hidden;
 }
 
+/* Weekly view with horizontal scrolling */
+.calendar-grid.weekly-scrollable {
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.calendar-grid.weekly-scrollable .day-cell {
+  min-width: 140px;
+}
+
 /* Adjust grid for smaller screens (e.g., show only 3 days) */
 @media (max-width: 550px) {
   .calendar-grid {
@@ -387,4 +399,182 @@
   margin-top: 0.5rem;
   padding-top: 0.5rem;
   border-top: 1px dashed #e0e0e0;
+}
+
+/* Daily View Styles */
+.daily-view {
+  width: 100%;
+  padding: 1rem 0;
+}
+
+.daily-day-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.daily-day-card.current-day {
+  border-color: #764ba2;
+  box-shadow: 0 4px 16px rgba(118, 75, 162, 0.3);
+}
+
+.daily-day-header {
+  background-color: #fafafa;
+  padding: 1.5rem;
+  text-align: center;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.daily-day-header.current-day-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.daily-day-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.daily-day-header.current-day-header .daily-day-name {
+  color: white;
+}
+
+.daily-meal-list {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.daily-meal-entry {
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #764ba2;
+}
+
+.daily-meal-type {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #764ba2;
+  margin-bottom: 0.5rem;
+}
+
+.daily-meal-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.daily-meal-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.daily-meal-calories {
+  font-size: 0.85rem;
+  color: #999;
+  font-weight: 500;
+}
+
+.daily-total {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #e0e0e0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #764ba2;
+  text-align: center;
+}
+
+/* Monthly View Styles */
+.monthly-calendar {
+  width: 100%;
+  padding: 1rem 0;
+}
+
+.monthly-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  margin-bottom: 1px;
+  background-color: #e0e0e0;
+}
+
+.monthly-weekday {
+  background-color: #fafafa;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #764ba2;
+}
+
+.monthly-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.monthly-day-empty {
+  background-color: #f9f9f9;
+  min-height: 80px;
+}
+
+.monthly-day-cell {
+  background-color: white;
+  min-height: 80px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.monthly-day-cell:hover {
+  background-color: #f7f3ff;
+}
+
+.monthly-day-cell.monthly-today {
+  background-color: #f7f3ff;
+  border: 2px solid #764ba2;
+}
+
+.monthly-day-cell.monthly-has-meals {
+  border-left: 3px solid #764ba2;
+}
+
+.monthly-day-number {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.monthly-day-cell.monthly-today .monthly-day-number {
+  color: #764ba2;
+  font-weight: 700;
+}
+
+.monthly-meal-indicator {
+  font-size: 0.7rem;
+  color: #764ba2;
+  font-weight: 500;
+  margin-top: auto;
+  padding: 0.25rem 0.5rem;
+  background-color: #f0e6ff;
+  border-radius: 4px;
+  width: 100%;
+  text-align: center;
 }

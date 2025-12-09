@@ -21,15 +21,89 @@ function MyMealPlan() {
 
   const [schedule, setSchedule] = useState([]);
 
-  // Format date to "Mon DD" format
-  const formatDayLabel = (dateString) => {
+  // Get today's date (memoized to avoid recreating)
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+  
+  // Get start of week (Sunday)
+  const getWeekStart = (date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    return new Date(d.setDate(diff));
+  };
+
+  const [currentDate, setCurrentDate] = useState(() => new Date(today));
+  const [currentWeekStart, setCurrentWeekStart] = useState(() => getWeekStart(today));
+  const [currentMonth, setCurrentMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
+
+  // Parse date string from schedule (MM/DD/YYYY)
+  const parseScheduleDate = (dateString) => {
     try {
       const [month, day, year] = dateString.split('/');
-      const date = new Date(year, month - 1, day);
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      return `${days[date.getDay()]} ${day}`;
+      return new Date(year, month - 1, day);
     } catch {
-      return dateString;
+      return null;
+    }
+  };
+
+  // Format date to "Mon DD" format
+  const formatDayLabel = (dateString) => {
+    const date = parseScheduleDate(dateString);
+    if (!date) return dateString;
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return `${days[date.getDay()]} ${date.getDate()}`;
+  };
+
+  // Format date for display
+  const formatDateForDisplay = (date) => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${days[date.getDay()]} ${months[date.getMonth()]} ${date.getDate()}`;
+  };
+
+  // Format date range for weekly view
+  const formatWeekRange = (weekStart) => {
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    if (weekStart.getMonth() === weekEnd.getMonth() && weekStart.getFullYear() === weekEnd.getFullYear()) {
+      return `${months[weekStart.getMonth()]} ${weekStart.getDate()} - ${weekEnd.getDate()}, ${weekStart.getFullYear()}`;
+    } else if (weekStart.getFullYear() === weekEnd.getFullYear()) {
+      return `${months[weekStart.getMonth()]} ${weekStart.getDate()} - ${months[weekEnd.getMonth()]} ${weekEnd.getDate()}, ${weekStart.getFullYear()}`;
+    } else {
+      return `${months[weekStart.getMonth()]} ${weekStart.getDate()}, ${weekStart.getFullYear()} - ${months[weekEnd.getMonth()]} ${weekEnd.getDate()}, ${weekEnd.getFullYear()}`;
+    }
+  };
+
+  // Format month/year for monthly view
+  const formatMonthYear = (date) => {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${months[date.getMonth()]} ${date.getFullYear()}`;
+  };
+
+  // Find schedule entry for a specific date
+  const findScheduleEntry = (date) => {
+    if (!schedule || schedule.length === 0) return null;
+    const dateStr = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+    return schedule.find(day => day.date === dateStr) || null;
+  };
+
+  // Get date label based on current view
+  const getDateLabel = () => {
+    switch (currentView) {
+      case 'Daily':
+        return formatDateForDisplay(currentDate);
+      case 'Weekly':
+        return formatWeekRange(currentWeekStart);
+      case 'Monthly':
+        return formatMonthYear(currentMonth);
+      default:
+        return '';
     }
   };
 
@@ -42,6 +116,64 @@ function MyMealPlan() {
     const durationDays = parseInt(duration.match(/\d+/)?.[0] || '7');
     return `Day ${Math.max(1, Math.min(daysDiff, durationDays))} of ${durationDays}`;
   };
+
+  // Navigation handlers
+  const handlePrevious = () => {
+    switch (currentView) {
+      case 'Daily': {
+        const prevDate = new Date(currentDate);
+        prevDate.setDate(prevDate.getDate() - 1);
+        setCurrentDate(prevDate);
+        break;
+      }
+      case 'Weekly': {
+        const prevWeek = new Date(currentWeekStart);
+        prevWeek.setDate(prevWeek.getDate() - 7);
+        setCurrentWeekStart(prevWeek);
+        break;
+      }
+      case 'Monthly': {
+        const prevMonth = new Date(currentMonth);
+        prevMonth.setMonth(prevMonth.getMonth() - 1);
+        setCurrentMonth(prevMonth);
+        break;
+      }
+    }
+  };
+
+  const handleNext = () => {
+    switch (currentView) {
+      case 'Daily': {
+        const nextDate = new Date(currentDate);
+        nextDate.setDate(nextDate.getDate() + 1);
+        setCurrentDate(nextDate);
+        break;
+      }
+      case 'Weekly': {
+        const nextWeek = new Date(currentWeekStart);
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        setCurrentWeekStart(nextWeek);
+        break;
+      }
+      case 'Monthly': {
+        const nextMonth = new Date(currentMonth);
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
+        setCurrentMonth(nextMonth);
+        break;
+      }
+    }
+  };
+
+  // Reset to today when view changes
+  useEffect(() => {
+    if (currentView === 'Daily') {
+      setCurrentDate(new Date(today));
+    } else if (currentView === 'Weekly') {
+      setCurrentWeekStart(getWeekStart(today));
+    } else if (currentView === 'Monthly') {
+      setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+    }
+  }, [currentView]);
 
   useEffect(() => {
     const loadMealPlan = async () => {
@@ -100,34 +232,79 @@ function MyMealPlan() {
     loadMealPlan();
   }, [location.state]);
 
+  // Get schedule entries for the current week
   const weeklySchedule = useMemo(() => {
     if (!schedule || schedule.length === 0) return [];
     
-    // Get first 7 days for weekly view
-    return schedule.slice(0, 7).map((day, index) => {
-      const today = new Date();
-      const dayDate = day.date ? (() => {
-        try {
-          const [month, dayNum, year] = day.date.split('/');
-          return new Date(year, month - 1, dayNum);
-        } catch {
-          return null;
-        }
-      })() : null;
+    const weekDays = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(currentWeekStart);
+      date.setDate(date.getDate() + i);
+      const scheduleEntry = findScheduleEntry(date);
       
-      const isToday = dayDate && 
-        dayDate.getDate() === today.getDate() &&
-        dayDate.getMonth() === today.getMonth() &&
-        dayDate.getFullYear() === today.getFullYear();
+      const isToday = date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear();
 
-      return {
-        day: formatDayLabel(day.date || ''),
-        meals: day.meals || [],
-        total: day.totalCalories ? `${day.totalCalories} kcal` : null,
+      weekDays.push({
+        date: date,
+        dateString: `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`,
+        day: formatDayLabel(`${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`),
+        meals: scheduleEntry?.meals || [],
+        total: scheduleEntry?.totalCalories ? `${scheduleEntry.totalCalories} kcal` : null,
         currentDay: isToday
-      };
-    });
-  }, [schedule]);
+      });
+    }
+    
+    return weekDays;
+  }, [schedule, currentWeekStart, today, formatDayLabel, findScheduleEntry]);
+
+  // Render daily view
+  const renderDailyCalendar = () => {
+    const scheduleEntry = findScheduleEntry(currentDate);
+    const isToday = currentDate.getDate() === today.getDate() &&
+      currentDate.getMonth() === today.getMonth() &&
+      currentDate.getFullYear() === today.getFullYear();
+
+    if (!scheduleEntry || !scheduleEntry.meals || scheduleEntry.meals.length === 0) {
+      return (
+        <div className="daily-view">
+          <p style={{ textAlign: 'center', color: '#777', padding: '2rem' }}>
+            No meals scheduled for {formatDateForDisplay(currentDate)}.
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="daily-view">
+        <div className={`daily-day-card ${isToday ? 'current-day' : ''}`}>
+          <div className={`daily-day-header ${isToday ? 'current-day-header' : ''}`}>
+            <span className="daily-day-name">{formatDateForDisplay(currentDate)}</span>
+          </div>
+          <div className="daily-meal-list">
+            {scheduleEntry.meals.map((meal, mealIndex) => (
+              <div key={mealIndex} className="daily-meal-entry">
+                <div className="daily-meal-type">{meal.type}</div>
+                <div className="daily-meal-name">{meal.name}</div>
+                {meal.description && (
+                  <div className="daily-meal-description">{meal.description}</div>
+                )}
+                {meal.calories && (
+                  <div className="daily-meal-calories">{meal.calories} cal</div>
+                )}
+              </div>
+            ))}
+            {scheduleEntry.totalCalories && (
+              <div className="daily-total">
+                Total: {scheduleEntry.totalCalories} kcal
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderWeeklyCalendar = () => {
     if (weeklySchedule.length === 0) {
@@ -139,7 +316,7 @@ function MyMealPlan() {
     }
 
     return (
-      <div className="calendar-grid">
+      <div className="calendar-grid weekly-scrollable">
         {weeklySchedule.map((dayData, index) => (
           <div 
             key={index} 
@@ -175,6 +352,79 @@ function MyMealPlan() {
     );
   };
 
+  // Render monthly view
+  const renderMonthlyCalendar = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    
+    // Get first day of month and number of days
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay(); // 0 = Sunday
+    
+    // Create calendar grid
+    const calendarDays = [];
+    
+    // Add empty cells for days before month starts
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      calendarDays.push(null);
+    }
+    
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const scheduleEntry = findScheduleEntry(date);
+      const isToday = date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear();
+      
+      calendarDays.push({
+        date,
+        day,
+        hasMeals: scheduleEntry && scheduleEntry.meals && scheduleEntry.meals.length > 0,
+        mealCount: scheduleEntry?.meals?.length || 0,
+        isToday
+      });
+    }
+    
+    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    return (
+      <div className="monthly-calendar">
+        <div className="monthly-weekdays">
+          {weekDays.map(day => (
+            <div key={day} className="monthly-weekday">{day}</div>
+          ))}
+        </div>
+        <div className="monthly-days-grid">
+          {calendarDays.map((dayData, index) => {
+            if (!dayData) {
+              return <div key={index} className="monthly-day-empty"></div>;
+            }
+            
+            return (
+              <div
+                key={index}
+                className={`monthly-day-cell ${dayData.isToday ? 'monthly-today' : ''} ${dayData.hasMeals ? 'monthly-has-meals' : ''}`}
+                onClick={() => {
+                  setCurrentDate(dayData.date);
+                  setCurrentView('Daily');
+                }}
+              >
+                <div className="monthly-day-number">{dayData.day}</div>
+                {dayData.hasMeals && (
+                  <div className="monthly-meal-indicator">
+                    {dayData.mealCount} meal{dayData.mealCount !== 1 ? 's' : ''}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="my-meal-plan-container">
@@ -243,9 +493,9 @@ function MyMealPlan() {
           <div className="calendar-controls">
             {/* Date Navigation */}
             <div className="date-navigation">
-              <button className="nav-arrow">&lt;</button>
-              <span className="month-label">October 2025</span>
-              <button className="nav-arrow">&gt;</button>
+              <button className="nav-arrow" onClick={handlePrevious}>&lt;</button>
+              <span className="month-label">{getDateLabel()}</span>
+              <button className="nav-arrow" onClick={handleNext}>&gt;</button>
             </div>
 
             {/* View Toggles */}
@@ -263,12 +513,9 @@ function MyMealPlan() {
           </div>
           
           {/* Render the calendar based on the current view */}
+          {currentView === 'Daily' && renderDailyCalendar()}
           {currentView === 'Weekly' && renderWeeklyCalendar()}
-          {currentView !== 'Weekly' && (
-             <p style={{textAlign: 'center', color: '#777', padding: '2rem'}}>
-                Switch to 'Weekly' view to see the meal schedule.
-             </p>
-          )}
+          {currentView === 'Monthly' && renderMonthlyCalendar()}
           
         </div>
 
