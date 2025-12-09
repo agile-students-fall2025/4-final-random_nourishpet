@@ -110,10 +110,10 @@ return (
                         onChange={(e) => setDuration(e.target.value)}
                     >
                         <option value="" disabled>Choose Duration</option>
-                        <option value="duration 1">3-Day Plan</option>
-                        <option value="duration 2">7-Day Plan</option>
-                        <option value="duration 3">14-Day Plan</option>
-                        <option value="duration 4">30-Day Plan</option>
+                        <option value="3-Day Plan">3-Day Plan</option>
+                        <option value="7-Day Plan">7-Day Plan</option>
+                        <option value="14-Day Plan">14-Day Plan</option>
+                        <option value="30-Day Plan">30-Day Plan</option>
                     </select>
                     <label htmlFor="duration">Select the duration of your meal plan</label>
                 </div>
