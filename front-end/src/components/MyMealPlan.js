@@ -274,7 +274,6 @@ function MyMealPlan() {
   // Get schedule entries for the current week
   const weeklySchedule = useMemo(() => {
     if (!schedule || schedule.length === 0) {
-      console.log('Weekly schedule: No schedule data available');
       return [];
     }
     
