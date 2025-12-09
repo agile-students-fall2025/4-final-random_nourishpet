@@ -202,11 +202,13 @@ exports.generateMealPlan = async (req, res) => {
       });
     }
 
-    // Calculate dates
+    // Calculate dates - always start from today
     const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0); // Normalize to start of day
     const durationDays = parseInt(duration.match(/\d+/)?.[0] || '7');
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + durationDays - 1);
+    endDate.setHours(23, 59, 59, 999); // End of day
 
     const formatDate = (date) => {
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -215,14 +217,13 @@ exports.generateMealPlan = async (req, res) => {
       return `${month}/${day}/${year}`;
     };
 
-    // Clean and normalize schedule - simple approach
+    // Clean and normalize schedule - ensure dates start from today
     const cleanSchedule = generatedPlan.schedule.map((day, index) => {
-      // Ensure date exists
-      const dayDate = day.date || (() => {
-        const d = new Date(startDate);
-        d.setDate(d.getDate() + index);
-        return formatDate(d);
-      })();
+      // Always calculate date from startDate (today) + index days
+      // This ensures meal plans always start from the generation date
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + index);
+      const dayDate = formatDate(d);
 
       // Ensure meals is an array of objects
       let meals = [];

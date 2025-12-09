@@ -86,11 +86,38 @@ function MyMealPlan() {
     return `${months[date.getMonth()]} ${date.getFullYear()}`;
   };
 
-  // Find schedule entry for a specific date
+  // Find schedule entry for a specific date (bulletproof date matching)
   const findScheduleEntry = (date) => {
     if (!schedule || schedule.length === 0) return null;
-    const dateStr = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-    return schedule.find(day => day.date === dateStr) || null;
+    
+    // Format date consistently with leading zeros (MM/DD/YYYY)
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    const dateStr = `${month}/${day}/${year}`;
+    
+    // Try exact match first
+    let entry = schedule.find(day => day.date === dateStr);
+    if (entry) return entry;
+    
+    // Fallback: try without leading zeros
+    const dateStrNoPad = `${date.getMonth() + 1}/${date.getDate()}/${year}`;
+    entry = schedule.find(day => day.date === dateStrNoPad);
+    if (entry) return entry;
+    
+    // Fallback: try parsing schedule dates and comparing Date objects
+    for (const scheduleDay of schedule) {
+      if (!scheduleDay.date) continue;
+      const parsedDate = parseScheduleDate(scheduleDay.date);
+      if (parsedDate && 
+          parsedDate.getDate() === date.getDate() &&
+          parsedDate.getMonth() === date.getMonth() &&
+          parsedDate.getFullYear() === date.getFullYear()) {
+        return scheduleDay;
+      }
+    }
+    
+    return null;
   };
 
   // Get date label based on current view
@@ -251,7 +278,12 @@ function MyMealPlan() {
         date.getMonth() === today.getMonth() &&
         date.getFullYear() === today.getFullYear();
 
-      const dateStr = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+      // Format date consistently with leading zeros
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const year = date.getFullYear();
+      const dateStr = `${month}/${day}/${year}`;
+      
       weekDays.push({
         date: date,
         dateString: dateStr,
