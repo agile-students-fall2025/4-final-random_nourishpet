@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaTimes, FaPaperPlane } from 'react-icons/fa';
 import './Streak.css';
+import { API_BASE_URL } from '../utils/api';
 
 function Streak({ onClose }) {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
   const streakMessage = "I'm on a #-day streak with NutriPal! Take care of your pet, take care of yourself.";
 
   const handleCancel = () => {

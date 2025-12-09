@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import './HamburgerMenu.css';
 import { AuthContext } from '../context/AuthContext';
+import { API_BASE_URL } from '../utils/api';
 
 function HamburgerMenu({ disabled = false }) {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const { setUser } = useContext(AuthContext);
-
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
 
   const menuItems = [
     { label: 'Log Calories', path: '/log-calories' },

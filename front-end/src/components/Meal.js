@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './Meal.css';
+import { API_BASE_URL } from '../utils/api';
 
 function Meal() {
   const navigate = useNavigate();
@@ -12,25 +13,58 @@ function Meal() {
   const [allergies, setAllergies] = useState('');
   const [budget, setBudget] = useState('');
   const [description, setDescription] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleClick = async () => {
+    // Validate required fields
+    if (!goal || !duration) {
+      setError('Please select a goal and duration');
+      return;
+    }
 
-    const mealPlanData = {
-        goal,
-        duration,
-        restrictions,
-        allergies,
-        budget,
-        description,
-    };
+    const email = localStorage.getItem('email');
+    if (!email) {
+      setError('Please sign in to generate a meal plan');
+      navigate('/signin');
+      return;
+    }
 
-    // navigate to MyMealPlan.js and pass the data
-    navigate('/my-mealplan', { state:  mealPlanData });
-  };
+    setIsGenerating(true);
+    setError('');
 
-  const handleClick = () => {
-    navigate('/my-meal-plan');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/meal-plans/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          email,
+          goal,
+          duration,
+          restrictions,
+          allergies,
+          budget,
+          description,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Navigate to meal plan page with generated data
+        navigate('/my-meal-plan', { state: { mealPlan: data.mealPlan } });
+      } else {
+        setError(data.message || 'Failed to generate meal plan');
+      }
+    } catch (err) {
+      console.error('Error generating meal plan:', err);
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
 //   const handlePost = () => {
@@ -53,7 +87,7 @@ return (
         </header>
         
         <div className="generateplan-card">
-            <form className="generateplan-form" onSubmit={handleSubmit}>
+            <form className="generateplan-form" onSubmit={(e) => e.preventDefault()}>
                 <div className="form-group">
                     <select
                         id="goal"
@@ -132,8 +166,18 @@ return (
                     />
                 </div>
 
-                <button type="button" className="generate-button" onClick={handleClick}>
-                    Generate
+                {error && (
+                  <div style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>
+                    {error}
+                  </div>
+                )}
+                <button 
+                  type="button" 
+                  className="generate-button" 
+                  onClick={handleClick}
+                  disabled={isGenerating}
+                >
+                    {isGenerating ? 'Generating...' : 'Generate'}
                 </button>
             </form>
         </div>

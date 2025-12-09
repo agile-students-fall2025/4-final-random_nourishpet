@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './Biometrics.css';
+import { API_BASE_URL } from '../utils/api';
 
 const defaultBiometricData = {
   heightCm: null,
@@ -16,7 +17,6 @@ const defaultBiometricData = {
 
 function Biometrics() {
   const navigate = useNavigate();
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
   const [biometricData, setBiometricData] = useState(defaultBiometricData);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -90,7 +90,7 @@ function Biometrics() {
     };
 
     fetchBiometrics();
-  }, [API_BASE_URL, email]);
+  }, [email]);
 
   const handleUpdate = () => {
     navigate('/update-biometrics');

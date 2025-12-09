@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './UpdateBiometrics.css';
+import { API_BASE_URL } from '../utils/api';
 
 const defaultFormState = {
   heightCm: '',
@@ -15,7 +16,6 @@ const defaultFormState = {
 
 function UpdateBiometrics() {
   const navigate = useNavigate();
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
   const [email, setEmail] = useState(null);
   const [formData, setFormData] = useState(defaultFormState);
   const [calculatedBmi, setCalculatedBmi] = useState(null);
@@ -74,7 +74,7 @@ function UpdateBiometrics() {
     };
 
     loadBiometrics();
-  }, [API_BASE_URL, navigate]);
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

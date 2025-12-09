@@ -66,6 +66,7 @@ app.get('/api/test-protected', protect, (req, res) => {
 // Route mounting
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/meals', protect, require('./routes/mealsRoutes'));
+app.use('/api/meal-plans', protect, require('./routes/mealPlanRoutes'));
 app.use('/api/profile', protect, require('./routes/profileRoutes'));
 app.use('/api/biometrics', protect, require('./routes/biometricsRoutes'));
 app.use('/api/main-screen', protect, require('./routes/mainScreenRoutes'));
