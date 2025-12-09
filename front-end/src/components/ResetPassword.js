@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import HamburgerMenu from './HamburgerMenu';
 import './ForgotPassword.css';
+import { API_BASE_URL } from '../utils/api';
 
 function ResetPassword() {
   const navigate = useNavigate();
@@ -12,8 +13,6 @@ function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
 
   useEffect(() => {
     const tokenFromUrl = searchParams.get('token');

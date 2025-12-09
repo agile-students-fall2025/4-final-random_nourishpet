@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaPaperPlane } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './Activities.css';
+import { API_BASE_URL } from '../utils/api';
 
 function Activities() {
   const navigate = useNavigate();
@@ -11,8 +12,6 @@ function Activities() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
