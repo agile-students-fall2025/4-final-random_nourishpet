@@ -100,7 +100,7 @@ app.post('/api/groq/test', protect, async (req, res) => {
         error: 'Groq API key not configured'
       });
     }
-    const modelToUse = process.env.GROQ_MODEL || 'llama3-8b-8192';
+    const modelToUse = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
     const chatCompletion = await groq.chat.completions.create({
       messages: [{ role: "user", content: "Say hello!" }],
       model: modelToUse
