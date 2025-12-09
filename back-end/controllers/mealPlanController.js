@@ -190,7 +190,38 @@ IMPORTANT:
       throw new Error('Invalid meal plan structure from AI');
     }
 
-    // Return as-is - normalization happens in generateMealPlan
+    // Fix meals arrays that might be returned as strings (common Groq issue with JSON mode)
+    if (mealPlanData.schedule && Array.isArray(mealPlanData.schedule)) {
+      mealPlanData.schedule = mealPlanData.schedule.map(day => {
+        if (day.meals && typeof day.meals === 'string') {
+          try {
+            // Try to parse the string as JSON
+            day.meals = JSON.parse(day.meals);
+          } catch (e) {
+            // If that fails, try to fix common issues (single quotes, unquoted keys)
+            try {
+              let fixed = day.meals
+                .replace(/\\n/g, '\n')  // Unescape newlines
+                .replace(/\\'/g, "'")  // Unescape single quotes
+                .replace(/\\"/g, '"')  // Unescape double quotes
+                .replace(/\+\s*['"]/g, '')  // Remove string concatenation
+                .replace(/['"]\s*\+/g, '')  // Remove string concatenation
+                .replace(/'/g, '"')  // Replace single quotes with double quotes
+                .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3')  // Quote unquoted keys
+                .replace(/,\s*}/g, '}')  // Remove trailing commas
+                .replace(/,\s*]/g, ']');  // Remove trailing commas in arrays
+              day.meals = JSON.parse(fixed);
+            } catch (e2) {
+              console.error('Failed to parse meals string:', day.meals.substring(0, 200));
+              day.meals = [];
+            }
+          }
+        }
+        return day;
+      });
+    }
+
+    // Return normalized data
     return mealPlanData;
   } catch (error) {
     console.error('Groq meal plan generation error:', error);
