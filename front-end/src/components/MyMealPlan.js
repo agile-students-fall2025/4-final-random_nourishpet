@@ -246,10 +246,11 @@ function MyMealPlan() {
         date.getMonth() === today.getMonth() &&
         date.getFullYear() === today.getFullYear();
 
+      const dateStr = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
       weekDays.push({
         date: date,
-        dateString: `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`,
-        day: formatDayLabel(`${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`),
+        dateString: dateStr,
+        day: formatDayLabel(dateStr),
         meals: scheduleEntry?.meals || [],
         total: scheduleEntry?.totalCalories ? `${scheduleEntry.totalCalories} kcal` : null,
         currentDay: isToday
@@ -257,7 +258,8 @@ function MyMealPlan() {
     }
     
     return weekDays;
-  }, [schedule, currentWeekStart, today, formatDayLabel, findScheduleEntry]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schedule, currentWeekStart]);
 
   // Render daily view
   const renderDailyCalendar = () => {
