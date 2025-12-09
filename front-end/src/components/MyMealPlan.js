@@ -243,6 +243,12 @@ function MyMealPlan() {
 
         if (response.ok && data.success) {
           const plan = data.mealPlan;
+          console.log('Meal plan loaded:', {
+            goal: plan.goal,
+            duration: plan.duration,
+            scheduleLength: plan.schedule?.length,
+            firstDate: plan.schedule?.[0]?.date
+          });
           setMealPlanData({
             goal: plan.goal || '',
             duration: plan.duration || '',
@@ -251,6 +257,7 @@ function MyMealPlan() {
           });
           setSchedule(plan.schedule || []);
         } else {
+          console.error('Meal plan fetch failed:', data.message);
           setError(data.message || 'No meal plan found');
         }
       } catch (err) {
@@ -266,7 +273,14 @@ function MyMealPlan() {
 
   // Get schedule entries for the current week
   const weeklySchedule = useMemo(() => {
-    if (!schedule || schedule.length === 0) return [];
+    if (!schedule || schedule.length === 0) {
+      console.log('Weekly schedule: No schedule data available');
+      return [];
+    }
+    
+    console.log('Building weekly schedule. Schedule entries:', schedule.length);
+    console.log('Schedule dates:', schedule.map(d => d.date).slice(0, 3));
+    console.log('Current week start:', currentWeekStart.toISOString().split('T')[0]);
     
     const weekDays = [];
     for (let i = 0; i < 7; i++) {
@@ -284,6 +298,10 @@ function MyMealPlan() {
       const year = date.getFullYear();
       const dateStr = `${month}/${day}/${year}`;
       
+      if (scheduleEntry) {
+        console.log(`Found schedule entry for ${dateStr}:`, scheduleEntry.meals?.length, 'meals');
+      }
+      
       weekDays.push({
         date: date,
         dateString: dateStr,
@@ -294,6 +312,7 @@ function MyMealPlan() {
       });
     }
     
+    console.log('Weekly schedule built. Days with meals:', weekDays.filter(d => d.meals.length > 0).length);
     return weekDays;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [schedule, currentWeekStart]);
