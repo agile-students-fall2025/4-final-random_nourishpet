@@ -118,6 +118,10 @@ Generate meals for each day. Return ONLY valid JSON, no markdown, no code blocks
     const completion = await groq.chat.completions.create(completionParams);
     const content = completion?.choices?.[0]?.message?.content;
     
+    console.log('=== GROQ RESPONSE ===');
+    console.log('Raw content length:', content?.length || 0);
+    console.log('Raw content preview (first 500 chars):', content?.substring(0, 500) || 'No content');
+    
     if (!content) {
       throw new Error('Groq returned empty content');
     }
@@ -126,19 +130,32 @@ Generate meals for each day. Return ONLY valid JSON, no markdown, no code blocks
     let mealPlanData;
     try {
       mealPlanData = JSON.parse(content);
+      console.log('✓ Successfully parsed Groq JSON response');
     } catch (parseError) {
+      console.error('✗ Failed to parse JSON directly, trying markdown extraction');
       // Try extracting from markdown if present
       const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/```\n([\s\S]*?)\n```/);
       if (jsonMatch) {
         mealPlanData = JSON.parse(jsonMatch[1]);
+        console.log('✓ Successfully extracted JSON from markdown');
       } else {
+        console.error('✗ Failed to parse meal plan JSON');
         throw new Error('Failed to parse meal plan JSON');
       }
     }
 
     // Validate basic structure
     if (!mealPlanData.schedule || !Array.isArray(mealPlanData.schedule)) {
+      console.error('✗ Invalid meal plan structure from AI');
+      console.error('Meal plan data:', JSON.stringify(mealPlanData, null, 2).substring(0, 500));
       throw new Error('Invalid meal plan structure from AI');
+    }
+
+    console.log('✓ Groq response validated');
+    console.log('Schedule entries:', mealPlanData.schedule.length);
+    if (mealPlanData.schedule.length > 0) {
+      console.log('First day date:', mealPlanData.schedule[0].date);
+      console.log('First day meals:', mealPlanData.schedule[0].meals?.length || 0);
     }
 
     return mealPlanData;
@@ -183,11 +200,20 @@ exports.generateMealPlan = async (req, res) => {
     };
 
     // Generate meal plan using Groq
+    console.log('=== GENERATING MEAL PLAN ===');
+    console.log('Account:', normalizedEmail);
+    console.log('Goal:', goal);
+    console.log('Duration:', duration);
+    console.log('Restrictions:', restrictions || 'None');
+    console.log('Allergies:', allergies || 'None');
+    
     let generatedPlan;
     try {
       generatedPlan = await generateMealPlanWithGroq(user, biometrics, preferences);
+      console.log('✓ Meal plan generated successfully from Groq');
     } catch (error) {
-      console.error('Meal plan generation failed:', error);
+      console.error('✗ Meal plan generation failed:', error.message);
+      console.error('Error stack:', error.stack);
       return res.status(500).json({
         success: false,
         message: 'Failed to generate meal plan. Please try again later.'
@@ -264,6 +290,21 @@ exports.generateMealPlan = async (req, res) => {
     });
 
     await mealPlan.save();
+
+    console.log('=== MEAL PLAN SAVED ===');
+    console.log('✓ Successfully saved meal plan to database');
+    console.log('Account:', normalizedEmail);
+    console.log('Meal Plan ID:', mealPlan._id);
+    console.log('Goal:', mealPlan.goal);
+    console.log('Duration:', mealPlan.duration);
+    console.log('Daily Calories:', mealPlan.dailyCalories);
+    console.log('Schedule Days:', mealPlan.schedule.length);
+    console.log('Start Date:', mealPlan.startDate);
+    console.log('End Date:', mealPlan.endDate);
+    if (mealPlan.schedule.length > 0) {
+      console.log('First Schedule Date:', mealPlan.schedule[0].date);
+      console.log('First Day Meals:', mealPlan.schedule[0].meals?.length || 0);
+    }
 
     res.json({
       success: true,
