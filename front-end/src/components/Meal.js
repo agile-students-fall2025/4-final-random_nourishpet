@@ -87,7 +87,7 @@ return (
         </header>
         
         <div className="generateplan-card">
-            <form className="generateplan-form" onSubmit={handleSubmit}>
+            <form className="generateplan-form" onSubmit={(e) => e.preventDefault()}>
                 <div className="form-group">
                     <select
                         id="goal"
