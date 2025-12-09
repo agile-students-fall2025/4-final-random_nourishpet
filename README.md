@@ -1,5 +1,7 @@
 # NutriPal
 
+**🌐 Live Application:** http://167.172.223.98:3000/
+
 ## Project Description
 
 **NutriPal** is a web application that transforms nutrition tracking into an engaging, game-like experience.  
