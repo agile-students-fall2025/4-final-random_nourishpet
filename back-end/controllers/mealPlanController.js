@@ -44,7 +44,7 @@ const calculateDailyCalories = (biometrics, goal) => {
 };
 
 // Generate meal plan using Groq
-const generateMealPlanWithGroq = async (userData, biometrics, preferences) => {
+const generateMealPlanWithGroq = async (userData, biometrics, preferences, numDays) => {
   const groq = getGroqClient();
   if (!groq) {
     throw new Error('Groq API is not configured');
@@ -54,7 +54,7 @@ const generateMealPlanWithGroq = async (userData, biometrics, preferences) => {
   const dailyCalories = calculateDailyCalories(biometrics, preferences.goal);
 
   // Build prompt for Groq
-  const prompt = `Generate a ${preferences.duration} meal plan with the following requirements:
+  const prompt = `Generate a ${preferences.duration} meal plan (exactly ${numDays} days) with the following requirements:
 
 User Profile:
 - Goal: ${preferences.goal}
@@ -92,7 +92,7 @@ Return a JSON object with this exact structure:
   ]
 }
 
-Generate meals for each day. Return ONLY valid JSON, no markdown, no code blocks.`;
+Generate meals for exactly ${numDays} days. You must return ${numDays} schedule entries, one for each day. Return ONLY valid JSON, no markdown, no code blocks.`;
 
   try {
     const completionParams = {
@@ -118,6 +118,10 @@ Generate meals for each day. Return ONLY valid JSON, no markdown, no code blocks
     const completion = await groq.chat.completions.create(completionParams);
     const content = completion?.choices?.[0]?.message?.content;
     
+    console.log('=== GROQ RESPONSE ===');
+    console.log('Raw content length:', content?.length || 0);
+    console.log('Raw content preview (first 500 chars):', content?.substring(0, 500) || 'No content');
+    
     if (!content) {
       throw new Error('Groq returned empty content');
     }
@@ -126,19 +130,32 @@ Generate meals for each day. Return ONLY valid JSON, no markdown, no code blocks
     let mealPlanData;
     try {
       mealPlanData = JSON.parse(content);
+      console.log('✓ Successfully parsed Groq JSON response');
     } catch (parseError) {
+      console.error('✗ Failed to parse JSON directly, trying markdown extraction');
       // Try extracting from markdown if present
       const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/```\n([\s\S]*?)\n```/);
       if (jsonMatch) {
         mealPlanData = JSON.parse(jsonMatch[1]);
+        console.log('✓ Successfully extracted JSON from markdown');
       } else {
+        console.error('✗ Failed to parse meal plan JSON');
         throw new Error('Failed to parse meal plan JSON');
       }
     }
 
     // Validate basic structure
     if (!mealPlanData.schedule || !Array.isArray(mealPlanData.schedule)) {
+      console.error('✗ Invalid meal plan structure from AI');
+      console.error('Meal plan data:', JSON.stringify(mealPlanData, null, 2).substring(0, 500));
       throw new Error('Invalid meal plan structure from AI');
+    }
+
+    console.log('✓ Groq response validated');
+    console.log('Schedule entries:', mealPlanData.schedule.length);
+    if (mealPlanData.schedule.length > 0) {
+      console.log('First day date:', mealPlanData.schedule[0].date);
+      console.log('First day meals:', mealPlanData.schedule[0].meals?.length || 0);
     }
 
     return mealPlanData;
@@ -182,12 +199,27 @@ exports.generateMealPlan = async (req, res) => {
       description: description || ''
     };
 
+    // Calculate dates - always start from today
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0); // Normalize to start of day
+    const durationDays = parseInt(duration.match(/\d+/)?.[0] || '7');
+
     // Generate meal plan using Groq
+    console.log('=== GENERATING MEAL PLAN ===');
+    console.log('Account:', normalizedEmail);
+    console.log('Goal:', goal);
+    console.log('Duration:', duration, `(${durationDays} days)`);
+    console.log('Restrictions:', restrictions || 'None');
+    console.log('Allergies:', allergies || 'None');
+    
     let generatedPlan;
     try {
-      generatedPlan = await generateMealPlanWithGroq(user, biometrics, preferences);
+      generatedPlan = await generateMealPlanWithGroq(user, biometrics, preferences, durationDays);
+      console.log('✓ Meal plan generated successfully from Groq');
+      console.log('Days generated:', generatedPlan.schedule?.length || 0, 'of', durationDays);
     } catch (error) {
-      console.error('Meal plan generation failed:', error);
+      console.error('✗ Meal plan generation failed:', error.message);
+      console.error('Error stack:', error.stack);
       return res.status(500).json({
         success: false,
         message: 'Failed to generate meal plan. Please try again later.'
@@ -201,12 +233,9 @@ exports.generateMealPlan = async (req, res) => {
         message: 'Invalid meal plan structure generated'
       });
     }
-
-    // Calculate dates
-    const startDate = new Date();
-    const durationDays = parseInt(duration.match(/\d+/)?.[0] || '7');
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + durationDays - 1);
+    endDate.setHours(23, 59, 59, 999); // End of day
 
     const formatDate = (date) => {
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -215,14 +244,14 @@ exports.generateMealPlan = async (req, res) => {
       return `${month}/${day}/${year}`;
     };
 
-    // Clean and normalize schedule - simple approach
-    const cleanSchedule = generatedPlan.schedule.map((day, index) => {
-      // Ensure date exists
-      const dayDate = day.date || (() => {
-        const d = new Date(startDate);
-        d.setDate(d.getDate() + index);
-        return formatDate(d);
-      })();
+    // Clean and normalize schedule - ensure dates start from today
+    // If Groq didn't generate enough days, pad with repeated patterns
+    let cleanSchedule = generatedPlan.schedule.map((day, index) => {
+      // Always calculate date from startDate (today) + index days
+      // This ensures meal plans always start from the generation date
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + index);
+      const dayDate = formatDate(d);
 
       // Ensure meals is an array of objects
       let meals = [];
@@ -247,6 +276,26 @@ exports.generateMealPlan = async (req, res) => {
       };
     });
 
+    // If we got fewer days than requested, pad the schedule by repeating patterns
+    if (cleanSchedule.length < durationDays) {
+      console.log(`⚠ Groq only generated ${cleanSchedule.length} days, padding to ${durationDays}`);
+      const baseDays = cleanSchedule.length;
+      for (let i = baseDays; i < durationDays; i++) {
+        // Use modulo to cycle through the base days
+        const sourceDay = cleanSchedule[i % baseDays];
+        const d = new Date(startDate);
+        d.setDate(d.getDate() + i);
+        const dayDate = formatDate(d);
+        
+        cleanSchedule.push({
+          date: String(dayDate),
+          meals: sourceDay.meals.map(meal => ({ ...meal })), // Clone meals
+          totalCalories: sourceDay.totalCalories
+        });
+      }
+      console.log(`✓ Padded schedule to ${cleanSchedule.length} days`);
+    }
+
     // Save meal plan to database
     const mealPlan = new MealPlan({
       email: normalizedEmail,
@@ -263,6 +312,21 @@ exports.generateMealPlan = async (req, res) => {
     });
 
     await mealPlan.save();
+
+    console.log('=== MEAL PLAN SAVED ===');
+    console.log('✓ Successfully saved meal plan to database');
+    console.log('Account:', normalizedEmail);
+    console.log('Meal Plan ID:', mealPlan._id);
+    console.log('Goal:', mealPlan.goal);
+    console.log('Duration:', mealPlan.duration);
+    console.log('Daily Calories:', mealPlan.dailyCalories);
+    console.log('Schedule Days:', mealPlan.schedule.length);
+    console.log('Start Date:', mealPlan.startDate);
+    console.log('End Date:', mealPlan.endDate);
+    if (mealPlan.schedule.length > 0) {
+      console.log('First Schedule Date:', mealPlan.schedule[0].date);
+      console.log('First Day Meals:', mealPlan.schedule[0].meals?.length || 0);
+    }
 
     res.json({
       success: true,

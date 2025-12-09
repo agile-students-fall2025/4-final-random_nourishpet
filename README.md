@@ -1,5 +1,7 @@
 # NutriPal
 
+**🌐 Live Application:** http://167.172.223.98:3000/
+
 ## Project Description
 
 **NutriPal** is a web application that transforms nutrition tracking into an engaging, game-like experience.  
@@ -59,7 +61,7 @@ We're hoping to practitce the Scrum framework, with sprint-based milestones, spi
 
 ---
 
-## Quick Start
+## Local Development
 
 ### 1. Clone the Repository
 
@@ -75,33 +77,24 @@ cd back-end
 npm install
 ```
 
-Create a `.env` file in the `back-end` directory:
+Create a `.env` file in the `back-end` directory by copying the example:
 
-```env
-# MongoDB Connection
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/nourishpet?retryWrites=true&w=majority
-
-# JWT Secret (generate a random string)
-JWT_SECRET=your-super-secret-jwt-key-here
-
-# Server Port (optional, defaults to 3001)
-PORT=3001
-
-# Groq API (optional, for BMI calculations)
-GROQ_API_KEY=your-groq-api-key
-GROQ_MODEL=llama3-8b-8192
-
-# Email Service (optional, for password reset)
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASSWORD=your-app-password
-FRONTEND_URL=http://localhost:3000
+```bash
+cp .env.example .env
 ```
+
+Then edit `.env` and fill in your values (see [Environment Variables](#environment-variables) below).
 
 ### 3. Frontend Setup
 
 ```bash
 cd ../front-end
 npm install
+```
+
+**Optional:** Create a `.env` file in `front-end` if you need to override the API URL:
+```env
+REACT_APP_API_BASE_URL=http://localhost:3001
 ```
 
 ### 4. Run the Application
@@ -111,14 +104,14 @@ npm install
 cd back-end
 npm start
 ```
-Backend will run on `http://localhost:3001`
+Backend runs on `http://localhost:3001`
 
 **Terminal 2 - Frontend:**
 ```bash
 cd front-end
 npm start
 ```
-Frontend will run on `http://localhost:3000` and open automatically in your browser.
+Frontend runs on `http://localhost:3000` and opens automatically in your browser.
 
 ---
 
@@ -158,25 +151,30 @@ npm test
 
 ## Environment Variables
 
-### Required Backend Variables
+### Backend Environment Variables (`back-end/.env`)
 
-- `MONGODB_URI` - MongoDB Atlas connection string
-- `JWT_SECRET` - Secret key for JWT token signing
+Copy `back-end/.env.example` to `back-end/.env` and fill in your values:
 
-### Optional Backend Variables
+**Required:**
+- `MONGODB_URI` - MongoDB Atlas connection string (get from MongoDB Atlas dashboard)
+- `JWT_SECRET` - Random string for signing JWT tokens (generate a secure random string)
 
-- `PORT` - Server port (default: 3001)
-- `ALLOWED_ORIGINS` - Comma-separated list of allowed CORS origins (default: `http://localhost:3000,http://frontend:80`)
-- `GROQ_API_KEY` - API key for Groq AI (BMI calculations)
-- `GROQ_MODEL` - Groq model name (default: llama3-8b-8192)
-- `EMAIL_USER` - Email address for password reset
-- `EMAIL_PASSWORD` - Email app password
-- `FRONTEND_URL` - Frontend URL for email links
+**Optional:**
+- `PORT` - Server port (default: `3001`)
+- `ALLOWED_ORIGINS` - Comma-separated CORS origins (default: `http://localhost:3000,http://frontend:80`)
+- `GROQ_API_KEY` - Groq API key (required for meal plan generation and BMI calculations)
+- `GROQ_MODEL` - Groq model name (default: `llama-3.1-8b-instant`)
+- `EMAIL_USER` - Gmail address (required for password reset emails)
+- `EMAIL_PASSWORD` - Gmail app-specific password (required for password reset emails)
+- `FRONTEND_URL` - Frontend URL for email links (default: `http://localhost:3000`)
 
-### Frontend Variables
+### Frontend Environment Variables (`front-end/.env`)
 
-- `REACT_APP_API_BASE_URL` - API base URL for local development (default: `http://localhost:3001`)
-  - **Note:** In Docker, the frontend uses relative URLs since nginx proxies `/api` requests to the backend.
+**Optional (only needed for local development):**
+- `REACT_APP_API_BASE_URL` - API base URL (default: `http://localhost:3001`)
+  - **Note:** In production/Docker, the frontend uses relative URLs since nginx proxies `/api` requests to the backend.
+
+See `back-end/.env.example` for a template with all available variables.
 
 ---
 
@@ -328,79 +326,102 @@ The application will be available at:
 
 NutriPal is deployed to a **Digital Ocean Droplet** using Docker containers with automated CI/CD pipelines.
 
+**Live Application:** http://167.172.223.98:3000/
+
 #### Deployment Architecture
 
 - **Hosting:** Digital Ocean Droplet (Ubuntu)
 - **Containerization:** Docker & Docker Compose
 - **Deployment Path:** `/var/www/nourishpet` on the droplet
 - **CI/CD:** GitHub Actions for automated testing and deployment
+- **Live URL:** http://167.172.223.98:3000/
 
 #### Extra Credit Features Implemented
 
-✅ **Docker Container Deployment** - Application runs in containerized environments for consistency and scalability  
+✅ **Docker Container Deployment** - Application runs in containerized environments  
 ✅ **Continuous Integration (CI)** - Automated testing on every push/PR via GitHub Actions  
 ✅ **Continuous Deployment (CD)** - Automated deployment to production on merge to main/master
 
-#### How Deployment Works
+#### Production Setup
 
-1. **Initial Setup (One-time):**
-   - Create a Digital Ocean Droplet
+**1. Initial Droplet Setup (One-time):**
+   - Create a Digital Ocean Droplet (Ubuntu)
    - Install Docker and Docker Compose on the droplet
-   - Configure GitHub Secrets:
-     - `DO_HOST` - Droplet IP address or hostname
-     - `DO_USER` - SSH username (e.g., `root`)
-     - `DO_SSH_KEY` - Private SSH key for authentication
-     - `DO_PORT` - SSH port (default: 22)
-   - Create `.env` files on the droplet with production values
+   - Create deployment directory: `mkdir -p /var/www/nourishpet`
 
-2. **Automated Deployment Process:**
-   When code is pushed to `main` or `master` branch:
-   
-   a. **Continuous Integration (CI) Pipeline:**
-      - Runs backend unit tests with MongoDB
-      - Runs frontend tests and builds
-      - Builds Docker images to verify they compile correctly
-      - All tests must pass before deployment proceeds
-   
-   b. **Continuous Deployment (CD) Pipeline:**
-      - Builds the frontend production bundle
-      - Copies entire codebase to `/var/www/nourishpet` on the droplet via SCP
-      - SSHes into the droplet and:
-        - Stops existing containers
-        - Builds new Docker images
-        - Starts containers using `docker-compose.prod.yml`
-        - Cleans up old Docker images
-        - Shows container status and logs
+**2. GitHub Secrets Configuration:**
 
-3. **Manual Deployment (if needed):**
+   Configure these secrets in your GitHub repository (Settings → Secrets and variables → Actions):
+   
+   - `DO_HOST` - Droplet IP address (e.g., `167.172.223.98`)
+   - `DO_USER` - SSH username (usually `root`)
+   - `DO_SSH_KEY` - Private SSH key for authentication (the private key matching the public key on the droplet)
+   - `DO_PORT` - SSH port (default: `22`)
+
+**3. Environment Variables on Droplet:**
+
+   The `.env` file lives directly on the droplet at `/var/www/nourishpet/back-end/.env`.
+   
+   **Important:** The `.env` file is **NOT** committed to git (it's in `.gitignore`). You must manually create it on the droplet:
+   
    ```bash
    # SSH into droplet
-   ssh user@your-droplet-ip
+   ssh root@your-droplet-ip
    
    # Navigate to deployment directory
-   cd /var/www/nourishpet
+   cd /var/www/nourishpet/back-end
    
-   # Pull latest code (if using git)
-   git pull origin main
-   
-   # Rebuild and restart containers
-   docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+   # Create .env file (copy from .env.example or create manually)
+   nano .env
    ```
+   
+   Fill in production values:
+   - `MONGODB_URI` - Your MongoDB Atlas connection string
+   - `JWT_SECRET` - A secure random string (different from local)
+   - `GROQ_API_KEY` - Your Groq API key
+   - `GROQ_MODEL` - `llama-3.1-8b-instant` (or your preferred model)
+   - `EMAIL_USER` - Your Gmail address
+   - `EMAIL_PASSWORD` - Your Gmail app-specific password
+   - `FRONTEND_URL` - Your production frontend URL (e.g., `http://your-droplet-ip:3000`)
+   - `ALLOWED_ORIGINS` - Your production frontend URL
 
-4. **Access the Application:**
-   - Configure a reverse proxy (nginx) on the host to route traffic
-   - Or access directly via exposed ports (3000 for frontend, 3001 for backend)
-   - Set up firewall rules to expose necessary ports
+#### How Automated Deployment Works
 
-#### CI/CD Workflow Files
+When code is pushed to `main` or `master` branch:
 
-- **CI Workflow:** `.github/workflows/ci.yml`
-  - Triggers on: push/PR to `main`, `master`, `develop`, `avi-deployment`
-  - Tests: Backend (with MongoDB), Frontend, Docker builds
-  
-- **CD Workflow:** `.github/workflows/cd.yml`
-  - Triggers on: push to `main`/`master` or manual workflow dispatch
-  - Deploys: Full application to Digital Ocean Droplet
+1. **CI Pipeline (`.github/workflows/ci.yml`):**
+   - Runs backend unit tests
+   - Runs frontend tests and builds
+   - Verifies Docker images build correctly
+   - All tests must pass before deployment
+
+2. **CD Pipeline (`.github/workflows/cd.yml`):**
+   - Builds frontend production bundle
+   - Copies codebase to `/var/www/nourishpet` on droplet via SCP
+   - SSHes into droplet and:
+     - Stops existing containers
+     - Builds new Docker images
+     - Starts containers using `docker-compose.prod.yml`
+     - Cleans up old images
+     - Shows container status
+
+**Note:** The `.env` file on the droplet persists across deployments. Only code changes are deployed; environment variables remain unchanged unless manually edited.
+
+#### Manual Deployment (if needed)
+
+```bash
+# SSH into droplet
+ssh root@your-droplet-ip
+
+# Navigate to deployment directory
+cd /var/www/nourishpet
+
+# Pull latest code (if using git)
+git pull origin main
+
+# Rebuild and restart containers
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
 
 ### Docker Commands Reference
 
