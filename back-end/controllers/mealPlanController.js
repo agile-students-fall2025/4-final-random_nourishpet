@@ -44,7 +44,7 @@ const calculateDailyCalories = (biometrics, goal) => {
 };
 
 // Generate meal plan using Groq
-const generateMealPlanWithGroq = async (userData, biometrics, preferences) => {
+const generateMealPlanWithGroq = async (userData, biometrics, preferences, numDays) => {
   const groq = getGroqClient();
   if (!groq) {
     throw new Error('Groq API is not configured');
@@ -54,7 +54,7 @@ const generateMealPlanWithGroq = async (userData, biometrics, preferences) => {
   const dailyCalories = calculateDailyCalories(biometrics, preferences.goal);
 
   // Build prompt for Groq
-  const prompt = `Generate a ${preferences.duration} meal plan with the following requirements:
+  const prompt = `Generate a ${preferences.duration} meal plan (exactly ${numDays} days) with the following requirements:
 
 User Profile:
 - Goal: ${preferences.goal}
@@ -92,7 +92,7 @@ Return a JSON object with this exact structure:
   ]
 }
 
-Generate meals for each day. Return ONLY valid JSON, no markdown, no code blocks.`;
+Generate meals for exactly ${numDays} days. You must return ${numDays} schedule entries, one for each day. Return ONLY valid JSON, no markdown, no code blocks.`;
 
   try {
     const completionParams = {
@@ -199,18 +199,24 @@ exports.generateMealPlan = async (req, res) => {
       description: description || ''
     };
 
+    // Calculate dates - always start from today
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0); // Normalize to start of day
+    const durationDays = parseInt(duration.match(/\d+/)?.[0] || '7');
+
     // Generate meal plan using Groq
     console.log('=== GENERATING MEAL PLAN ===');
     console.log('Account:', normalizedEmail);
     console.log('Goal:', goal);
-    console.log('Duration:', duration);
+    console.log('Duration:', duration, `(${durationDays} days)`);
     console.log('Restrictions:', restrictions || 'None');
     console.log('Allergies:', allergies || 'None');
     
     let generatedPlan;
     try {
-      generatedPlan = await generateMealPlanWithGroq(user, biometrics, preferences);
+      generatedPlan = await generateMealPlanWithGroq(user, biometrics, preferences, durationDays);
       console.log('✓ Meal plan generated successfully from Groq');
+      console.log('Days generated:', generatedPlan.schedule?.length || 0, 'of', durationDays);
     } catch (error) {
       console.error('✗ Meal plan generation failed:', error.message);
       console.error('Error stack:', error.stack);
@@ -227,11 +233,6 @@ exports.generateMealPlan = async (req, res) => {
         message: 'Invalid meal plan structure generated'
       });
     }
-
-    // Calculate dates - always start from today
-    const startDate = new Date();
-    startDate.setHours(0, 0, 0, 0); // Normalize to start of day
-    const durationDays = parseInt(duration.match(/\d+/)?.[0] || '7');
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + durationDays - 1);
     endDate.setHours(23, 59, 59, 999); // End of day
@@ -244,7 +245,8 @@ exports.generateMealPlan = async (req, res) => {
     };
 
     // Clean and normalize schedule - ensure dates start from today
-    const cleanSchedule = generatedPlan.schedule.map((day, index) => {
+    // If Groq didn't generate enough days, pad with repeated patterns
+    let cleanSchedule = generatedPlan.schedule.map((day, index) => {
       // Always calculate date from startDate (today) + index days
       // This ensures meal plans always start from the generation date
       const d = new Date(startDate);
@@ -273,6 +275,26 @@ exports.generateMealPlan = async (req, res) => {
         totalCalories: Number(day.totalCalories || totalCal)
       };
     });
+
+    // If we got fewer days than requested, pad the schedule by repeating patterns
+    if (cleanSchedule.length < durationDays) {
+      console.log(`⚠ Groq only generated ${cleanSchedule.length} days, padding to ${durationDays}`);
+      const baseDays = cleanSchedule.length;
+      for (let i = baseDays; i < durationDays; i++) {
+        // Use modulo to cycle through the base days
+        const sourceDay = cleanSchedule[i % baseDays];
+        const d = new Date(startDate);
+        d.setDate(d.getDate() + i);
+        const dayDate = formatDate(d);
+        
+        cleanSchedule.push({
+          date: String(dayDate),
+          meals: sourceDay.meals.map(meal => ({ ...meal })), // Clone meals
+          totalCalories: sourceDay.totalCalories
+        });
+      }
+      console.log(`✓ Padded schedule to ${cleanSchedule.length} days`);
+    }
 
     // Save meal plan to database
     const mealPlan = new MealPlan({
