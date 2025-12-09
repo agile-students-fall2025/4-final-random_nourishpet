@@ -36,14 +36,14 @@ const MealPlanSchema = new mongoose.Schema({
     type: Number,
   },
   schedule: [{
-    date: String, // MM/DD/YYYY
+    date: { type: String }, // MM/DD/YYYY
     meals: [{
-      type: String, // Breakfast, Lunch, Dinner, Snack
-      name: String,
-      calories: Number,
-      description: String,
+      type: { type: String }, // Breakfast, Lunch, Dinner, Snack
+      name: { type: String },
+      calories: { type: Number },
+      description: { type: String },
     }],
-    totalCalories: Number,
+    totalCalories: { type: Number },
   }],
   startDate: {
     type: Date,
