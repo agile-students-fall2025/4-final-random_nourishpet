@@ -324,12 +324,15 @@ The application will be available at:
 
 NutriPal is deployed to a **Digital Ocean Droplet** using Docker containers with automated CI/CD pipelines.
 
+**Live Application:** http://167.172.223.98:3000/
+
 #### Deployment Architecture
 
 - **Hosting:** Digital Ocean Droplet (Ubuntu)
 - **Containerization:** Docker & Docker Compose
 - **Deployment Path:** `/var/www/nourishpet` on the droplet
 - **CI/CD:** GitHub Actions for automated testing and deployment
+- **Live URL:** http://167.172.223.98:3000/
 
 #### Extra Credit Features Implemented
 
