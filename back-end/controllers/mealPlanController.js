@@ -50,7 +50,7 @@ const generateMealPlanWithGroq = async (userData, biometrics, preferences) => {
     throw new Error('Groq API is not configured');
   }
 
-  const model = process.env.GROQ_MODEL || 'llama3-8b-8192';
+  const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
   const dailyCalories = calculateDailyCalories(biometrics, preferences.goal);
 
   // Build prompt for Groq
@@ -73,7 +73,7 @@ Biometric Information:
 - BMI: ${biometrics.bmi || 'Not provided'}
 ` : ''}
 
-Please generate a detailed meal plan in JSON format with the following structure:
+Please generate a detailed meal plan in JSON format with the following EXACT structure (use double quotes, proper JSON syntax):
 {
   "dailyCalories": ${dailyCalories},
   "schedule": [
@@ -83,28 +83,34 @@ Please generate a detailed meal plan in JSON format with the following structure
         {
           "type": "Breakfast",
           "name": "Meal name",
-          "calories": number,
+          "calories": 500,
           "description": "Brief description"
         },
         {
           "type": "Lunch",
           "name": "Meal name",
-          "calories": number,
+          "calories": 600,
           "description": "Brief description"
         },
         {
           "type": "Dinner",
           "name": "Meal name",
-          "calories": number,
+          "calories": 700,
           "description": "Brief description"
         }
       ],
-      "totalCalories": number
+      "totalCalories": 1800
     }
   ]
 }
 
-Generate meals for each day of the plan. Ensure meals are varied, nutritious, and align with the user's preferences and restrictions. Return ONLY valid JSON, no additional text.`;
+IMPORTANT: 
+- Use proper JSON format with double quotes for all strings
+- meals must be an array of objects, not a string
+- All numeric values must be numbers, not strings
+- Generate meals for each day of the ${preferences.duration}
+- Ensure meals are varied, nutritious, and align with the user's preferences and restrictions
+- Return ONLY valid JSON that can be parsed with JSON.parse(), no markdown, no code blocks, no additional text`;
 
   try {
     const completionParams = {
@@ -122,8 +128,8 @@ Generate meals for each day of the plan. Ensure meals are varied, nutritious, an
       ]
     };
 
-    // Add JSON mode if supported by the model
-    if (model.includes('llama3') || model.includes('mixtral')) {
+    // Add JSON mode if supported by the model (llama 3.1+ and mixtral support JSON mode)
+    if (model.includes('llama-3.1') || model.includes('llama3.1') || model.includes('mixtral')) {
       completionParams.response_format = { type: 'json_object' };
     }
 
@@ -133,6 +139,9 @@ Generate meals for each day of the plan. Ensure meals are varied, nutritious, an
     if (!content) {
       throw new Error('Groq returned empty content');
     }
+
+    // Debug: Log raw content first
+    console.log('Raw Groq content (first 2000 chars):', content.substring(0, 2000));
 
     // Parse JSON response
     let mealPlanData;
@@ -144,10 +153,18 @@ Generate meals for each day of the plan. Ensure meals are varied, nutritious, an
       if (jsonMatch) {
         mealPlanData = JSON.parse(jsonMatch[1]);
       } else {
+        console.error('Failed to parse JSON. Content:', content.substring(0, 500));
         throw new Error('Failed to parse meal plan JSON');
       }
     }
 
+    // Validate the structure (Groq should return proper JSON)
+    if (!mealPlanData.schedule || !Array.isArray(mealPlanData.schedule)) {
+      console.error('Invalid meal plan structure:', mealPlanData);
+      throw new Error('Invalid meal plan structure from AI');
+    }
+
+    // Return as-is - normalization happens in generateMealPlan
     return mealPlanData;
   } catch (error) {
     console.error('Groq meal plan generation error:', error);
@@ -193,11 +210,21 @@ exports.generateMealPlan = async (req, res) => {
     let generatedPlan;
     try {
       generatedPlan = await generateMealPlanWithGroq(user, biometrics, preferences);
+      console.log('Generated plan structure:', JSON.stringify(generatedPlan, null, 2).substring(0, 2000));
     } catch (error) {
       console.error('Meal plan generation failed:', error);
       return res.status(500).json({
         success: false,
         message: 'Failed to generate meal plan. Please try again later.'
+      });
+    }
+
+    // Ensure schedule is properly normalized before saving
+    if (!generatedPlan.schedule || !Array.isArray(generatedPlan.schedule)) {
+      console.error('Invalid schedule structure:', generatedPlan);
+      return res.status(500).json({
+        success: false,
+        message: 'Invalid meal plan structure generated'
       });
     }
 
@@ -215,17 +242,76 @@ exports.generateMealPlan = async (req, res) => {
       return `${month}/${day}/${year}`;
     };
 
-    // Ensure schedule has dates
+    // Ensure schedule has dates and validate structure
     if (generatedPlan.schedule && Array.isArray(generatedPlan.schedule)) {
-      generatedPlan.schedule.forEach((day, index) => {
+      generatedPlan.schedule = generatedPlan.schedule.map((day, index) => {
+        // Ensure date exists
         if (!day.date) {
           const date = new Date(startDate);
           date.setDate(date.getDate() + index);
           day.date = formatDate(date);
         }
+        
+        // Validate meals - should already be an array from Groq
+        if (!day.meals || !Array.isArray(day.meals)) {
+          console.warn(`Day ${index} has invalid meals, using empty array. Type: ${typeof day.meals}`);
+          day.meals = [];
+        } else {
+          // Filter out any non-object entries and ensure proper structure
+          day.meals = day.meals
+            .filter(meal => {
+              const isValid = meal && typeof meal === 'object' && !Array.isArray(meal);
+              if (!isValid) {
+                console.warn(`Day ${index} has invalid meal entry:`, typeof meal, meal);
+              }
+              return isValid;
+            })
+            .map(meal => ({
+              type: String(meal.type || 'Meal'),
+              name: String(meal.name || 'Unnamed'),
+              calories: Number(meal.calories || 0),
+              description: String(meal.description || '')
+            }));
+        }
+        
+        // Calculate total calories if not provided
+        if (!day.totalCalories || typeof day.totalCalories !== 'number') {
+          day.totalCalories = day.meals.reduce((sum, m) => sum + (m.calories || 0), 0);
+        }
+        
+        // Create a completely new object to avoid any reference issues
+        const cleanDay = {
+          date: String(day.date),
+          meals: [],
+          totalCalories: Number(day.totalCalories || 0)
+        };
+        
+        // Manually copy each meal to ensure clean structure
+        if (Array.isArray(day.meals)) {
+          for (const meal of day.meals) {
+            if (meal && typeof meal === 'object' && !Array.isArray(meal)) {
+              cleanDay.meals.push({
+                type: String(meal.type || 'Meal'),
+                name: String(meal.name || 'Unnamed'),
+                calories: Number(meal.calories || 0),
+                description: String(meal.description || '')
+              });
+            }
+          }
+        }
+        
+        // Recalculate total if needed
+        if (cleanDay.totalCalories === 0) {
+          cleanDay.totalCalories = cleanDay.meals.reduce((sum, m) => sum + m.calories, 0);
+        }
+        
+        return cleanDay;
       });
     }
 
+    // Final check - ensure schedule is clean before saving
+    const cleanSchedule = JSON.parse(JSON.stringify(generatedPlan.schedule)); // Deep clone to ensure clean structure
+    
     // Save meal plan to database
     const mealPlan = new MealPlan({
       email: normalizedEmail,
@@ -236,7 +322,7 @@ exports.generateMealPlan = async (req, res) => {
       budget: preferences.budget,
       description: preferences.description,
       dailyCalories: generatedPlan.dailyCalories || calculateDailyCalories(biometrics, goal),
-      schedule: generatedPlan.schedule || [],
+      schedule: cleanSchedule,
       startDate,
       endDate
     });
