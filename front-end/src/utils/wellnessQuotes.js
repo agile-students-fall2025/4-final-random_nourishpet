@@ -40,4 +40,10 @@ export const getDailyQuote = () => {
   return wellnessQuotes[index];
 };
 
+// Get a random quote on each load
+export const getRandomQuote = () => {
+  const index = Math.floor(Math.random() * wellnessQuotes.length);
+  return wellnessQuotes[index];
+};
+
 export default wellnessQuotes;

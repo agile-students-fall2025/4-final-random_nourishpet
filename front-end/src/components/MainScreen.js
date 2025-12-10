@@ -4,14 +4,14 @@ import HamburgerMenu from './HamburgerMenu';
 import Streak from './Streak';
 import './MainScreen.css';
 import { API_BASE_URL } from '../utils/api';
-import { getDailyQuote } from '../utils/wellnessQuotes';
+import { getRandomQuote } from '../utils/wellnessQuotes';
 
 function MainScreen() {
   const navigate = useNavigate();
   const [showStreak, setShowStreak] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [dailyQuote] = useState(getDailyQuote());
+  const [dailyQuote] = useState(getRandomQuote());
 
   // Get email from localStorage (set during login)
   const email = localStorage.getItem('email');
