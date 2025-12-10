@@ -4,6 +4,17 @@ import { FaArrowLeft } from 'react-icons/fa';
 import HamburgerMenu from './HamburgerMenu';
 import './MyMealPlan.css';
 
+const DUMMY_SCHEDULE = {
+    'Mon 13': { meals: [{ type: 'Meal 1', name: 'Oats' }, { type: 'Meal 2', name: 'Fish' }, { type: 'Meal 3', name: 'Steak' }], total: '1850 kcal', mood: 'Happy' },
+    'Tue 14': { meals: [{ type: 'Meal 1', name: 'Yogurt' }, { type: 'Meal 2', name: 'Pasta' }, { type: 'Meal 3', name: 'Chicken' }], total: '1920 kcal', mood: 'Energetic' },
+    'Wed 15': { meals: [{ type: 'Meal 1', name: 'Eggs' }, { type: 'Meal 2', name: 'Salad' }, { type: 'Meal 3', name: 'Soup' }], total: '1950 kcal', mood: 'Calm', currentDay: true },
+    'Thu 16': { meals: [], total: null, mood: null },
+    'Fri 17': { meals: [], total: null, mood: null },
+    'Sat 18': { meals: [], total: null, mood: null },
+    'Sun 19': { meals: [], total: null, mood: null },
+};
+
+
 function MyMealPlan() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -20,15 +31,6 @@ function MyMealPlan() {
     progress: 'Day 5 of 30'
   });
 
-  const DUMMY_SCHEDULE = {
-    'Mon 13': { meals: [{ type: 'Meal 1', name: 'Oats' }, { type: 'Meal 2', name: 'Fish' }, { type: 'Meal 3', name: 'Steak' }], total: '1850 kcal', mood: 'Happy' },
-    'Tue 14': { meals: [{ type: 'Meal 1', name: 'Yogurt' }, { type: 'Meal 2', name: 'Pasta' }, { type: 'Meal 3', name: 'Chicken' }], total: '1920 kcal', mood: 'Energetic' },
-    'Wed 15': { meals: [{ type: 'Meal 1', name: 'Eggs' }, { type: 'Meal 2', name: 'Salad' }, { type: 'Meal 3', name: 'Soup' }], total: '1950 kcal', mood: 'Calm', currentDay: true },
-    'Thu 16': { meals: [], total: null, mood: null },
-    'Fri 17': { meals: [], total: null, mood: null },
-    'Sat 18': { meals: [], total: null, mood: null },
-    'Sun 19': { meals: [], total: null, mood: null },
-  };
 
   const weeklySchedule = useMemo(() =>
     Object.entries(DUMMY_SCHEDULE).map(([day, data]) => ({ day, ...data }))
