@@ -7,6 +7,7 @@ import './MyMealPlan.css';
 function MyMealPlan() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [focusLock] = useState(false);
   const [currentView, setCurrentView] = useState('Weekly');
   
   // 1. New state for the currently selected day
