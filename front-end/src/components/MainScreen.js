@@ -10,6 +10,8 @@ function MainScreen() {
   const [showStreak, setShowStreak] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [petClicked, setPetClicked] = useState(false);
+  const [showHearts, setShowHearts] = useState(false);
 
   // Get email from localStorage (set during login)
   const email = localStorage.getItem('email');
@@ -57,6 +59,20 @@ function MainScreen() {
     }
   }, [email]);
 
+  const handlePetClick = () => {
+    setPetClicked(true);
+    setShowHearts(true);
+    setTimeout(() => setPetClicked(false), 600);
+    setTimeout(() => setShowHearts(false), 1200);
+  };
+
+  const getPetMood = () => {
+    const streak = userData?.streak?.currentStreak || 0;
+    if (streak >= 7) return 'happy';
+    if (streak >= 3) return 'content';
+    return 'neutral';
+  };
+
   if (loading) {
     return (
       <div className="main-screen">
@@ -85,12 +101,19 @@ function MainScreen() {
           <span>Streak: {userData?.streak?.currentStreak || 0} days</span>
         </div>
 
-        <div className="pet-container">
+        <div className="pet-container" onClick={handlePetClick}>
           <img 
             src={userData?.pet?.petImage || "/dog.png"} 
             alt="Pet"
-            className="pet-image"
+            className={`pet-image ${petClicked ? 'pet-clicked' : ''} pet-mood-${getPetMood()}`}
           />
+          {showHearts && (
+            <div className="pet-hearts">
+              <span className="heart heart-1">❤️</span>
+              <span className="heart heart-2">❤️</span>
+              <span className="heart heart-3">❤️</span>
+            </div>
+          )}
         </div>
 
         <div className="action-buttons">
