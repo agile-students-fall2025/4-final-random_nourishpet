@@ -4,12 +4,14 @@ import HamburgerMenu from './HamburgerMenu';
 import Streak from './Streak';
 import './MainScreen.css';
 import { API_BASE_URL } from '../utils/api';
+import { getDailyQuote } from '../utils/wellnessQuotes';
 
 function MainScreen() {
   const navigate = useNavigate();
   const [showStreak, setShowStreak] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [dailyQuote] = useState(getDailyQuote());
 
   // Get email from localStorage (set during login)
   const email = localStorage.getItem('email');
@@ -83,6 +85,10 @@ function MainScreen() {
 
         <div className="streak-button" onClick={() => setShowStreak(true)}>
           <span>Streak: {userData?.streak?.currentStreak || 0} days</span>
+        </div>
+
+        <div className="wellness-quote">
+          <p>{dailyQuote}</p>
         </div>
 
         <div className="pet-container">
