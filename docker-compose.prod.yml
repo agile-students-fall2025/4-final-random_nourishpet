@@ -7,6 +7,8 @@ services:
   backend:
     environment:
       - NODE_ENV=production
+      # IMPORTANT: Update ALLOWED_ORIGINS in .env file with your actual droplet URL
+      # Example: ALLOWED_ORIGINS=http://167.172.223.98:3000
     # Remove volume mounts in production (use built image)
     volumes: []
     restart: always

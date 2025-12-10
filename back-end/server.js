@@ -22,20 +22,36 @@ const dbConnectionPromise = connectDB();
 
 // CORS configuration - supports both local development and Docker
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(',')
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
   : ['http://localhost:3000', 'http://frontend:80', 'http://localhost'];
+
+console.log('CORS Allowed Origins:', allowedOrigins);
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    // Allow requests with no origin (like mobile apps, curl, or same-origin requests)
+    if (!origin) {
+      console.log('Request with no origin header - allowing');
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list
     if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log(`Origin ${origin} is in allowed list - allowing`);
       callback(null, true);
     } else {
-      callback(null, true); // Allow all origins in development, restrict in production
+      console.log(`Origin ${origin} not in allowed list - allowing anyway (permissive mode)`);
+      // Allow all origins for now - change to callback(new Error('Not allowed by CORS')) in production
+      callback(null, true);
     }
   },
   credentials: true,
+  // Explicitly allow common headers
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  // Allow common methods
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  // Enable preflight caching
+  maxAge: 86400
 }));
 
 app.use(express.json());
