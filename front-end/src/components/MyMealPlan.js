@@ -82,14 +82,12 @@ function MyMealPlan() {
 
   const weeklySchedule = useMemo(() => {
     const entries = Object.entries(DUMMY_SCHEDULE).map(([day, data]) => ({ day, ...data }));
-    
-    // NOTE: DUMMY_SCHEDULE is static, but we include this sorting logic for clean presentation (Sun-Sat)
     return entries.sort((a, b) => {
         const dayA = a.day.split(' ')[0];
         const dayB = b.day.split(' ')[0];
         return DAY_ORDER.indexOf(dayA) - DAY_ORDER.indexOf(dayB);
     });
-  }, []); // <-- Included dependency for stability
+  }, []);
   
   const selectedDayData = weeklySchedule[selectedDayIndex];
 
