@@ -26,231 +26,96 @@ See the [Production Deployment](#production-deployment) section for detailed inf
 
 - **Pet Growth Mechanic:** A virtual pet that grows, levels up, or changes mood based on the user’s nutritional choices.  
 - **Meal Logging:** Users can log meals manually or by scanning barcodes.  
-- **Nutrition Analysis:** Users can review their calories, macronutrients, and key vitamins/minerals.  
-- **Daily Goal Tracking:** Visual indicators for meeting calorie and nutrient goals.  
-- **Gamified Feedback:** Positive reinforcement through streaks, achievements, and animations.
+# NutriPal
+
+NutriPal is a gamified nutrition tracker that helps users build healthy habits by caring for a virtual pet. The pet's health and mood reflect the user's logged meals, activities, and biometric data.
+
+Live demo: http://167.172.223.98:3000/ (production)
 
 ---
 
-## Team Members
+## Key features
 
-- **Naseem Uddin** — [@Naseem-Uddin](https://github.com/Naseem-Uddin)  
-- **Ethan Arnold** — [@ethanarnold](https://github.com/ethanarnold)  
-- **Amal Faisal** — [@amal-faisal](https://github.com/amal-faisal)  
-- **Becky Tan** — [@beckytan](https://github.com/beckytan)
-- **Avi Herman** — [@avih7531](https://github.com/avih7531)
-
----
-
-## Team History
-
-We are a team of students collaborating on a class project for Agile Software development.  
-During ideation, we chose to create **NutriPal** because we wanted to bring our creativity and lightheartedness to the difficult realm of nutrition. We hope to integrate technology, design, and behavioral psychology to promote healthier habits.  
-We're hoping to practitce the Scrum framework, with sprint-based milestones, spikes, and task boards managed via GitHub Projects.
+- Gamified virtual pet that reflects user behavior
+- Meal logging and nutrition analysis
+- Profile, biometric tracking, activities, focus sessions, and streaks
+- JWT-based authentication with cookie sessions
+- Dockerized for local development and production
 
 ---
 
----
+## Tech stack
 
-## Prerequisites
-
-- **Node.js** (v18 or higher recommended)
-- **npm** (comes with Node.js)
-- **MongoDB Atlas** account (free tier works)
-- **Git**
+- Frontend: React (Create React App)
+- Backend: Node.js + Express
+- Database: MongoDB Atlas (Mongoose)
+- Deployment: Docker, Docker Compose, DigitalOcean
 
 ---
 
-## Local Development
+## Quick start (development)
 
-### 1. Clone the Repository
+Prerequisites:
+
+- Node.js (v18+)
+- npm
+- MongoDB Atlas account (or a local MongoDB instance)
+
+1. Clone the repo
 
 ```bash
-git clone https://github.com/agile-students-fall2025/4-final-random_nourishpet.git
-cd 4-final-random_nourishpet
+git clone https://github.com/agile-students-fall2025/4-final-random_nutripal.git
+cd 4-final-random_nutripal
 ```
 
-### 2. Backend Setup
+2. Backend
 
 ```bash
 cd back-end
 npm install
-```
-
-Create a `.env` file in the `back-end` directory by copying the example:
-
-```bash
 cp .env.example .env
+# edit back-end/.env and provide MONGODB_URI, JWT_SECRET, etc.
+npm start
 ```
 
-Then edit `.env` and fill in your values (see [Environment Variables](#environment-variables) below).
+The backend listens on http://localhost:3001 by default.
 
-### 3. Frontend Setup
+3. Frontend
 
 ```bash
 cd ../front-end
 npm install
-```
-
-**Optional:** Create a `.env` file in `front-end` if you need to override the API URL:
-```env
-REACT_APP_API_BASE_URL=http://localhost:3001
-```
-
-### 4. Run the Application
-
-**Terminal 1 - Backend:**
-```bash
-cd back-end
+# The development server is configured to proxy API requests to the backend
 npm start
 ```
-Backend runs on `http://localhost:3001`
 
-**Terminal 2 - Frontend:**
-```bash
-cd front-end
-npm start
-```
-Frontend runs on `http://localhost:3000` and opens automatically in your browser.
+The frontend runs on http://localhost:3000 and the CRA dev-server proxies /api requests to the backend so cookies work during development.
 
 ---
 
-## Development
+## Environment variables
 
-### Backend Scripts
+Backend environment variables are defined in `back-end/.env.example`. Required values include:
 
-```bash
-cd back-end
+- MONGODB_URI — MongoDB connection string
+- JWT_SECRET — secret used to sign JWTs
 
-# Start server
-npm start
+Optional variables (examples): PORT, ALLOWED_ORIGINS, GROQ_API_KEY, EMAIL_USER, EMAIL_PASSWORD, FRONTEND_URL
 
-# Run tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-```
-
-### Frontend Scripts
-
-```bash
-cd front-end
-
-# Start development server
-npm start
-
-# Build for production
-npm run build
-
-# Run tests
-npm test
-```
+Frontend: `front-end/.env` may contain `REACT_APP_API_BASE_URL` for direct backend targeting; by default the app uses relative URLs so the CRA proxy will forward requests to the backend during development.
 
 ---
 
-## Environment Variables
+## Running tests
 
-### Backend Environment Variables (`back-end/.env`)
-
-Copy `back-end/.env.example` to `back-end/.env` and fill in your values:
-
-**Required:**
-- `MONGODB_URI` - MongoDB Atlas connection string (get from MongoDB Atlas dashboard)
-- `JWT_SECRET` - Random string for signing JWT tokens (generate a secure random string)
-
-**Optional:**
-- `PORT` - Server port (default: `3001`)
-- `ALLOWED_ORIGINS` - Comma-separated CORS origins (default: `http://localhost:3000,http://frontend:80`)
-- `GROQ_API_KEY` - Groq API key (required for meal plan generation and BMI calculations)
-- `GROQ_MODEL` - Groq model name (default: `llama-3.1-8b-instant`)
-- `EMAIL_USER` - Gmail address (required for password reset emails)
-- `EMAIL_PASSWORD` - Gmail app-specific password (required for password reset emails)
-- `FRONTEND_URL` - Frontend URL for email links (default: `http://localhost:3000`)
-
-### Frontend Environment Variables (`front-end/.env`)
-
-**Optional (only needed for local development):**
-- `REACT_APP_API_BASE_URL` - API base URL (default: `http://localhost:3001`)
-  - **Note:** In production/Docker, the frontend uses relative URLs since nginx proxies `/api` requests to the backend.
-
-See `back-end/.env.example` for a template with all available variables.
-
----
-
-## Project Structure
-
-```
-4-final-random_nourishpet/
-├── back-end/              # Express.js backend
-│   ├── config/           # Database configuration
-│   ├── controllers/      # Route controllers
-│   ├── middleware/       # Auth & validation middleware
-│   ├── models/           # Mongoose models
-│   ├── routes/           # API routes
-│   ├── services/         # Business logic services
-│   ├── test/             # Test files
-│   └── server.js         # Express app entry point
-│
-├── front-end/            # React frontend
-│   ├── public/           # Static assets
-│   └── src/
-│       ├── components/    # React components
-│       └── context/      # React context (Auth)
-│
-└── README.md
-```
-
----
-
-## API Endpoints
-
-All API endpoints (except `/api/auth/*`) require JWT authentication via cookies.
-
-### Authentication
-- `POST /api/auth/signup` - Register new user
-- `POST /api/auth/signin` - Login user
-- `POST /api/auth/logout` - Logout user
-- `GET /api/auth/me` - Get current user (protected)
-
-### Meals
-- `POST /api/meals` - Create meal (protected)
-- `GET /api/meals/:email` - Get user meals (protected)
-
-### Profile
-- `GET /api/profile/:email` - Get user profile (protected)
-- `POST /api/profile/update` - Update profile (protected)
-- `POST /api/profile/update-username` - Update username (protected)
-- `POST /api/profile/update-password` - Update password (protected)
-
-### Activities
-- `POST /api/activities` - Log activity (protected)
-- `GET /api/activities/:email` - Get user activities (protected)
-
-### Biometrics
-- `POST /api/biometrics/update` - Update biometric data (protected)
-- `GET /api/biometrics/:email` - Get biometric data (protected)
-
-### Focus Sessions
-- `POST /api/focus-sessions` - Log focus session (protected)
-
-### Streak
-- `POST /api/streak` - Log streak message (protected)
-
----
-
-## Testing
-
-### Backend Tests
+Backend tests (uses an in-memory MongoDB):
 
 ```bash
 cd back-end
 npm test
 ```
 
-Tests use an in-memory MongoDB instance (no setup required).
-
-### Frontend Tests
+Frontend tests:
 
 ```bash
 cd front-end
@@ -259,251 +124,67 @@ npm test
 
 ---
 
-## Database
+## Project layout
 
-The application uses **MongoDB Atlas** (cloud-hosted MongoDB).
+Top-level directories:
 
-### Models
+- `back-end/` — Express API, controllers, models, middleware, and tests
+- `front-end/` — React application
 
-- `User` - User accounts
-- `UserProfile` - User profile information
-- `PetData` - Virtual pet data
-- `Meal` - Meal logs
-- `Activity` - Activity logs
-- `BiometricData` - Height, weight, BMI data
-- `StreakData` - User streak information
-- `FocusSession` - Focus mode sessions
-- `PasswordReset` - Password reset tokens
-
-### Indexes
-
-Performance indexes are configured on:
-- `Meal`: `email`, `email + date`
-- `Activity`: `email`, `email + date`
-- `FocusSession`: `userId + startedAt`
+Refer to the folder READMEs and `back-end/.env.example` for more details.
 
 ---
 
-## Docker Deployment
+## Deployment
 
-NutriPal can be run using Docker for both local development and production deployment.
+The project includes Docker and Docker Compose configurations for both development and production. CI/CD is implemented via GitHub Actions and deployment targets a DigitalOcean droplet (see `docker-compose.prod.yml` and CI workflow files for details).
 
-### Prerequisites
-
-- Docker installed on your system
-- Docker Compose installed
-- `.env` files configured (see [Environment Variables](#environment-variables) section above)
-
-### Local Development with Docker
-
-1. **Create `.env` files** as described in the [Environment Variables](#environment-variables) section
-
-2. **Start the services:**
-   ```bash
-   docker-compose up -d
-   ```
-
-3. **View logs:**
-   ```bash
-   docker-compose logs -f
-   ```
-
-4. **Stop the services:**
-   ```bash
-   docker-compose down
-   ```
-
-5. **Rebuild after code changes:**
-   ```bash
-   docker-compose up -d --build
-   ```
-
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:3001
-
-### Production Deployment
-
-NutriPal is deployed to a **Digital Ocean Droplet** using Docker containers with automated CI/CD pipelines.
-
-**Live Application:** http://167.172.223.98:3000/
-
-#### Deployment Architecture
-
-- **Hosting:** Digital Ocean Droplet (Ubuntu)
-- **Containerization:** Docker & Docker Compose
-- **Deployment Path:** `/var/www/nourishpet` on the droplet
-- **CI/CD:** GitHub Actions for automated testing and deployment
-- **Live URL:** http://167.172.223.98:3000/
-
-#### Extra Credit Features Implemented
-
-✅ **Docker Container Deployment** - Application runs in containerized environments  
-✅ **Continuous Integration (CI)** - Automated testing on every push/PR via GitHub Actions  
-✅ **Continuous Deployment (CD)** - Automated deployment to production on merge to main/master
-
-#### Production Setup
-
-**1. Initial Droplet Setup (One-time):**
-   - Create a Digital Ocean Droplet (Ubuntu)
-   - Install Docker and Docker Compose on the droplet
-   - Create deployment directory: `mkdir -p /var/www/nourishpet`
-
-**2. GitHub Secrets Configuration:**
-
-   Configure these secrets in your GitHub repository (Settings → Secrets and variables → Actions):
-   
-   - `DO_HOST` - Droplet IP address (e.g., `167.172.223.98`)
-   - `DO_USER` - SSH username (usually `root`)
-   - `DO_SSH_KEY` - Private SSH key for authentication (the private key matching the public key on the droplet)
-   - `DO_PORT` - SSH port (default: `22`)
-
-**3. Environment Variables on Droplet:**
-
-   The `.env` file lives directly on the droplet at `/var/www/nourishpet/back-end/.env`.
-   
-   **Important:** The `.env` file is **NOT** committed to git (it's in `.gitignore`). You must manually create it on the droplet:
-   
-   ```bash
-   # SSH into droplet
-   ssh root@your-droplet-ip
-   
-   # Navigate to deployment directory
-   cd /var/www/nourishpet/back-end
-   
-   # Create .env file (copy from .env.example or create manually)
-   nano .env
-   ```
-   
-   Fill in production values:
-   - `MONGODB_URI` - Your MongoDB Atlas connection string
-   - `JWT_SECRET` - A secure random string (different from local)
-   - `GROQ_API_KEY` - Your Groq API key
-   - `GROQ_MODEL` - `llama-3.1-8b-instant` (or your preferred model)
-   - `EMAIL_USER` - Your Gmail address
-   - `EMAIL_PASSWORD` - Your Gmail app-specific password
-   - `FRONTEND_URL` - Your production frontend URL (e.g., `http://your-droplet-ip:3000`)
-   - `ALLOWED_ORIGINS` - Your production frontend URL
-
-#### How Automated Deployment Works
-
-When code is pushed to `main` or `master` branch:
-
-1. **CI Pipeline (`.github/workflows/ci.yml`):**
-   - Runs backend unit tests
-   - Runs frontend tests and builds
-   - Verifies Docker images build correctly
-   - All tests must pass before deployment
-
-2. **CD Pipeline (`.github/workflows/cd.yml`):**
-   - Builds frontend production bundle
-   - Copies codebase to `/var/www/nourishpet` on droplet via SCP
-   - SSHes into droplet and:
-     - Stops existing containers
-     - Builds new Docker images
-     - Starts containers using `docker-compose.prod.yml`
-     - Cleans up old images
-     - Shows container status
-
-**Note:** The `.env` file on the droplet persists across deployments. Only code changes are deployed; environment variables remain unchanged unless manually edited.
-
-#### Manual Deployment (if needed)
+Basic Docker usage:
 
 ```bash
-# SSH into droplet
-ssh root@your-droplet-ip
-
-# Navigate to deployment directory
-cd /var/www/nourishpet
-
-# Pull latest code (if using git)
-git pull origin main
-
-# Rebuild and restart containers
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-```
-
-### Docker Commands Reference
-
-```bash
-# Build images
-docker-compose build
-
-# Start services
-docker-compose up -d
-
-# Stop services
-docker-compose down
-
-# View logs
-docker-compose logs -f [service-name]
-
-# Execute command in container
-docker-compose exec backend npm test
-
-# Rebuild and restart
 docker-compose up -d --build
-
-# Remove everything (including volumes)
-docker-compose down -v
+docker-compose logs -f
 ```
-
-### Docker Troubleshooting
-
-#### Containers won't start
-- Check that `.env` files exist and have correct values
-- Check logs: `docker-compose logs`
-- Verify MongoDB connection string is correct
-
-#### Frontend can't connect to backend
-- Ensure CORS settings in backend `.env` include the frontend URL (set `ALLOWED_ORIGINS`)
-- Check that both containers are on the same Docker network
-- Verify nginx proxy configuration in `front-end/nginx.conf`
-
-#### Port conflicts
-- Change ports in `docker-compose.yml` if 3000 or 3001 are already in use
-- Update `ALLOWED_ORIGINS` in backend `.env` if you change the frontend port
 
 ---
 
-## Troubleshooting
+## API (summary)
 
-### Backend won't start
-- Check that MongoDB URI is correct in `.env`
-- Ensure port 3001 is not in use
-- Verify all dependencies are installed: `npm install`
+Authentication endpoints (all under `/api/auth`):
 
-### Frontend won't connect to backend
-- Ensure backend is running on port 3001
-- Check CORS settings in `back-end/server.js`
-- Verify API calls use correct base URL
+- `POST /api/auth/signup`
+- `POST /api/auth/signin` (sets JWT cookie)
+- `POST /api/auth/logout`
+- `GET /api/auth/me` (protected — requires cookie)
 
-### Authentication issues
-- Ensure `JWT_SECRET` is set in `.env`
-- Check that cookies are enabled in browser
-- Verify JWT token is being sent with requests
+Other resources include `/api/meals`, `/api/profile`, `/api/activities`, `/api/biometrics`, `/api/focus-sessions`, `/api/streak`.
 
-### Database connection errors
-- Verify MongoDB Atlas connection string
-- Check network/IP whitelist in MongoDB Atlas
-- Ensure database user has proper permissions
+Refer to the code (`back-end/routes`) for exact routes and payloads.
+
+---
+
+## Troubleshooting & tips
+
+- If cookies are not saved during development, ensure the CRA dev-server proxy is enabled (front-end `package.json` contains a `proxy` entry) or use `credentials: 'include'` in fetch requests.
+- Ensure `JWT_SECRET` is set in the backend `.env`.
+- Check backend logs for `Setting JWT cookie` messages to confirm the server is issuing the cookie.
 
 ---
 
 ## Contributing
 
-For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
+Please read `CONTRIBUTING.md` for contribution guidelines. Typical workflow:
 
-### Git Workflow
-
-1. Create a feature branch: `git checkout -b feature-name`
-2. Make your changes
-3. Commit: `git commit -m "description"`
-4. Push: `git push origin feature-name`
-5. Create a Pull Request
+1. Create a feature branch
+2. Implement changes and add tests
+3. Open a Pull Request
 
 ---
 
 ## License
 
-See [LICENSE.md](LICENSE.md) for details.
+This project is licensed under the terms in `LICENSE.md`.
+
+---
+
+If you'd like, I can add badges (build, tests, coverage), a short architecture diagram, or a one-page developer onboarding checklist — tell me which you'd prefer and I will add it.
