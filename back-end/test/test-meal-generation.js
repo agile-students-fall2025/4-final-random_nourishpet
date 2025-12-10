@@ -1,11 +1,11 @@
 // Local test script for meal plan generation
 require('dotenv').config();
 const mongoose = require('mongoose');
-const connectDB = require('./config/db');
-const User = require('./models/User');
-const BiometricData = require('./models/BiometricData');
-const MealPlan = require('./models/MealPlan');
-const { generateMealPlan } = require('./controllers/mealPlanController');
+const connectDB = require('../config/db');
+const User = require('../models/User');
+const BiometricData = require('../models/BiometricData');
+const MealPlan = require('../models/MealPlan');
+const { generateMealPlan } = require('../controllers/mealPlanController');
 
 async function testMealGeneration() {
   try {

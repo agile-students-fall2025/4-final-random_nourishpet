@@ -66,22 +66,27 @@ The front-end is built with React.js. To get started:
     git clone https://github.com/agile-students-fall2025/4-final-random_nutripal
     ```
 
-3. Navigate to the front-end directory:
+3. Create your own front-end .env file to specify the correct port for the front-end:
+   ```bash
+   REACT_APP_API_BASE_URL=http://localhost:3001
+   ```
+
+4. Navigate to the front-end directory:
    ```bash
    cd front-end
    ```
 
-4. Install dependencies (first time only):
+5. Install dependencies (first time only):
    ```bash
    npm install
    ```
 
-5. Start the development server:
+6. Start the development server:
    ```bash
    npm start
    ```
 
-6. The app will open at [http://localhost:3000](http://localhost:3000).
+7. The app will open at [http://localhost:3000](http://localhost:3000).
 
 ### Back-End Development
 
