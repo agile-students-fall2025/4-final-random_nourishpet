@@ -127,13 +127,6 @@
   box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
 }
 
-/* .my-meal-plan-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
-} */
-
 .my-meal-plan-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -203,9 +196,11 @@
 
 .schedule-card {
   padding: 1.5rem 0.5rem;
+  min-height: 450px; 
+  display: flex;
+  flex-direction: column;
 }
 
-/* Calendar Controls (Nav and Toggles) */
 .calendar-controls {
   display: flex;
   justify-content: space-between;
@@ -246,7 +241,6 @@
   margin: 0 0.5rem;
 }
 
-/* View Toggles (Daily/Weekly/Monthly) */
 .view-toggles {
   display: flex;
   background: #f0f0f0;
@@ -279,7 +273,6 @@
   cursor: not-allowed;
 }
 
-/* Calendar Grid */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -289,19 +282,6 @@
   overflow: hidden;
 }
 
-/* Weekly view with horizontal scrolling */
-.calendar-grid.weekly-scrollable {
-  overflow-x: auto;
-  overflow-y: visible;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-.calendar-grid.weekly-scrollable .day-cell {
-  min-width: 140px;
-}
-
-/* Adjust grid for smaller screens (e.g., show only 3 days) */
 @media (max-width: 550px) {
   .calendar-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -317,7 +297,6 @@
     margin: 0;
   }
 }
-
 
 .day-cell {
   border-right: 1px solid #e0e0e0;
@@ -336,7 +315,6 @@
   background-color: #f7f3ff;
 }
 
-/* Day Header */
 .day-header {
   padding: 0.75rem 0.5rem;
   text-align: center;
@@ -361,8 +339,6 @@
   font-size: 1.1rem;
 }
 
-
-/* Meal List */
 .meal-list {
   padding: 0.75rem 0.5rem;
   font-size: 0.8rem;
@@ -401,180 +377,96 @@
   border-top: 1px dashed #e0e0e0;
 }
 
-/* Daily View Styles */
-.daily-view {
-  width: 100%;
-  padding: 1rem 0;
+.monthly-calendar-container {
+  padding: 0 0.5rem 0.5rem;
 }
 
-.daily-day-card {
-  background: white;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.daily-day-card.current-day {
-  border-color: #764ba2;
-  box-shadow: 0 4px 16px rgba(118, 75, 162, 0.3);
-}
-
-.daily-day-header {
-  background-color: #fafafa;
-  padding: 1.5rem;
-  text-align: center;
-  border-bottom: 2px solid #e0e0e0;
-}
-
-.daily-day-header.current-day-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.daily-day-name {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.daily-day-header.current-day-header .daily-day-name {
-  color: white;
-}
-
-.daily-meal-list {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.daily-meal-entry {
-  padding: 1rem;
-  background: #f9f9f9;
-  border-radius: 8px;
-  border-left: 4px solid #764ba2;
-}
-
-.daily-meal-type {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #764ba2;
-  margin-bottom: 0.5rem;
-}
-
-.daily-meal-name {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 0.5rem;
-}
-
-.daily-meal-description {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0.5rem;
-  line-height: 1.4;
-}
-
-.daily-meal-calories {
-  font-size: 0.85rem;
-  color: #999;
-  font-weight: 500;
-}
-
-.daily-total {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 2px solid #e0e0e0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #764ba2;
-  text-align: center;
-}
-
-/* Monthly View Styles */
-.monthly-calendar {
-  width: 100%;
-  padding: 1rem 0;
-}
-
-.monthly-weekdays {
+.days-of-week-header {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 1px;
-  margin-bottom: 1px;
-  background-color: #e0e0e0;
+  grid-template-columns: repeat(7, 1fr); 
 }
 
-.monthly-weekday {
-  background-color: #fafafa;
-  padding: 0.75rem 0.5rem;
-  text-align: center;
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: #764ba2;
-}
-
-.monthly-days-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 1px;
-  background-color: #e0e0e0;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.monthly-day-empty {
-  background-color: #f9f9f9;
-  min-height: 80px;
+.monthly-grid {
+  grid-template-columns: repeat(7, 1fr); 
+  border: none;
+  overflow-x: hidden; 
 }
 
 .monthly-day-cell {
-  background-color: white;
-  min-height: 80px;
-  padding: 0.5rem;
+  height: 70px;
+  padding: 4px;
+  font-size: 0.75rem;
+  text-align: right;
+  border: 1px solid #f0f0f0;
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
   cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
+  min-height: unset;
 }
 
-.monthly-day-cell:hover {
-  background-color: #f7f3ff;
+.monthly-day-cell:hover:not(.other-month) {
+  background-color: #e6e6fa;
 }
 
-.monthly-day-cell.monthly-today {
-  background-color: #f7f3ff;
-  border: 2px solid #764ba2;
+.monthly-day-cell.other-month {
+  color: #ccc;
+  background-color: #f9f9f9;
+  pointer-events: none;
 }
 
-.monthly-day-cell.monthly-has-meals {
-  border-left: 3px solid #764ba2;
-}
-
-.monthly-day-number {
+.monthly-day-date {
   font-weight: 600;
-  color: #333;
+  display: block;
   font-size: 0.9rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 2px;
 }
 
-.monthly-day-cell.monthly-today .monthly-day-number {
-  color: #764ba2;
+.monthly-meal-summary {
+  display: flex;
+  justify-content: flex-end;
+  gap: 3px;
+  margin-top: 3px;
+}
+
+.meal-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: #667eea;
+  color: white;
+  font-size: 0.6rem;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.monthly-meal-indicator {
-  font-size: 0.7rem;
-  color: #764ba2;
-  font-weight: 500;
-  margin-top: auto;
-  padding: 0.25rem 0.5rem;
-  background-color: #f0e6ff;
-  border-radius: 4px;
-  width: 100%;
-  text-align: center;
+.monthly-total-summary {
+  display: block;
+  font-size: 0.6rem;
+  color: #777;
+  margin-top: 3px;
+}
+
+.schedule-content-wrapper {
+    flex-grow: 1;
+    min-height: 350px;
+    padding-bottom: 0.5rem;
+}
+
+.daily-view-container {
+    padding: 0 1rem 1rem;
+    width: 100%;
+}
+
+.daily-view-cell {
+    min-height: 350px; 
+    max-width: unset;
+}
+
+@media (max-width: 550px) {
+  .monthly-grid {
+    grid-template-columns: repeat(7, 1fr);
+  }
 }
