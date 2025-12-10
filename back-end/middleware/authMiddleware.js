@@ -13,10 +13,20 @@ const protect = (req, res, next) => {
     }
     
     // Normal logic:
+    console.log('Auth middleware - checking cookies:', {
+      hasCookies: !!req.cookies,
+      hasJWT: !!req.cookies?.jwt,
+      cookieKeys: Object.keys(req.cookies || {}),
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+      method: req.method,
+      path: req.path
+    });
 
     const token = req.cookies?.jwt;
 
     if (!token) {
+      console.error('Auth middleware - no JWT token found in cookies');
       return res.status(401).json({
         success: false,
         message: 'Not authorized, no token',
@@ -24,6 +34,7 @@ const protect = (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Auth middleware - token verified for user:', decoded.email);
 
     req.user = {
       id: decoded.id,
@@ -33,10 +44,16 @@ const protect = (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error('Auth middleware error:', error);
+    console.error('Auth middleware error:', {
+      name: error.name,
+      message: error.message,
+      hasCookies: !!req.cookies,
+      cookieKeys: Object.keys(req.cookies || {})
+    });
     return res.status(401).json({
       success: false,
       message: 'Not authorized',
+      error: error.name === 'JsonWebTokenError' ? 'Invalid token' : 'Token verification failed'
     });
   }
 };

@@ -21,12 +21,17 @@ const isSecure = (req) => {
 const sendAuthResponse = (req, res, user, message = 'Authentication successful') => {
   const token = generateToken(user);
 
-  res.cookie('jwt', token, {
+  // Cookie configuration optimized for Chromium compatibility on HTTP
+  const cookieOptions = {
     httpOnly: true,
-    secure: isSecure(req),
-    sameSite: 'lax',
-    // no maxAge -> session cookie
-  });
+    secure: false, // Must be false for HTTP (Chromium requirement)
+    sameSite: 'lax', // Works for same-site requests
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days - persist across sessions
+    path: '/', // Explicitly set path
+  };
+
+  console.log('Setting JWT cookie with options:', cookieOptions);
+  res.cookie('jwt', token, cookieOptions);
 
   return res.status(200).json({
     success: true,
@@ -123,11 +128,16 @@ exports.signup = async (req, res) => {
     // Set cookie + send response
     const token = generateToken(newUser);
 
-    res.cookie('jwt', token, {
+    const cookieOptions = {
       httpOnly: true,
-      secure: isSecure(req),
+      secure: false,
       sameSite: 'lax',
-    });
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    };
+
+    console.log('Setting JWT cookie on signup with options:', cookieOptions);
+    res.cookie('jwt', token, cookieOptions);
 
     return res.status(201).json({
       success: true,
@@ -203,10 +213,13 @@ exports.signin = async (req, res) => {
 exports.logout = (req, res) => {
   res.clearCookie('jwt', {
     httpOnly: true,
-    secure: isSecure(req),
+    secure: false,
     sameSite: 'lax',
+    path: '/',
   });
 
+  console.log('JWT cookie cleared on logout');
+  
   return res.status(200).json({
     success: true,
     message: 'Logged out successfully',
