@@ -86,6 +86,8 @@
   justify-content: center;
   margin-bottom: 70px;
   min-height: 250px;
+  position: relative;
+  cursor: pointer;
 }
 
 .pet-image {
@@ -94,6 +96,78 @@
   object-fit: contain !important;
   border-radius: 0 !important;
   background: none !important;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.pet-container:hover .pet-image {
+  transform: scale(1.05);
+}
+
+.pet-image.pet-clicked {
+  animation: petBounce 0.6s ease;
+}
+
+@keyframes petBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-20px) scale(1.1); }
+  50% { transform: translateY(-10px) scale(1.05); }
+  75% { transform: translateY(-15px) scale(1.08); }
+}
+
+.pet-mood-happy {
+  filter: brightness(1.1) saturate(1.2);
+}
+
+.pet-mood-content {
+  filter: brightness(1.05);
+}
+
+.pet-mood-neutral {
+  filter: brightness(0.95) saturate(0.9);
+}
+
+.pet-hearts {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.heart {
+  position: absolute;
+  font-size: 36px;
+  animation: floatHeart 1.2s ease-out forwards;
+}
+
+.heart-1 {
+  left: -50px;
+  animation-delay: 0s;
+}
+
+.heart-2 {
+  left: 0px;
+  animation-delay: 0.15s;
+}
+
+.heart-3 {
+  left: 50px;
+  animation-delay: 0.3s;
+}
+
+@keyframes floatHeart {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-50px) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100px) scale(0.8);
+  }
 }
 
 .action-buttons {
