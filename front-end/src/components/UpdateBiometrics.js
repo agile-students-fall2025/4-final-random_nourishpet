@@ -18,6 +18,7 @@ function UpdateBiometrics() {
   const navigate = useNavigate();
   const [email, setEmail] = useState(null);
   const [formData, setFormData] = useState(defaultFormState);
+  const [unitSystem, setUnitSystem] = useState(localStorage.getItem('unitSystem') || 'metric');
   const [calculatedBmi, setCalculatedBmi] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,12 +79,57 @@ function UpdateBiometrics() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    // For direct form fields (we keep underlying storage in cm/lbs)
     setFormData(prev => {
       if (name === 'ethnicity' && value !== 'Other') {
         return { ...prev, [name]: value, ethnicityOther: '' };
       }
       return { ...prev, [name]: value };
     });
+  };
+
+  // Unit conversion helpers
+  const kgToLbs = (kg) => Number((kg * 2.2046226218).toFixed(2));
+  const lbsToKg = (lbs) => Number((lbs / 2.2046226218).toFixed(2));
+  const cmToIn = (cm) => Number((cm / 2.54).toFixed(2));
+  const inToCm = (inch) => Number((inch * 2.54).toFixed(2));
+
+  const handleUnitToggle = (newUnit) => {
+    setUnitSystem(newUnit);
+    localStorage.setItem('unitSystem', newUnit);
+  };
+
+  // Field-specific handlers to convert visible units into stored cm/lbs
+  const handleHeightMetricChange = (e) => {
+    const v = e.target.value;
+    setFormData(prev => ({ ...prev, heightCm: v }));
+  };
+
+  const handleHeightImperialChange = (e) => {
+    const v = e.target.value;
+    const inches = parseFloat(v);
+    if (Number.isNaN(inches)) {
+      setFormData(prev => ({ ...prev, heightCm: '' }));
+      return;
+    }
+    const cm = inToCm(inches);
+    setFormData(prev => ({ ...prev, heightCm: String(cm) }));
+  };
+
+  const handleWeightMetricChange = (e) => {
+    const v = e.target.value;
+    const kg = parseFloat(v);
+    if (Number.isNaN(kg)) {
+      setFormData(prev => ({ ...prev, weightLbs: '' }));
+      return;
+    }
+    const lbs = kgToLbs(kg);
+    setFormData(prev => ({ ...prev, weightLbs: String(lbs) }));
+  };
+
+  const handleWeightImperialChange = (e) => {
+    const v = e.target.value;
+    setFormData(prev => ({ ...prev, weightLbs: v }));
   };
 
   const parseNumber = (value) => {
@@ -126,6 +172,7 @@ function UpdateBiometrics() {
       ethnicityOther: formData.ethnicity === 'Other' ? formData.ethnicityOther : '',
       sex: formData.sex,
       age: ageValue ?? undefined,
+      unitSystem,
     };
 
     try {
@@ -189,35 +236,88 @@ function UpdateBiometrics() {
               {error && <p className="error-text">{error}</p>}
               {statusMessage && <p className="status-text">{statusMessage}</p>}
 
-              <div className="form-box">
-                <label htmlFor="heightCm">Height (cm)</label>
-                <input
-                  type="number"
-                  id="heightCm"
-                  name="heightCm"
-                  value={formData.heightCm}
-                  onChange={handleChange}
-                  className="input-field"
-                  placeholder="Enter your height in centimeters"
-                  min="0"
-                  step="0.1"
-                />
+              <div className="unit-toggle" style={{ marginBottom: '12px' }}>
+                <button
+                  type="button"
+                  className={`unit-btn ${unitSystem === 'metric' ? 'active' : ''}`}
+                  onClick={() => handleUnitToggle('metric')}
+                >
+                  Metric
+                </button>
+                <button
+                  type="button"
+                  className={`unit-btn ${unitSystem === 'imperial' ? 'active' : ''}`}
+                  onClick={() => handleUnitToggle('imperial')}
+                >
+                  Imperial
+                </button>
               </div>
 
-              <div className="form-box">
-                <label htmlFor="weightLbs">Weight (lbs)</label>
-                <input
-                  type="number"
-                  id="weightLbs"
-                  name="weightLbs"
-                  value={formData.weightLbs}
-                  onChange={handleChange}
-                  className="input-field"
-                  placeholder="Enter your weight in pounds"
-                  min="0"
-                  step="0.1"
-                />
-              </div>
+              {unitSystem === 'metric' ? (
+                <>
+                  <div className="form-box">
+                    <label htmlFor="heightCm">Height (cm)</label>
+                    <input
+                      type="number"
+                      id="heightCm"
+                      name="heightCm"
+                      value={formData.heightCm}
+                      onChange={handleHeightMetricChange}
+                      className="input-field"
+                      placeholder="Enter your height in centimeters"
+                      min="0"
+                      step="0.1"
+                    />
+                  </div>
+
+                  <div className="form-box">
+                    <label htmlFor="weightKg">Weight (kg)</label>
+                    <input
+                      type="number"
+                      id="weightKg"
+                      name="weightKg"
+                      value={formData.weightLbs ? lbsToKg(Number(formData.weightLbs)) : ''}
+                      onChange={handleWeightMetricChange}
+                      className="input-field"
+                      placeholder="Enter your weight in kilograms"
+                      min="0"
+                      step="0.1"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="form-box">
+                    <label htmlFor="heightIn">Height (in)</label>
+                    <input
+                      type="number"
+                      id="heightIn"
+                      name="heightIn"
+                      value={formData.heightCm ? cmToIn(Number(formData.heightCm)) : ''}
+                      onChange={handleHeightImperialChange}
+                      className="input-field"
+                      placeholder="Enter your height in inches"
+                      min="0"
+                      step="0.1"
+                    />
+                  </div>
+
+                  <div className="form-box">
+                    <label htmlFor="weightLbs">Weight (lbs)</label>
+                    <input
+                      type="number"
+                      id="weightLbs"
+                      name="weightLbs"
+                      value={formData.weightLbs}
+                      onChange={handleWeightImperialChange}
+                      className="input-field"
+                      placeholder="Enter your weight in pounds"
+                      min="0"
+                      step="0.1"
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="form-box">
                 <label htmlFor="ethnicity">Ethnicity</label>
