@@ -5,7 +5,7 @@ import HamburgerMenu from './HamburgerMenu';
 import './MyMealPlan.css';
 
 const DUMMY_SCHEDULE = {
-    'Sun 19': { meals: [], total: null, mood: null },
+    'Sun 12': { meals: [], total: null, mood: null },
     'Mon 13': { meals: [{ type: 'Meal 1', name: 'Oats' }, { type: 'Meal 2', name: 'Fish' }, { type: 'Meal 3', name: 'Steak' }], total: '1850 kcal', mood: 'Happy' },
     'Tue 14': { meals: [{ type: 'Meal 1', name: 'Yogurt' }, { type: 'Meal 2', name: 'Pasta' }, { type: 'Meal 3', name: 'Chicken' }], total: '1920 kcal', mood: 'Energetic' },
     'Wed 15': { meals: [{ type: 'Meal 1', name: 'Eggs' }, { type: 'Meal 2', name: 'Salad' }, { type: 'Meal 3', name: 'Soup' }], total: '1950 kcal', mood: 'Calm', currentDay: true },
@@ -128,7 +128,7 @@ function MyMealPlan() {
       if (weeklySchedule.length >= 7) {
           const firstDay = weeklySchedule[0].day;
           const lastDay = weeklySchedule[weeklySchedule.length - 1].day;
-          return `${firstDay} - ${lastDay.split(' ')[0]} 2025`; 
+          return `${firstDay} - ${lastDay.split(' ')[0]}`; 
       }
       return 'October 2025';
   };

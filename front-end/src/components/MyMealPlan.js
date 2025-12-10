@@ -5,7 +5,7 @@ import HamburgerMenu from './HamburgerMenu';
 import './MyMealPlan.css';
 
 const DUMMY_SCHEDULE = {
-    'Sun 19': { meals: [], total: null, mood: null },
+    'Sun 12': { meals: [], total: null, mood: null },
     'Mon 13': { meals: [{ type: 'Meal 1', name: 'Oats' }, { type: 'Meal 2', name: 'Fish' }, { type: 'Meal 3', name: 'Steak' }], total: '1850 kcal', mood: 'Happy' },
     'Tue 14': { meals: [{ type: 'Meal 1', name: 'Yogurt' }, { type: 'Meal 2', name: 'Pasta' }, { type: 'Meal 3', name: 'Chicken' }], total: '1920 kcal', mood: 'Energetic' },
     'Wed 15': { meals: [{ type: 'Meal 1', name: 'Eggs' }, { type: 'Meal 2', name: 'Salad' }, { type: 'Meal 3', name: 'Soup' }], total: '1950 kcal', mood: 'Calm', currentDay: true },
@@ -16,7 +16,6 @@ const DUMMY_SCHEDULE = {
 
 const TARGET_MONTH = 9;
 const TARGET_YEAR = 2025;
-
 const DAY_ORDER = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const getMonthlyCalendarDays = (year, month) => {
@@ -84,12 +83,13 @@ function MyMealPlan() {
   const weeklySchedule = useMemo(() => {
     const entries = Object.entries(DUMMY_SCHEDULE).map(([day, data]) => ({ day, ...data }));
     
+    // NOTE: DUMMY_SCHEDULE is static, but we include this sorting logic for clean presentation (Sun-Sat)
     return entries.sort((a, b) => {
         const dayA = a.day.split(' ')[0];
         const dayB = b.day.split(' ')[0];
         return DAY_ORDER.indexOf(dayA) - DAY_ORDER.indexOf(dayB);
     });
-  }, []);
+  }, []); // <-- Included dependency for stability
   
   const selectedDayData = weeklySchedule[selectedDayIndex];
 
@@ -128,7 +128,12 @@ function MyMealPlan() {
       if (weeklySchedule.length >= 7) {
           const firstDay = weeklySchedule[0].day;
           const lastDay = weeklySchedule[weeklySchedule.length - 1].day;
-          return `${firstDay} - ${lastDay.split(' ')[0]} 2025`; 
+          
+          // FIX: Get both the Day Name (Sat) and the Day Number (18) for the last day
+          const lastDayParts = lastDay.split(' ');
+          const lastDayLabel = `${lastDayParts[0]} ${lastDayParts[1]}`; // e.g., Sat 18
+
+          return `${firstDay} - ${lastDayLabel}`; 
       }
       return 'October 2025';
   };
