@@ -7,15 +7,10 @@ import './MyMealPlan.css';
 function MyMealPlan() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [focusLock, setFocusLock] = useState(false);
   const [currentView, setCurrentView] = useState('Weekly');
   
   // 1. New state for the currently selected day
   const [selectedDayIndex, setSelectedDayIndex] = useState(2); // Start at 'Wed 15' which is index 2
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  };
 
   const [mealPlanData, setMealPlanData] = useState({
     goal: 'Balanced Diet',
