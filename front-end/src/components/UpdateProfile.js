@@ -181,7 +181,7 @@ function UpdateProfile() {
               name="password"
               placeholder="Password" 
               className="update-profile-input"
-              value={formData.password}
+              value="••••••••"
               readOnly
             />
             <div className="update-link">
