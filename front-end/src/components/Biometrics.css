@@ -118,7 +118,8 @@
 
 .biometric-box {
   width: 200px;
-  height: 80px;
+  min-height: 80px;
+  padding: 0.75rem;
   border: 2px solid #e0e0e0;
   border-radius: 12px;
   display: flex;
@@ -126,6 +127,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  box-sizing: border-box;
 }
 
 .box-label {
@@ -136,13 +138,13 @@
 }
 
 .box-value {
-  font-size: 1rem;
+  font-size: 0.8rem;
   color: #666;
   text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
   line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .status-text {
