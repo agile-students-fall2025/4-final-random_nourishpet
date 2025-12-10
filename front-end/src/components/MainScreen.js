@@ -18,17 +18,33 @@ function MainScreen() {
     // Fetch main screen data from backend
     const fetchMainScreenData = async () => {
       try {
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
         const response = await fetch(`${API_BASE_URL}/api/main-screen/${email}`, {
           method: 'GET',
-          credentials: 'include'
+          credentials: 'include',
+          signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         const data = await response.json();
         
         if (data.success) {
           setUserData(data.data);
+        } else {
+          console.warn('Main screen data fetch unsuccessful, using defaults');
+          setUserData(null);
         }
       } catch (error) {
-        console.error('Error fetching main screen data:', error);
+        if (error.name === 'AbortError') {
+          console.error('Fetch timeout - continuing with defaults');
+        } else {
+          console.error('Error fetching main screen data:', error);
+        }
+        // Set defaults even if fetch fails
+        setUserData(null);
       } finally {
         setLoading(false);
       }
@@ -36,11 +52,19 @@ function MainScreen() {
 
     if (email) {
       fetchMainScreenData();
+    } else {
+      setLoading(false);
     }
   }, [email]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="main-screen">
+        <div className="main-card">
+          <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
+        </div>
+      </div>
+    );
   }
 
   return (

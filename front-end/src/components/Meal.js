@@ -42,12 +42,12 @@ function Meal() {
         credentials: 'include',
         body: JSON.stringify({
           email,
-          goal,
-          duration,
-          restrictions,
-          allergies,
-          budget,
-          description,
+        goal,
+        duration,
+        restrictions,
+        allergies,
+        budget,
+        description,
         }),
       });
 

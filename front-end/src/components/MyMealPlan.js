@@ -8,7 +8,7 @@ import { API_BASE_URL } from '../utils/api';
 function MyMealPlan() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [currentView, setCurrentView] = useState('Weekly');
+  const [currentView, setCurrentView] = useState('Weekly'); 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -374,21 +374,21 @@ function MyMealPlan() {
 
     return (
       <div className="calendar-grid weekly-scrollable">
-        {weeklySchedule.map((dayData, index) => (
-          <div 
-            key={index} 
-            className={`day-cell ${dayData.currentDay ? 'current-day' : ''}`}
-          >
-            <div className={`day-header ${dayData.currentDay ? 'current-day-header' : ''}`}>
-              <span className="day-name">{dayData.day.split(' ')[0]}</span>
-              <span className="day-date">{dayData.day.split(' ')[1]}</span>
-            </div>
+      {weeklySchedule.map((dayData, index) => (
+        <div 
+          key={index} 
+          className={`day-cell ${dayData.currentDay ? 'current-day' : ''}`}
+        >
+          <div className={`day-header ${dayData.currentDay ? 'current-day-header' : ''}`}>
+            <span className="day-name">{dayData.day.split(' ')[0]}</span>
+            <span className="day-date">{dayData.day.split(' ')[1]}</span>
+          </div>
 
-            <div className="meal-list">
-              {dayData.meals.map((meal, mealIndex) => (
-                <div key={mealIndex} className="meal-entry">
-                  <p className="meal-type">{meal.type}:</p>
-                  <p className="meal-name">{meal.name}</p>
+          <div className="meal-list">
+            {dayData.meals.map((meal, mealIndex) => (
+              <div key={mealIndex} className="meal-entry">
+                <p className="meal-type">{meal.type}:</p>
+                <p className="meal-name">{meal.name}</p>
                   {meal.description && (
                     <p className="meal-description" style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>
                       {meal.description}
@@ -399,14 +399,14 @@ function MyMealPlan() {
                       {meal.calories} cal
                     </p>
                   )}
-                </div>
-              ))}
-              {dayData.total && <p className="meal-total">Total: {dayData.total}</p>}
-            </div>
+              </div>
+            ))}
+            {dayData.total && <p className="meal-total">Total: {dayData.total}</p>}
           </div>
-        ))}
-      </div>
-    );
+        </div>
+      ))}
+    </div>
+  );
   };
 
   // Render monthly view
@@ -511,37 +511,37 @@ function MyMealPlan() {
           </p>
         </div>
       ) : (
-        <div className="my-meal-plan-card">
-          <div className="my-meal-plan-content">
+      <div className="my-meal-plan-card">
+        <div className="my-meal-plan-content">
             {mealPlanData.goal && (
-              <div className="my-meal-plan-box">
-                <div className="box-label">Goal</div>
-                <div className="box-value">{mealPlanData.goal}</div>
-              </div>
+            <div className="my-meal-plan-box">
+              <div className="box-label">Goal</div>
+              <div className="box-value">{mealPlanData.goal}</div>
+            </div>
             )}
 
             {mealPlanData.duration && (
-              <div className="my-meal-plan-box">
-                <div className="box-label">Duration</div>
-                <div className="box-value">{mealPlanData.duration}</div>
-              </div>
+            <div className="my-meal-plan-box">
+              <div className="box-label">Duration</div>
+              <div className="box-value">{mealPlanData.duration}</div>
+            </div>
             )}
 
             {mealPlanData.calories && (
-              <div className="my-meal-plan-box">
-                <div className="box-label">Calories per Day</div>
-                <div className="box-value">{mealPlanData.calories}</div>
-              </div>
+            <div className="my-meal-plan-box">
+              <div className="box-label">Calories per Day</div>
+              <div className="box-value">{mealPlanData.calories}</div>
+            </div>
             )}
 
             {mealPlanData.progress && (
-              <div className="my-meal-plan-box">
-                <div className="box-label">Progress</div>
-                <div className="box-value">{mealPlanData.progress}</div>
-              </div>
+            <div className="my-meal-plan-box">
+              <div className="box-label">Progress</div>
+              <div className="box-value">{mealPlanData.progress}</div>
+            </div>
             )}
           </div>
-        </div>
+      </div>
       )}
 
       <div className="my-meal-plan-card schedule-card">
