@@ -43,6 +43,61 @@ const calculateDailyCalories = (biometrics, goal) => {
   return Math.round(dailyCalories);
 };
 
+// Sanitize short user-provided strings to reduce prompt injection and length
+const sanitize = (input, maxLen = 300) => {
+  if (input === undefined || input === null) return '';
+  let s = String(input);
+  // Collapse newlines and trim
+  s = s.replace(/\s+/g, ' ').trim();
+  if (s.length > maxLen) s = s.slice(0, maxLen);
+  return s;
+};
+
+// Fallback deterministic meal plan generator (used when AI fails or for validation)
+const generateFallbackMealPlan = (dailyCalories, numDays) => {
+  const perMeal = Math.max(100, Math.round(dailyCalories / 3));
+  const schedule = [];
+  for (let i = 0; i < numDays; i++) {
+    schedule.push({
+      date: null, // will be filled by caller
+      meals: [
+        { type: 'Breakfast', name: 'Oatmeal with fruit', calories: perMeal, description: '' },
+        { type: 'Lunch', name: 'Grain bowl with veggies', calories: perMeal, description: '' },
+        { type: 'Dinner', name: 'Protein + veggies', calories: Math.max(0, dailyCalories - perMeal * 2), description: '' }
+      ],
+      totalCalories: dailyCalories
+    });
+  }
+  return { dailyCalories, schedule };
+};
+
+// Validate AI response structure and reasonable values
+const validateMealPlanData = (data, numDays) => {
+  if (!data || !Array.isArray(data.schedule)) return false;
+  if (data.schedule.length === 0) return false;
+  // Ensure schedule length is <= requested days (we will pad if fewer)
+  if (data.schedule.length > numDays * 2) return false; // suspiciously large
+
+  // Validate each day
+  for (let i = 0; i < data.schedule.length; i++) {
+    const day = data.schedule[i];
+    if (!day || typeof day !== 'object') return false;
+    if (!Array.isArray(day.meals)) return false;
+    if (day.meals.length === 0) return false;
+    // Each meal should have reasonable fields
+    for (const meal of day.meals) {
+      if (!meal || typeof meal !== 'object') return false;
+      if (!meal.name || typeof meal.name !== 'string') return false;
+      const calories = Number(meal.calories || 0);
+      if (Number.isNaN(calories) || calories < 0 || calories > 5000) return false;
+    }
+    const total = Number(day.totalCalories || 0);
+    if (Number.isNaN(total) || total < 0 || total > 20000) return false;
+  }
+
+  return true;
+};
+
 // Generate meal plan using Groq
 const generateMealPlanWithGroq = async (userData, biometrics, preferences, numDays) => {
   const groq = getGroqClient();
@@ -53,46 +108,49 @@ const generateMealPlanWithGroq = async (userData, biometrics, preferences, numDa
   const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
   const dailyCalories = calculateDailyCalories(biometrics, preferences.goal);
 
-  // Build prompt for Groq
-  const prompt = `Generate a ${preferences.duration} meal plan (exactly ${numDays} days) with the following requirements:
+  // Sanitize user-provided fields to reduce prompt injection and length
+  const safePreferences = {
+    goal: sanitize(preferences.goal, 100),
+    duration: sanitize(preferences.duration, 50),
+    restrictions: sanitize(preferences.restrictions, 200),
+    allergies: sanitize(preferences.allergies, 200),
+    budget: sanitize(preferences.budget, 50),
+    description: sanitize(preferences.description, 500),
+  };
 
-User Profile:
-- Goal: ${preferences.goal}
-- Daily Calorie Target: ${dailyCalories} calories
-- Dietary Restrictions: ${preferences.restrictions || 'None'}
-- Allergies: ${preferences.allergies || 'None'}
-- Budget: $${preferences.budget || 'flexible'} per week
-- Additional Notes: ${preferences.description || 'None'}
+  const safeBiometrics = biometrics ? {
+    age: biometrics.age || null,
+    sex: sanitize(biometrics.sex || '', 20),
+    heightCm: biometrics.heightCm || null,
+    weightLbs: biometrics.weightLbs || null,
+    bmi: biometrics.bmi || null
+  } : null;
 
-${biometrics ? `
-Biometric Information:
-- Age: ${biometrics.age || 'Not provided'}
-- Sex: ${biometrics.sex || 'Not provided'}
-- Height: ${biometrics.heightCm || 'Not provided'} cm
-- Weight: ${biometrics.weightLbs || 'Not provided'} lbs
-- BMI: ${biometrics.bmi || 'Not provided'}
-` : ''}
-
-Return a JSON object with this exact structure:
-{
-  "dailyCalories": ${dailyCalories},
-  "schedule": [
-    {
-      "date": "MM/DD/YYYY",
-      "meals": [
+  // Build prompt for Groq. Embed structured JSON to reduce interpretation ambiguity.
+  const promptObj = {
+    instructions: `Generate a meal plan for the user. Return ONLY valid JSON with the exact structure described in 'response_structure'. Do not include markdown or explanatory text.`,
+    request: {
+      duration: safePreferences.duration,
+      days: numDays,
+      dailyCalories,
+      preferences: safePreferences,
+      biometrics: safeBiometrics
+    },
+    response_structure: {
+      dailyCalories: 'number',
+      schedule: [
         {
-          "type": "Breakfast",
-          "name": "Meal name",
-          "calories": 500,
-          "description": "Brief description"
+          date: 'MM/DD/YYYY',
+          meals: [
+            { type: 'string', name: 'string', calories: 'number', description: 'string' }
+          ],
+          totalCalories: 'number'
         }
-      ],
-      "totalCalories": 1800
+      ]
     }
-  ]
-}
+  };
 
-Generate meals for exactly ${numDays} days. You must return ${numDays} schedule entries, one for each day. Return ONLY valid JSON, no markdown, no code blocks.`;
+  const prompt = JSON.stringify(promptObj);
 
   try {
     const completionParams = {
@@ -126,36 +184,44 @@ Generate meals for exactly ${numDays} days. You must return ${numDays} schedule 
       throw new Error('Groq returned empty content');
     }
 
-    // Parse JSON - Groq should return valid JSON
+    // Parse JSON - Groq should return valid JSON or an object
     let mealPlanData;
     try {
-      mealPlanData = JSON.parse(content);
-      console.log('✓ Successfully parsed Groq JSON response');
-    } catch (parseError) {
-      console.error('✗ Failed to parse JSON directly, trying markdown extraction');
-      // Try extracting from markdown if present
-      const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/```\n([\s\S]*?)\n```/);
-      if (jsonMatch) {
-        mealPlanData = JSON.parse(jsonMatch[1]);
-        console.log('✓ Successfully extracted JSON from markdown');
+      if (typeof content === 'object') {
+        mealPlanData = content;
       } else {
-        console.error('✗ Failed to parse meal plan JSON');
-        throw new Error('Failed to parse meal plan JSON');
+        try {
+          mealPlanData = JSON.parse(content);
+          console.log('✓ Successfully parsed Groq JSON response');
+        } catch (parseError) {
+          console.error('✗ Failed to parse JSON directly, trying markdown extraction');
+          // Try extracting from markdown if present
+          const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/```\n([\s\S]*?)\n```/);
+          if (jsonMatch) {
+            mealPlanData = JSON.parse(jsonMatch[1]);
+            console.log('✓ Successfully extracted JSON from markdown');
+          } else {
+            console.error('✗ Failed to parse meal plan JSON');
+            mealPlanData = null;
+          }
+        }
       }
+    } catch (err) {
+      console.error('Unexpected parse error:', err);
+      mealPlanData = null;
     }
 
-    // Validate basic structure
-    if (!mealPlanData.schedule || !Array.isArray(mealPlanData.schedule)) {
-      console.error('✗ Invalid meal plan structure from AI');
-      console.error('Meal plan data:', JSON.stringify(mealPlanData, null, 2).substring(0, 500));
-      throw new Error('Invalid meal plan structure from AI');
-    }
-
-    console.log('✓ Groq response validated');
-    console.log('Schedule entries:', mealPlanData.schedule.length);
-    if (mealPlanData.schedule.length > 0) {
-      console.log('First day date:', mealPlanData.schedule[0].date);
-      console.log('First day meals:', mealPlanData.schedule[0].meals?.length || 0);
+    // Validate AI data; if invalid, use deterministic fallback
+    if (!validateMealPlanData(mealPlanData, numDays)) {
+      console.error('✗ Invalid or unsafe meal plan structure from AI, falling back to deterministic generator');
+      mealPlanData = generateFallbackMealPlan(dailyCalories, numDays);
+    } else {
+      console.log('✓ Groq response validated');
+      console.log('Schedule entries:', mealPlanData.schedule.length);
+      if (mealPlanData.schedule.length > 0) {
+        console.log('First day date:', mealPlanData.schedule[0].date);
+        console.log('First day meals:', mealPlanData.schedule[0].meals?.length || 0);
+      }
     }
 
     return mealPlanData;
@@ -171,68 +237,66 @@ exports.generateMealPlan = async (req, res) => {
     const { email, goal, duration, restrictions, allergies, budget, description } = req.body;
 
     if (!email || !goal || !duration) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email, goal, and duration are required'
-      });
+      return res.status(400).json({ success: false, message: 'Email, goal, and duration are required' });
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
-    const user = await User.findOne({ email: normalizedEmail });
+    const normalizedEmail = String(email).toLowerCase().trim();
 
+    // Only allow the authenticated user to create their own meal plan
+    if (!req.user || String(req.user.email).toLowerCase().trim() !== normalizedEmail) {
+      return res.status(403).json({ success: false, message: 'Forbidden: can only generate meal plans for your own account' });
+    }
+
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     // Get user biometrics
     const biometrics = await BiometricData.findOne({ email: normalizedEmail });
 
     const preferences = {
-      goal,
-      duration,
-      restrictions: restrictions || '',
-      allergies: allergies || '',
-      budget: budget || '',
-      description: description || ''
+      goal: sanitize(goal || ''),
+      duration: sanitize(duration || ''),
+      restrictions: sanitize(restrictions || ''),
+      allergies: sanitize(allergies || ''),
+      budget: sanitize(budget || ''),
+      description: sanitize(description || '')
     };
 
     // Calculate dates - always start from today
     const startDate = new Date();
     startDate.setHours(0, 0, 0, 0); // Normalize to start of day
-    const durationDays = parseInt(duration.match(/\d+/)?.[0] || '7');
 
-    // Generate meal plan using Groq
+    // Parse and clamp durationDays
+    let durationDays = parseInt(String(preferences.duration).match(/\d+/)?.[0] || '7');
+    if (Number.isNaN(durationDays) || durationDays < 1) durationDays = 7;
+    const MAX_DAYS = 30;
+    if (durationDays > MAX_DAYS) durationDays = MAX_DAYS;
+
+    // Generate meal plan using Groq (or fallback)
     console.log('=== GENERATING MEAL PLAN ===');
     console.log('Account:', normalizedEmail);
-    console.log('Goal:', goal);
-    console.log('Duration:', duration, `(${durationDays} days)`);
-    console.log('Restrictions:', restrictions || 'None');
-    console.log('Allergies:', allergies || 'None');
-    
-    let generatedPlan;
+    console.log('Goal:', preferences.goal);
+    console.log('Duration:', preferences.duration, `(${durationDays} days)`);
+    console.log('Restrictions:', preferences.restrictions || 'None');
+    console.log('Allergies:', preferences.allergies || 'None');
+
+    let generatedPlan = null;
     try {
       generatedPlan = await generateMealPlanWithGroq(user, biometrics, preferences, durationDays);
       console.log('✓ Meal plan generated successfully from Groq');
-      console.log('Days generated:', generatedPlan.schedule?.length || 0, 'of', durationDays);
-    } catch (error) {
-      console.error('✗ Meal plan generation failed:', error.message);
-      console.error('Error stack:', error.stack);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to generate meal plan. Please try again later.'
-      });
+    } catch (err) {
+      console.error('✗ Meal plan generation failed:', err && err.message);
+      console.error('Falling back to deterministic generator');
+      generatedPlan = generateFallbackMealPlan(calculateDailyCalories(biometrics, preferences.goal), durationDays);
     }
 
-    // Validate schedule exists
-    if (!generatedPlan.schedule || !Array.isArray(generatedPlan.schedule)) {
-      return res.status(500).json({
-        success: false,
-        message: 'Invalid meal plan structure generated'
-      });
+    if (!generatedPlan || !Array.isArray(generatedPlan.schedule)) {
+      // Ensure fallback
+      generatedPlan = generateFallbackMealPlan(calculateDailyCalories(biometrics, preferences.goal), durationDays);
     }
+
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + durationDays - 1);
     endDate.setHours(23, 59, 59, 999); // End of day
@@ -244,68 +308,44 @@ exports.generateMealPlan = async (req, res) => {
       return `${month}/${day}/${year}`;
     };
 
-    // Clean and normalize schedule - ensure dates start from today
-    // If Groq didn't generate enough days, pad with repeated patterns
-    let cleanSchedule = generatedPlan.schedule.map((day, index) => {
-      // Always calculate date from startDate (today) + index days
-      // This ensures meal plans always start from the generation date
+    // Build a clean schedule of exactly durationDays entries
+    const cleanSchedule = [];
+    const baseSchedule = Array.isArray(generatedPlan.schedule) && generatedPlan.schedule.length > 0
+      ? generatedPlan.schedule
+      : generateFallbackMealPlan(calculateDailyCalories(biometrics, preferences.goal), durationDays).schedule;
+
+    for (let i = 0; i < durationDays; i++) {
+      const sourceDay = baseSchedule[i % baseSchedule.length] || { meals: [], totalCalories: 0 };
       const d = new Date(startDate);
-      d.setDate(d.getDate() + index);
+      d.setDate(d.getDate() + i);
       const dayDate = formatDate(d);
 
-      // Ensure meals is an array of objects
-      let meals = [];
-      if (Array.isArray(day.meals)) {
-        meals = day.meals
-          .filter(meal => meal && typeof meal === 'object' && !Array.isArray(meal))
-          .map(meal => ({
-            type: String(meal.type || 'Meal'),
-            name: String(meal.name || 'Unnamed'),
-            calories: Number(meal.calories || 0),
-            description: String(meal.description || '')
-          }));
-      }
+      const meals = Array.isArray(sourceDay.meals) ? sourceDay.meals.map(meal => ({
+        type: String(meal.type || 'Meal').slice(0, 50),
+        name: String(meal.name || 'Unnamed').slice(0, 200),
+        calories: Math.max(0, Number(meal.calories || 0)),
+        description: String(meal.description || '').slice(0, 500)
+      })) : [];
 
-      // Calculate total calories
-      const totalCal = meals.reduce((sum, m) => sum + m.calories, 0);
+      const totalCal = meals.reduce((sum, m) => sum + (Number(m.calories) || 0), 0);
 
-      return {
-        date: String(dayDate),
-        meals: meals,
-        totalCalories: Number(day.totalCalories || totalCal)
-      };
-    });
-
-    // If we got fewer days than requested, pad the schedule by repeating patterns
-    if (cleanSchedule.length < durationDays) {
-      console.log(`⚠ Groq only generated ${cleanSchedule.length} days, padding to ${durationDays}`);
-      const baseDays = cleanSchedule.length;
-      for (let i = baseDays; i < durationDays; i++) {
-        // Use modulo to cycle through the base days
-        const sourceDay = cleanSchedule[i % baseDays];
-        const d = new Date(startDate);
-        d.setDate(d.getDate() + i);
-        const dayDate = formatDate(d);
-        
-        cleanSchedule.push({
-          date: String(dayDate),
-          meals: sourceDay.meals.map(meal => ({ ...meal })), // Clone meals
-          totalCalories: sourceDay.totalCalories
-        });
-      }
-      console.log(`✓ Padded schedule to ${cleanSchedule.length} days`);
+      cleanSchedule.push({
+        date: dayDate,
+        meals,
+        totalCalories: Number(sourceDay.totalCalories || totalCal)
+      });
     }
 
     // Save meal plan to database
     const mealPlan = new MealPlan({
       email: normalizedEmail,
-      goal,
-      duration,
+      goal: preferences.goal,
+      duration: preferences.duration,
       restrictions: preferences.restrictions,
       allergies: preferences.allergies,
       budget: preferences.budget,
       description: preferences.description,
-      dailyCalories: generatedPlan.dailyCalories || calculateDailyCalories(biometrics, goal),
+      dailyCalories: generatedPlan.dailyCalories || calculateDailyCalories(biometrics, preferences.goal),
       schedule: cleanSchedule,
       startDate,
       endDate
@@ -314,19 +354,7 @@ exports.generateMealPlan = async (req, res) => {
     await mealPlan.save();
 
     console.log('=== MEAL PLAN SAVED ===');
-    console.log('✓ Successfully saved meal plan to database');
-    console.log('Account:', normalizedEmail);
-    console.log('Meal Plan ID:', mealPlan._id);
-    console.log('Goal:', mealPlan.goal);
-    console.log('Duration:', mealPlan.duration);
-    console.log('Daily Calories:', mealPlan.dailyCalories);
-    console.log('Schedule Days:', mealPlan.schedule.length);
-    console.log('Start Date:', mealPlan.startDate);
-    console.log('End Date:', mealPlan.endDate);
-    if (mealPlan.schedule.length > 0) {
-      console.log('First Schedule Date:', mealPlan.schedule[0].date);
-      console.log('First Day Meals:', mealPlan.schedule[0].meals?.length || 0);
-    }
+    console.log('Account:', normalizedEmail, 'MealPlanID:', mealPlan._id);
 
     res.json({
       success: true,
@@ -343,12 +371,10 @@ exports.generateMealPlan = async (req, res) => {
     });
   } catch (error) {
     console.error('Generate meal plan error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
+
 
 // GET /api/meal-plans/:email
 exports.getMealPlan = async (req, res) => {
