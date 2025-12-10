@@ -18,7 +18,7 @@ const isSecure = (req) => {
 };
 
 // Helper to create JWT, set cookie, and send response
-const sendAuthResponse = (req, res, user, message = 'Authentication successful', statusCode = 200) => {
+const sendAuthResponse = (req, res, user, message = 'Authentication successful') => {
   const token = generateToken(user);
 
   // Cookie configuration optimized for Chromium compatibility on HTTP
@@ -33,7 +33,7 @@ const sendAuthResponse = (req, res, user, message = 'Authentication successful',
   console.log('Setting JWT cookie with options:', cookieOptions);
   res.cookie('jwt', token, cookieOptions);
 
-  return res.status(statusCode).json({
+  return res.status(200).json({
     success: true,
     message,
     user: {
@@ -125,8 +125,30 @@ exports.signup = async (req, res) => {
       lastLogDate: null,
     });
 
-    // Use shared helper to set cookie and send response
-    return sendAuthResponse(req, res, newUser, 'User created successfully', 201);
+    // Set cookie + send response
+    const token = generateToken(newUser);
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    };
+
+    console.log('Setting JWT cookie on signup with options:', cookieOptions);
+    res.cookie('jwt', token, cookieOptions);
+
+    return res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+        createdAt: newUser.createdAt,
+      },
+    });
   } catch (error) {
     console.error('Signup error:', error);
 
