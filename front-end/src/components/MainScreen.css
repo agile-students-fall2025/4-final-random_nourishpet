@@ -83,6 +83,7 @@
 .wellness-quote {
   padding: 0 20px;
   margin: 0 auto 40px;
+  animation: pulse 3s ease-in-out infinite;
 }
 
 .wellness-quote p {
@@ -92,6 +93,17 @@
   font-weight: 500;
   text-align: center;
   line-height: 1.6;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
 }
 
 .pet-container {
