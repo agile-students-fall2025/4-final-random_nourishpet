@@ -32,7 +32,7 @@ function MyMealPlan() {
 
   const weeklySchedule = useMemo(() =>
     Object.entries(DUMMY_SCHEDULE).map(([day, data]) => ({ day, ...data }))
-  , []);
+  , [DUMMY_SCHEDULE]);
   
   const selectedDayData = weeklySchedule[selectedDayIndex];
 
